@@ -29,13 +29,15 @@ requirements:
   build:
     - python
     - setuptools
-    - python-dateutil >=1.5
+    - dateutil >=1.5
     - pytz
+    - lxml
 
   run:
     - python
-    - python-dateutil >=1.5
+    - dateutil >=1.5
     - pytz
+    - lxml
 
 test:
   # Python imports
@@ -47,6 +49,7 @@ test:
     - owslib.swe.observation
     - owslib.swe.sensor
     - owslib.waterml
+    - owslib.wps
 
   # commands:
     # You can put test commands to be run here.  Use this to test that the
