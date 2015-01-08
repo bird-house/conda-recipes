@@ -1,0 +1,3629 @@
+diff --git a/frmts/gdalallregister.cpp b/frmts/gdalallregister.cpp
+index c01300e..a09be7d 100644
+--- frmts/gdalallregister.cpp
++++ frmts/gdalallregister.cpp
+@@ -235,6 +235,7 @@ void CPL_STDCALL GDALAllRegister()
+ 
+ #ifdef FRMT_netcdf
+     GDALRegister_GMT();
++    GDALRegister_ADAGUC();
+     GDALRegister_netCDF();
+ #endif
+ 
+diff --git a/frmts/netcdf/adagucdataset.cpp b/frmts/netcdf/adagucdataset.cpp
+new file mode 100644
+index 0000000..949122c
+--- /dev/null
++++ frmts/netcdf/adagucdataset.cpp
+@@ -0,0 +1,3389 @@
++/******************************************************************************
++* $Id: ADAGUCdataset.cpp 13699 2008-02-05 17:39:49Z warmerdam $
++*
++* Project:  ADAGUC read/write Driver
++* Purpose:  GDAL bindings over NetCDF library.
++* Author:   Frank Warmerdam, warmerdam@pobox.com
++*
++******************************************************************************
++* Copyright (c) 2004, Frank Warmerdam
++*
++* Permission is hereby granted, free of charge, to any person obtaining a
++* copy of this software and associated documentation files (the "Software"),
++* to deal in the Software without restriction, including without limitation
++* the rights to use, copy, modify, merge, publish, distribute, sublicense,
++* and/or sell copies of the Software, and to permit persons to whom the
++* Software is furnished to do so, subject to the following conditions:
++*
++* The above copyright notice and this permission notice shall be included
++* in all copies or substantial portions of the Software.
++*
++* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++* DEALINGS IN THE SOFTWARE.
++****************************************************************************/
++
++#include "adagucdataset.h"
++
++CPL_CVSID("$Id: ADAGUCdataset.cpp 13699 2008-02-05 17:39:49Z warmerdam $");
++
++/************************************************************************/
++/*                           ADAGUC dynamic metadata structure          */
++/************************************************************************/
++
++typedef struct {
++  char szProjectionParams[MAX_ATTRIBUTE_LEN + 1]; 
++  char szEPSG_code[MAX_ATTRIBUTE_LEN + 1]; 
++  char szValidityStart[MAX_ATTRIBUTE_LEN + 1];
++  char szValidityStop[MAX_ATTRIBUTE_LEN + 1]; 
++  char szVariableName[MAX_ATTRIBUTE_LEN + 1]; 
++  char szVariable_LongName[MAX_ATTRIBUTE_LEN + 1]; 
++  char szVariable_Units[MAX_ATTRIBUTE_LEN + 1]; 
++  char szVariable_StandardName[MAX_ATTRIBUTE_LEN + 1]; 
++  int Projected;
++  //int StringDim;
++}
++oDynamicMetadata;
++
++
++/************************************************************************/
++/*                            Safe string functions                     */
++/************************************************************************/
++
++void safestrcpy(char *s1,const char*s2,size_t size_s1)
++{
++  strncpy(s1,s2,size_s1);
++  s1[size_s1]='\0';
++}
++void safestrcat (char *s1,const char*s2,size_t size_s1)
++{
++  strncat(s1,s2,size_s1-strlen(s1));
++}
++
++/************************************************************************/
++/* ==================================================================== */
++/*                         ADAGUCRasterBand                             */
++/* ==================================================================== */
++/************************************************************************/
++
++class ADAGUCRasterBand : public GDALPamRasterBand
++{
++  nc_type nc_datatype;
++  int         nZVariableId;
++  int         nCDF_ID;
++  int         nZDim;
++  int		nLevel;
++  int         nBandXPos;
++  int         nBandYPos;
++  int         *panBandZPos;
++  int         *panBandZLev;
++  int         bNoDataSet;
++  double      dfNoDataValue;
++  int         useScaleOffset;
++  double      scale;
++  double      offset;
++  char 	*psz_long_name[MAX_ATTRIBUTE_LEN+1];
++  char 	*psz_units    [MAX_ATTRIBUTE_LEN+1];
++  CPLErr	    CreateBandMetadata( ); 
++  int positive_up;
++  public:
++
++    ADAGUCRasterBand( ADAGUCDataset *poDS, 
++                      int nCDF_ID, 
++                      int nZVariableId,
++                      int nZDim,
++                      int nLevel, 
++                      int *panBandZLen,
++                      int *panBandPos, 
++                      int nBand,int positive_up );
++    ~ADAGUCRasterBand( );
++    virtual double          GetNoDataValue( int * );
++    virtual CPLErr          SetNoDataValue( double );
++    virtual CPLErr IReadBlock( int, int, void * );
++
++
++};
++
++/************************************************************************/
++/*                            checkncerr	                        */
++/************************************************************************/
++
++void checkncerr(const char * error, int status)
++{
++  if(status==NC_NOERR)return;
++  else	CPLError( CE_Failure, CPLE_AppDefined, "ADAGUC: %s - ncerror=[%s]",error, nc_strerror( status ) );
++}
++
++void GetCurrentDate(char *szDate);
++/************************************************************************/
++/*                            SetMetadata()                             */
++/************************************************************************/
++CPLErr ADAGUCDataset::SetMetadata( char ** papszMD, const char *pszDomain )
++
++{
++
++  return GDALDataset::SetMetadata( papszMD, pszDomain );
++}
++
++/************************************************************************/
++/*                            GetMetadata()                             */
++/************************************************************************/
++char **ADAGUCDataset::GetMetadata( const char *pszDomain )
++{
++  if( pszDomain != NULL && EQUALN( pszDomain, "SUBDATASETS", 11 ) )
++    return papszSubDatasets;
++  else return GDALDataset::GetMetadata( pszDomain );
++}
++
++
++/************************************************************************/
++/*                          GetProjectionRef()                          */
++/************************************************************************/
++
++const char * ADAGUCDataset::GetProjectionRef()
++{
++  if( bGotGeoTransform )
++    return pszProjection;
++  else
++    return GDALPamDataset::GetProjectionRef();
++}
++
++/************************************************************************/
++/*                           GetNoDataValue()                           */
++/************************************************************************/
++
++double ADAGUCRasterBand::GetNoDataValue( int * pbSuccess )
++
++{
++  if( pbSuccess )
++    *pbSuccess = bNoDataSet;
++
++  if( bNoDataSet )
++    return dfNoDataValue;
++  else
++    return GDALPamRasterBand::GetNoDataValue( pbSuccess );
++}
++
++/************************************************************************/
++/*                           SetNoDataValue()                           */
++/************************************************************************/
++
++CPLErr ADAGUCRasterBand::SetNoDataValue( double dfNoData )
++
++{
++  bNoDataSet = TRUE;
++  dfNoDataValue = dfNoData;
++
++  return CE_None;
++}
++
++/************************************************************************/
++/*                         ~ADAGUCRasterBand()                          */
++/************************************************************************/
++
++ADAGUCRasterBand::~ADAGUCRasterBand()
++{
++  if( panBandZPos ) 
++    CPLFree( panBandZPos );
++  if( panBandZLev )
++    CPLFree( panBandZLev );
++}
++
++/************************************************************************/
++/*                         CreateBandMetadata()                         */
++/************************************************************************/
++
++CPLErr ADAGUCRasterBand::CreateBandMetadata( ) 
++{
++  char     szVarName[MAX_ATTRIBUTE_LEN+1];
++  char     szMetaName[MAX_ATTRIBUTE_LEN+1];
++  char     szMetaTemp[MAX_STR_LEN+1];//watch snprintf, safestrcpy and safestrcat
++  int      nd;
++  int      i,j;
++  int      Sum  = 1;
++  int      Taken = 0;
++  int      result = 0;
++  int      status;
++  int      nVarID = -1;
++  int      nDims;
++//  size_t   start[1];
++  //size_t   count[1];
++  char     szTemp[MAX_ATTRIBUTE_LEN+1];
++  const char *pszValue;
++
++  nc_type nVarType;
++  ADAGUCDataset *poDS;
++
++  poDS = (ADAGUCDataset *) this->poDS;
++  /* -------------------------------------------------------------------- */
++  /*      Compute all dimensions from Band number and save in Metadata    */
++  /* -------------------------------------------------------------------- */
++
++  nc_inq_varname( nCDF_ID, nZVariableId, szVarName );
++  nc_inq_varndims(nCDF_ID, nZVariableId, &nd );
++
++  /* -------------------------------------------------------------------- */
++  /*      Compute multidimention band position                            */
++  /*                                                                      */
++  /* BandPosition = (Total - sum(PastBandLevels) - 1)/sum(remainingLevels)*/
++  /* if Data[2,3,4,x,y]                                                   */
++  /*                                                                      */
++  /*  BandPos0 = (nBand ) / (3*4)                                         */
++  /*  BandPos1 = (nBand - BandPos0*(3*4) ) / (4)                          */
++  /*  BandPos2 = (nBand - BandPos0*(3*4) ) % (4)                          */
++  /* -------------------------------------------------------------------- */
++
++  snprintf( szMetaName,MAX_ATTRIBUTE_LEN,"VARNAME");szMetaName[MAX_ATTRIBUTE_LEN]='\0';
++  snprintf( szMetaTemp,MAX_STR_LEN,"%s",szVarName);szMetaTemp[MAX_STR_LEN]='\0';
++  SetMetadataItem( szMetaName, szMetaTemp );
++
++  if( nd == 3 ) {
++    Sum *= panBandZLev[0];
++  }
++
++  for( i=0; i < nd-2 ; i++ ) {
++    if( i != nd - 2 -1 ) {
++      for( j=i+1; j < nd-2; j++ ) {
++        Sum *= panBandZLev[j];
++      }
++      result = (int) ( ( nLevel-Taken ) / Sum );
++    }
++    else {
++      result = (int) ( ( nLevel-Taken ) % Sum );
++    }
++
++    safestrcpy(szVarName, poDS->papszDimName[poDS->paDimIds[
++        panBandZPos[i]]] ,MAX_ATTRIBUTE_LEN);szVarName[MAX_ATTRIBUTE_LEN]='\0';
++
++    snprintf(szMetaName,MAX_ATTRIBUTE_LEN,"DIMENSION#%s",  szVarName );szMetaName[MAX_ATTRIBUTE_LEN]='\0';
++
++    status=nc_inq_varid(nCDF_ID,  
++                        szVarName,
++                        &nVarID );
++
++    /* -------------------------------------------------------------------- */
++    /*      Try to uppercase the first letter of the variable               */
++    /* -------------------------------------------------------------------- */
++
++    if( status != NC_NOERR ) {
++      szVarName[0]=toupper(szVarName[0]);
++      status=nc_inq_varid(nCDF_ID,  
++                          szVarName,
++                          &nVarID );
++    }
++
++    status = nc_inq_vartype( nCDF_ID, nVarID, &nVarType );
++
++    nDims = 0;
++    status = nc_inq_varndims(nCDF_ID, nVarID, &nDims );
++
++    if( nDims == 1 ) {
++      /*count[0]=1;
++      start[0]=result;
++      switch( nVarType ) {
++        case NC_SHORT:
++          short sData;
++          status =  nc_get_vara_short( nCDF_ID, nVarID, 
++                                       start,
++                                       count, &sData );
++          snprintf( szMetaTemp,MAX_STR_LEN,"%d", sData );szMetaTemp[MAX_STR_LEN]='\0';
++          break;
++        case NC_INT:
++          int nData;
++          status =  nc_get_vara_int( nCDF_ID, nVarID, 
++                                     start,
++                                     count, &nData );
++          snprintf( szMetaTemp,MAX_STR_LEN,"%d", nData );szMetaTemp[MAX_STR_LEN]='\0';
++          break;
++        case NC_FLOAT:
++          float fData;
++          status =  nc_get_vara_float(nCDF_ID, nVarID, 
++                                      start,
++                                      count, &fData );
++          snprintf( szMetaTemp,MAX_STR_LEN,"%f", fData );szMetaTemp[MAX_STR_LEN]='\0';
++          break;
++        case NC_DOUBLE:
++          double dfData;
++          status =  nc_get_vara_double(nCDF_ID, nVarID, 
++                                       start,
++                                       count, &dfData);
++          snprintf( szMetaTemp,MAX_STR_LEN,"%g", dfData );szMetaTemp[MAX_STR_LEN]='\0';
++          break;
++        default:
++          break;
++    }*/
++      snprintf( szMetaTemp,MAX_STR_LEN,"%d", result );szMetaTemp[MAX_STR_LEN]='\0';
++    }
++    else
++      snprintf( szMetaTemp,MAX_STR_LEN,"%d", result);szMetaTemp[MAX_STR_LEN]='\0';
++        
++    SetMetadataItem( szMetaName, szMetaTemp );
++
++    /* -------------------------------------------------------------------- */
++    /*      Fetch dimension units                                           */
++    /* -------------------------------------------------------------------- */
++
++    safestrcpy( szTemp, szVarName , MAX_ATTRIBUTE_LEN);szTemp[MAX_ATTRIBUTE_LEN]='\0';
++    safestrcat( szTemp, "#[C]units" , MAX_ATTRIBUTE_LEN);
++    pszValue = CSLFetchNameValue(poDS->papszMetadata, szTemp);
++    if( pszValue != NULL ) {
++      safestrcpy( szTemp, "UNITS#"         ,MAX_ATTRIBUTE_LEN);
++      safestrcat( szTemp, szVarName         ,MAX_ATTRIBUTE_LEN);
++      SetMetadataItem( szTemp, pszValue );
++    }
++    Taken += result * Sum;
++  }
++
++
++
++  return CE_None;
++}
++
++/************************************************************************/
++/*                          ADAGUCRasterBand()                          */
++/************************************************************************/
++
++ADAGUCRasterBand::ADAGUCRasterBand( ADAGUCDataset *poDS, 
++                                    int nCDF_ID, 
++                                    int nZVariableId, 
++                                    int nZDim,
++                                    int nLevel, 
++                                    int *panBandZLev, 
++                                    int *panBandDimPos, 
++                                    int nBand, int _positive_up)
++
++{
++  double   dfNoData;
++  int      bNoDataSet = FALSE;
++
++  
++  size_t   attlen;
++  int      status;
++  char     szNoValueName[MAX_STR_LEN+1];
++  CPLDebug("GDAL_ADAGUC","[ADAGUCRasterBand] Band nr %d, level %d",nBand,nLevel);
++
++  this->positive_up=_positive_up;
++  this->panBandZPos = NULL;
++  this->panBandZLev = NULL;
++  this->poDS = poDS;
++  this->nBand = nBand;
++  this->nCDF_ID = nCDF_ID;
++  this->nZVariableId = nZVariableId;
++  this->nZDim = nZDim;
++  this->nLevel = nLevel;
++  this->nBandXPos = panBandDimPos[0];
++  this->nBandYPos = panBandDimPos[1];
++
++  /* -------------------------------------------------------------------- */
++  /*      Take care of all other dimmensions                              */
++  /* ------------------------------------------------------------------ */
++  if( nZDim > 2 ) {
++    this->panBandZPos = 
++        (int *) CPLCalloc( nZDim-2, sizeof( int ) );
++    this->panBandZLev = 
++        (int *) CPLCalloc( nZDim-2, sizeof( int ) );
++
++    for ( int i=0; i < nZDim - 2; i++ ){
++      this->panBandZPos[i] = panBandDimPos[i+2];
++      this->panBandZLev[i] = panBandZLev[i];
++    }
++  }
++  CreateBandMetadata();
++  bNoDataSet    = FALSE;
++  dfNoDataValue = -999.0;
++
++  nBlockXSize   = poDS->GetRasterXSize( );
++  nBlockYSize   = 1;
++
++
++
++  /* -------------------------------------------------------------------- */
++  /*      Get the type of the "z" variable, our target raster array.      */
++  /* -------------------------------------------------------------------- */
++  if( nc_inq_var( nCDF_ID, nZVariableId, NULL, &nc_datatype, NULL, NULL,  NULL ) != NC_NOERR ){
++        CPLError( CE_Failure, CPLE_AppDefined, "Error in nc_var_inq() on 'z'." );
++        return;
++      }
++
++      if( nc_datatype == NC_BYTE || nc_datatype == NC_UBYTE )
++        eDataType = GDT_Byte;
++      else if( nc_datatype == NC_SHORT )
++        eDataType = GDT_Int16;
++      else if( nc_datatype == NC_INT )
++        eDataType = GDT_Int32;
++      else if( nc_datatype == NC_FLOAT )
++        eDataType = GDT_Float32;
++      else if( nc_datatype == NC_DOUBLE )
++        eDataType = GDT_Float64;
++      else
++      {
++        if( nBand == 1 )
++          CPLError( CE_Warning, CPLE_AppDefined, 
++                    "Unsupported ADAGUC datatype (%d), treat as Float32.", 
++                    (int) nc_datatype );
++        eDataType = GDT_Float32;
++      }
++      
++      /* -------------------------------------------------------------------- */
++      /*      Obtain scale and offset                                         */
++      /* -------------------------------------------------------------------- */
++      useScaleOffset = 0;
++      scale=1.0f;offset=0.0f;
++      nc_type scale_factor_type;
++      status = nc_get_att_double(nCDF_ID, nZVariableId,"scale_factor", &scale );
++      if(status!=NC_NOERR&&status!=NC_ENOTATT){
++        checkncerr("Error in nc_get_att_double scale_factor: ",status);
++        return;
++      }
++      if(status!=NC_NOERR){
++        status = nc_inq_att(nCDF_ID , nZVariableId, "scale_factor", &scale_factor_type, NULL);
++        useScaleOffset=1;
++      }
++      status = nc_get_att_double(nCDF_ID, nZVariableId,"add_offset", &offset );
++      if(status!=NC_NOERR&&status!=NC_ENOTATT){
++        checkncerr("Error in nc_get_att_double add_offset: ",status);
++        return;
++      }
++      if(status!=NC_NOERR)useScaleOffset=1;
++
++      if(useScaleOffset==1){
++        bool useGDALSNativeScaleOffset=true;
++        if(useGDALSNativeScaleOffset==true){
++          SetScale(scale);
++          SetOffset(offset);
++          useScaleOffset=0;
++        }else{
++          eDataType = GDT_Float32;
++          if(scale_factor_type==NC_DOUBLE)eDataType = GDT_Float64;
++        }
++      }
++      /* -------------------------------------------------------------------- */
++      /*      Find out what is No Data for this variable                      */
++      /* -------------------------------------------------------------------- */
++      nc_type atttype=NC_NAT;
++      status = nc_inq_att(nCDF_ID , nZVariableId, MISSING_VALUE, &atttype, &attlen);
++      if( status == NC_NOERR ){safestrcpy(szNoValueName, MISSING_VALUE ,MAX_STR_LEN);szNoValueName[MAX_STR_LEN]='\0';}
++      else{
++        status = nc_inq_att(nCDF_ID , nZVariableId, 
++                            "missing_value", &atttype, &attlen);
++        safestrcpy(szNoValueName, "missing_value",MAX_STR_LEN);szNoValueName[MAX_STR_LEN]='\0';
++      }
++    
++      
++
++      if( status == NC_NOERR ) {
++        switch( atttype ) {
++          case NC_CHAR:
++            char *fillc;
++            fillc = (char *) CPLCalloc( attlen+1, sizeof(char) );
++            status=nc_get_att_text(nCDF_ID, nZVariableId,
++                                   szNoValueName, fillc );
++            dfNoData = atof( fillc );
++            CPLFree(fillc);
++            break;
++          case NC_SHORT:
++            short sNoData;
++            status = nc_get_att_short( nCDF_ID, nZVariableId,
++                                       szNoValueName, &sNoData );
++            dfNoData = (double) sNoData;
++            break;
++          case NC_INT:
++            int nNoData;
++            status = nc_get_att_int( nCDF_ID, nZVariableId,
++                                     szNoValueName, &nNoData );
++            dfNoData = (double) nNoData;
++            break;
++          case NC_FLOAT:
++            float fNoData;
++            status = nc_get_att_float(nCDF_ID, nZVariableId,
++                                      szNoValueName, &fNoData );
++            dfNoData = (double) fNoData;
++            break;
++          case NC_DOUBLE:
++            status = nc_get_att_double(nCDF_ID, nZVariableId,
++                                       szNoValueName, &dfNoData );
++            break;
++          default:
++            break;
++        }
++        status = nc_get_att_double(nCDF_ID, nZVariableId, 
++                                   szNoValueName, &dfNoData );
++        
++      } else {
++        switch( nc_datatype ) {
++          case NC_BYTE:
++            /* don't do default fill-values for bytes, too risky */
++            dfNoData = 0.0;
++            break;
++          case NC_CHAR:
++            dfNoData = NC_FILL_CHAR;
++            break;
++          case NC_SHORT:
++            dfNoData = NC_FILL_SHORT;
++            break;
++          case NC_INT:
++            dfNoData = NC_FILL_INT;
++            break;
++          case NC_FLOAT:
++            dfNoData = NC_FILL_FLOAT;
++            break;
++          case NC_DOUBLE:
++            dfNoData = NC_FILL_DOUBLE;
++            break;
++          default:
++            dfNoData = 0.0;
++            break;
++        }
++        bNoDataSet = TRUE;
++      }
++      SetNoDataValue( dfNoData );
++    
++}
++
++/************************************************************************/
++/*                             IReadBlock()                             */
++/************************************************************************/
++
++CPLErr ADAGUCRasterBand::IReadBlock( int nBlockXOff, int nBlockYOff,
++                                     void * pImage )
++
++{
++  int    nErr=-1;
++  size_t start[ MAX_NC_DIMS ];
++  size_t edge[ MAX_NC_DIMS ];
++  char   pszName[ MAX_STR_LEN ];
++  int    i,j;
++  int    Sum=-1;
++  int    Taken=-1;
++  int    nd;
++
++  *pszName='\0';
++  memset( start, 0, sizeof( start ) );
++  memset( edge,  0, sizeof( edge )  );
++  nc_inq_varndims ( nCDF_ID, nZVariableId, &nd );
++        
++  /* -------------------------------------------------------------------- */
++  /*      Locate X, Y and Z position in the array                         */
++  /* -------------------------------------------------------------------- */
++        
++  start[nBandXPos] = 0;          // x dim can move arround in array
++  
++  if(positive_up==0){
++    start[nBandYPos] = nBlockYOff; // y
++  }else{
++    start[nBandYPos] = (poDS->GetRasterYSize( ) - nBlockYOff) -1; // y
++  }
++  //printf("%d\n",start[nBandYPos]);
++        
++  edge[nBandXPos] = nBlockXSize; 
++  edge[nBandYPos] = 1;
++
++  if( nd == 3 ) {
++    start[panBandZPos[0]]  = nLevel;     // z
++    edge [panBandZPos[0]]  = 1;
++  }
++
++  /* -------------------------------------------------------------------- */
++  /*      Compute multidimention band position                            */
++  /*                                                                      */
++  /* BandPosition = (Total - sum(PastBandLevels) - 1)/sum(remainingLevels)*/
++  /* if Data[2,3,4,x,y]                                                   */
++  /*                                                                      */
++  /*  BandPos0 = (nBand ) / (3*4)                                         */
++  /*  BandPos1 = (nBand - (3*4) ) / (4)                                   */
++  /*  BandPos2 = (nBand - (3*4) ) % (4)                                   */
++  /* -------------------------------------------------------------------- */
++  if( nd > 3 ) {
++    for( i=0; i < nd-2-1 ; i++ ) {
++      Sum  = 1;
++      Taken = 0;
++      for( j=i+1; j < nd-2; j++ ) {
++        Sum *= panBandZLev[j];
++      }
++      start[panBandZPos[i]] = ( nLevel-Taken ) / Sum;
++      edge[panBandZPos[i]] = 1;
++      Taken += Sum;
++    }
++    start[panBandZPos[i]] = ( nLevel-( Taken-Sum ) ) % Sum;
++    edge[panBandZPos[i]] = 1;
++  }
++
++
++
++  if( eDataType == GDT_Byte )
++    nErr = nc_get_vara_uchar( nCDF_ID, nZVariableId, start, edge, 
++                              (unsigned char *) pImage );
++  else if( eDataType == GDT_Int16 )
++    nErr = nc_get_vara_short( nCDF_ID, nZVariableId, start, edge, 
++                              (short int *) pImage );
++  else if( eDataType == GDT_Int32 )
++  {
++    if( sizeof(long) == 4 )
++      nErr = nc_get_vara_long( nCDF_ID, nZVariableId, start, edge, 
++                               (long *) pImage );
++    else
++      nErr = nc_get_vara_int( nCDF_ID, nZVariableId, start, edge, 
++                              (int *) pImage );
++  }
++  else if( eDataType == GDT_Float32 ){
++    nErr = nc_get_vara_float( nCDF_ID, nZVariableId, start, edge, 
++                              (float *) pImage );
++    if(useScaleOffset==1){
++      for( i=0; i<nBlockXSize; i++ ){
++        if(((float *)pImage )[i]!=(float)dfNoDataValue)((float *)pImage )[i] = ((float *)pImage )[i]*scale+offset;
++      }
++    }
++     
++  }
++  else if( eDataType == GDT_Float64 ){
++    nErr = nc_get_vara_double( nCDF_ID, nZVariableId, start, edge, 
++                               (double *) pImage );
++    if(useScaleOffset==1){
++      for( i=0; i<nBlockXSize; i++ ){
++        if(((double *)pImage )[i]!=dfNoDataValue)((double *)pImage )[i] = ((double *)pImage )[i]*scale+offset;
++      }
++    }
++    /*for( i=0; i<nBlockXSize; i++ ){
++      if( CPLIsNan( ( (double *) pImage)[i] ) ) 
++        ( (double *)pImage )[i] = dfNoDataValue;
++  }*/
++
++  }
++
++  if( nErr != NC_NOERR )
++  {
++    CPLError( CE_Failure, CPLE_AppDefined, 
++              "ADAGUC scanline fetch failed: %s", 
++              nc_strerror( nErr ) );
++    return CE_Failure;
++  }
++  else
++    return CE_None;
++}
++
++/************************************************************************/
++/* ==================================================================== */
++/*				ADAGUCDataset				*/
++/* ==================================================================== */
++/************************************************************************/
++
++/************************************************************************/
++/*                           ADAGUCDataset()                            */
++/************************************************************************/
++
++ADAGUCDataset::ADAGUCDataset()
++
++{
++  papszMetadata    = NULL;	
++  papszName        = NULL;
++  papszSubDatasets = NULL;
++  pszProjection    = NULL;
++  pszFilename      = NULL;
++  paDimIds         = NULL;
++  panBandDimPos    = NULL;
++      
++  bGotGeoTransform = FALSE;
++  root_cdfid       = -1;
++
++}
++
++
++/************************************************************************/
++/*                           ~ADAGUCDataset()                           */
++/************************************************************************/
++
++ADAGUCDataset::~ADAGUCDataset(){
++  FlushCache();
++  CSLDestroy( papszMetadata );papszMetadata=NULL;
++  CSLDestroy( papszName );papszName=NULL;
++  CSLDestroy( papszSubDatasets );papszSubDatasets=NULL;
++  CPLFree( pszProjection );pszProjection=NULL;
++  CPLFree( pszFilename );pszFilename=NULL;
++  CPLFree( paDimIds );paDimIds =NULL;
++  CPLFree( panBandDimPos );panBandDimPos=NULL;
++  if( root_cdfid !=-1){
++    nc_close( root_cdfid );
++    root_cdfid =-1;
++  }
++}
++
++/************************************************************************/
++/*                           FetchCopyParm()                            */
++/************************************************************************/
++
++double ADAGUCDataset::FetchCopyParm( const char *pszGridMappingValue, 
++                                     const char *pszParm, double dfDefault )
++
++{
++
++  char         szTemp[ MAX_ATTRIBUTE_LEN +1];
++  const char  *pszValue;
++
++  safestrcpy( szTemp,pszGridMappingValue,MAX_ATTRIBUTE_LEN);
++  safestrcat( szTemp, "#[C]"               ,MAX_ATTRIBUTE_LEN);
++  safestrcat( szTemp, pszParm           ,MAX_ATTRIBUTE_LEN);
++  pszValue = CSLFetchNameValue(papszMetadata, szTemp);
++
++  if( pszValue )
++  {
++    return CPLAtofM(pszValue);
++  }
++  else
++    return dfDefault;
++}
++
++
++
++
++/************************************************************************/
++/*                           SetProjection()                            */
++/************************************************************************/
++
++
++void ADAGUCDataset::SetProjection(int cdfid, int var )
++{
++  /* -------------------------------------------------------------------- */
++  /*      Set Projection                                                  */
++  /* -------------------------------------------------------------------- */
++  CPLDebug("GDAL_ADAGUC","[SetProjection]");
++  size_t       start[2], edge[2];
++  int          status;
++  unsigned int i;
++  const char   *pszValue;
++  int          nVarProjectionID;
++  char         szVarName[ MAX_ATTRIBUTE_LEN+1 ];
++  char         szTemp[ MAX_ATTRIBUTE_LEN+1 ];
++  char         szGridMappingName[ MAX_ATTRIBUTE_LEN+1 ];
++  char         szGridMappingValue[ MAX_ATTRIBUTE_LEN+1 ];
++    
++//  double       dfStdP1;
++//  double       dfStdP2;
++//  double       dfCenterLat;
++//  double       dfCenterLon;
++//  double       dfScale;
++//  double	 dfScale_proj_origin;
++//  double       dfFalseEasting;
++//  double       dfFalseNorthing;
++
++  OGRSpatialReference oSRS;
++  int          nVarDimXID = -1;
++  int          nVarDimYID = -1;
++  double       *pdfXCoord;
++  double       *pdfYCoord;
++  char         szDimNameX[ MAX_ATTRIBUTE_LEN+1 ];
++  int          nSpacingBegin;
++  int          nSpacingMiddle;
++  int          nSpacingLast;
++  int 	ProjectionOK=0;
++
++  ADAGUCDataset * poDS;
++  poDS = this;
++
++  /* -------------------------------------------------------------------- */
++  /*      Get x/y range information.                                      */
++  /* -------------------------------------------------------------------- */
++
++  poDS->adfGeoTransform[0] = 0.0;
++  poDS->adfGeoTransform[1] = 1.0;
++  poDS->adfGeoTransform[2] = 0.0;
++  poDS->adfGeoTransform[3] = 0.0;
++  poDS->adfGeoTransform[4] = 0.0;
++  poDS->adfGeoTransform[5] = 1.0;
++  poDS->pszProjection = NULL;
++    
++
++  /* -------------------------------------------------------------------- */
++  /*      Look for grid_mapping metadata                                  */
++  /* -------------------------------------------------------------------- */
++
++  safestrcpy( szGridMappingValue, "" ,MAX_ATTRIBUTE_LEN);
++  safestrcpy( szGridMappingName, "" ,MAX_ATTRIBUTE_LEN);
++
++  nc_inq_varname(  cdfid, var, szVarName );
++  safestrcpy(szTemp, szVarName     ,MAX_ATTRIBUTE_LEN);
++  safestrcat(szTemp,"#[C]grid_mapping",MAX_ATTRIBUTE_LEN);
++  pszValue = CSLFetchNameValue(poDS->papszMetadata, szTemp);
++  if( pszValue ) {
++    safestrcpy(szGridMappingName,szTemp   ,MAX_ATTRIBUTE_LEN);
++    safestrcpy(szGridMappingValue,pszValue,MAX_ATTRIBUTE_LEN);
++  }
++
++  /* -------------------------------------------------------------------- */
++  /*      Look for dimension: lon                                         */
++  /* -------------------------------------------------------------------- */
++
++  for( i = 0; (i < strlen( poDS->papszDimName[ poDS->nDimXid ] )  && 
++       i < 3 ); i++ ) {
++         szDimNameX[i] = tolower( ( poDS->papszDimName[poDS->nDimXid] )[i] );
++       }
++       szDimNameX[3] = '\0';
++
++       /* -------------------------------------------------------------------- */
++       /*      Read grid_mappinginformation and set projections               */
++       /* -------------------------------------------------------------------- */
++
++       if( !( EQUAL(szGridMappingName,"" ) ) ) {
++         nc_inq_varid( root_cdfid, szGridMappingValue, &nVarProjectionID );
++         poDS->ReadAttributes( root_cdfid, nVarProjectionID );
++         /* -------------------------------------------------------------------- */
++         /* Try to retrieve projection parameters proj4_params	            */
++         /* -------------------------------------------------------------------- */
++         safestrcpy( szTemp, szGridMappingValue,MAX_ATTRIBUTE_LEN);
++         safestrcat( szTemp, "#[C]"               ,MAX_ATTRIBUTE_LEN);
++         safestrcat( szTemp, PROJ4_PARAMS      ,MAX_ATTRIBUTE_LEN);
++         pszValue = CSLFetchNameValue(poDS->papszMetadata, szTemp);
++         CPLDebug("GDAL_ADAGUC","  Retrieving projection information...");
++         if( pszValue != NULL ) {
++        // Retrieving projection information from proj4_params
++           CPLDebug("GDAL_ADAGUC","  from proj4_params: [%s]",pszValue);
++           if(oSRS.SetFromUserInput(pszValue)!=OGRERR_NONE)CPLError(CE_Warning, 1,	"Proj4 params not valid [%s]",pszValue);
++           else ProjectionOK=1;
++         }
++         if(ProjectionOK==0){
++           CPLDebug("GDAL_ADAGUC","  from epsg code: [%s]",pszValue);
++           safestrcpy( szTemp, szGridMappingValue,MAX_ATTRIBUTE_LEN);
++           safestrcat( szTemp, "#[C]"               ,MAX_ATTRIBUTE_LEN);
++           safestrcat( szTemp, EPSG_CODE         ,MAX_ATTRIBUTE_LEN);
++           pszValue = CSLFetchNameValue(poDS->papszMetadata, szTemp);
++           if( pszValue != NULL ) {
++            // Retrieving projection information from EPSG_CODE
++             CPLDebug("GDAL_ADAGUC","  from EPSG_CODE: [%s]",pszValue);
++             if(oSRS.SetFromUserInput(pszValue)!=OGRERR_NONE)
++               CPLError(CE_Warning, 1,	"EPSG CODE not valid [%s]",pszValue);
++             else ProjectionOK=1;
++           }
++         }
++       }
++       if(ProjectionOK==0)CPLError(CE_Warning, 1,	"No projection found");
++
++       /* -------------------------------------------------------------------- */
++       /*      Read projection coordinates                                     */
++       /* -------------------------------------------------------------------- */
++
++       nc_inq_varid( root_cdfid, poDS->papszDimName[nDimXid], &nVarDimXID );
++       nc_inq_varid( root_cdfid, poDS->papszDimName[nDimYid], &nVarDimYID );
++    
++       if( ( nVarDimXID != -1 ) && ( nVarDimYID != -1 ) ) {
++         pdfXCoord = (double *) CPLCalloc( xdim, sizeof(double) );
++         pdfYCoord = (double *) CPLCalloc( ydim, sizeof(double) );
++    
++         /* -------------------------------------------------------------------- */
++         /*      Is pixel spacing is uniform accross the map?                    */
++         /* -------------------------------------------------------------------- */
++         start[0] = 0;
++         edge [0]  = xdim;
++        
++         status = nc_get_vara_double( root_cdfid, nVarDimXID, 
++                                      start, edge, pdfXCoord);
++         edge [0]  = ydim;
++         status = nc_get_vara_double( root_cdfid, nVarDimYID, 
++                                      start, edge, pdfYCoord);
++
++         /* -------------------------------------------------------------------- */
++         /*      Check Longitude                                                 */
++         /* -------------------------------------------------------------------- */
++
++         nSpacingBegin   = (int) poDS->rint((pdfXCoord[1]-pdfXCoord[0]) * 1000);
++        
++         nSpacingMiddle  = (int) poDS->rint((pdfXCoord[xdim / 2] - 
++             pdfXCoord[(xdim / 2) + 1]) * 1000);
++        
++         nSpacingLast    = (int) poDS->rint((pdfXCoord[xdim - 2] - 
++             pdfXCoord[xdim-1]) * 1000);
++        
++         if( ( abs( nSpacingBegin )  ==  abs( nSpacingLast )     )  &&
++               ( abs( nSpacingBegin )  ==  abs( nSpacingMiddle )   ) &&
++               ( abs( nSpacingMiddle ) ==  abs( nSpacingLast )     ) ) {
++
++           /* -------------------------------------------------------------------- */
++           /*      Longitude is equaly spaced, check lattitde                      */
++           /* -------------------------------------------------------------------- */
++           nSpacingBegin   = (int) poDS->rint((pdfYCoord[1]-pdfYCoord[0]) * 
++               1000); 
++            
++           nSpacingMiddle  = (int) poDS->rint((pdfYCoord[ydim / 2] - 
++               pdfYCoord[(ydim / 2) + 1]) * 
++               1000);
++            
++           nSpacingLast    = (int) poDS->rint((pdfYCoord[ydim - 2] - 
++               pdfYCoord[ydim-1]) * 
++               1000);
++
++                    
++           /* -------------------------------------------------------------------- */
++           /*   For Latitude  we allow an error of 0.1 degrees for gaussion        */
++           /*   gridding                                                           */
++           /* -------------------------------------------------------------------- */
++
++                if((( abs( abs(nSpacingBegin) - abs(nSpacingLast) ) )   < 100 ) &&
++                    (( abs( abs(nSpacingBegin) -  abs(nSpacingMiddle) ) ) < 100 ) &&
++                    (( abs( abs(nSpacingMiddle) - abs(nSpacingLast) ) )   < 100) ) {
++
++                if( ( abs( nSpacingBegin )  !=  abs( nSpacingLast )     )  ||
++                      ( abs( nSpacingBegin )  !=  abs( nSpacingMiddle )   ) ||
++                      ( abs( nSpacingMiddle ) !=  abs( nSpacingLast )     ) ) {
++                CPLError(CE_Warning, 1,
++                        "Latitude grid not spaced evenly.\nSetting projection for grid spacing is within 0.1 degrees threshold.\n");
++                }
++
++                double	xMinMax[2], yMinMax[2];
++                poDS->bGotGeoTransform = TRUE;
++                xMinMax[0] = pdfXCoord[0];
++                xMinMax[1] = pdfXCoord[xdim-1];
++                
++                //Check top and bottom of file by reprojecting two coordinates to WGS84 and comparing Y values
++                OGRSpatialReference oTargetSRS;
++                OGRCoordinateTransformation *poCT;
++                oTargetSRS.SetWellKnownGeogCS( "WGS84" );
++                poCT = OGRCreateCoordinateTransformation( &oSRS, &oTargetSRS );
++                poDS->positive_up = 0;
++                if( poCT == NULL){
++                  //No projection available, so guess that coordinate variable is in ascending order
++                  CPLError( CE_Warning, CPLE_AppDefined, "Failed to reproject lat/lon coordinate variables for CF convention");
++                  yMinMax[0] = pdfYCoord[0];	
++                  yMinMax[1] = pdfYCoord[ydim-1];
++                }
++                else{
++                  // Projection information is available, so reproject the boundary points to lat lon
++                  double dfY1=pdfYCoord[0],dfY2=pdfYCoord[ydim-1];
++                  poCT->Transform(1, &dfY1, &dfY2);
++                  if(dfY1<dfY2){
++                    //printf("dfY1<dfY\n");
++                    yMinMax[0] = pdfYCoord[ydim-1];
++                    yMinMax[1] = pdfYCoord[0];	
++                    //Swap Y
++                    poDS->positive_up = 1;
++                  }else{
++                    //printf("dfY1>dfY\n");
++                    yMinMax[0] = pdfYCoord[0];	
++                    yMinMax[1] = pdfYCoord[ydim-1];
++                  }
++                }
++
++                poDS->adfGeoTransform[1] = (xMinMax[1] - xMinMax[0]) / (poDS->nRasterXSize - 1);
++                poDS->adfGeoTransform[0] = xMinMax[0]-(poDS->adfGeoTransform[1]/2);
++                poDS->adfGeoTransform[5] = ((yMinMax[1] - yMinMax[0] ) /  (poDS->nRasterYSize -1));
++                poDS->adfGeoTransform[3] = yMinMax[0]-(poDS->adfGeoTransform[5]/2);
++                poDS->adfGeoTransform[2] = 0;
++                poDS->adfGeoTransform[4] = 0;
++                
++
++                /* -------------------------------------------------------------------- */
++                /*     Compute the center of the pixel                                  */
++                /* -------------------------------------------------------------------- */
++                /*if ( !node_offset ) {	// Otherwise its already the pixel center
++                  poDS->adfGeoTransform[0] -= (poDS->adfGeoTransform[1] / 2);
++                  poDS->adfGeoTransform[3] -= (poDS->adfGeoTransform[5] / 2);
++                 }*/
++                
++                oSRS.exportToWkt( &poDS->pszProjection );
++  
++                    
++                 } 
++               }
++
++               CPLFree( pdfXCoord );
++               CPLFree( pdfYCoord );
++       }
++       CPLDebug("GDAL_ADAGUC","[/SetProjection]");
++       return;
++}
++/************************************************************************/
++/*                          GetGeoTransform()                           */
++/************************************************************************/
++
++CPLErr ADAGUCDataset::GetGeoTransform( double * padfTransform )
++
++{
++  memcpy( padfTransform, adfGeoTransform, sizeof(double) * 6 );
++  if( bGotGeoTransform )
++    return CE_None;
++  else
++    return GDALPamDataset::GetGeoTransform( padfTransform );;
++}
++
++/************************************************************************/
++/*                                rint()                                */
++/************************************************************************/
++
++double ADAGUCDataset::rint( double dfX)
++{
++  if( dfX > 0 ) {
++    int nX = (int) (dfX+0.5);
++    if( nX % 2 ) {
++      double dfDiff = dfX - (double)nX;
++      if( dfDiff == -0.5 )
++        return double( nX-1 );
++    }
++    return double( nX );
++  } else {
++    int nX= (int) (dfX-0.5);
++    if( nX % 2 ) {
++      double dfDiff = dfX - (double)nX;
++      if( dfDiff == 0.5 )
++        return double(nX+1);
++    }
++    return double(nX);
++  }
++}
++
++/************************************************************************/
++/*                        ReadAttributes()                              */
++/************************************************************************/
++
++
++CPLErr ADAGUCDataset::ReadAttributes( int root_cdfid, int var)
++
++{
++        
++  char    szAttrName[ MAX_ATTRIBUTE_LEN +1];
++  char    szVarName [ MAX_ATTRIBUTE_LEN +1];
++  char    szMetaName[ MAX_ATTRIBUTE_LEN +1];
++  char    szMetaTemp[ MAX_STR_LEN +1];
++  nc_type nAttrType;
++  size_t  nAttrLen,m;
++  int     nbAttr;
++  char    szTemp[ MAX_ATTRIBUTE_LEN +1];
++  char    szType[2];
++
++  nc_inq_varnatts( root_cdfid, var, &nbAttr );
++  if( var == NC_GLOBAL ) {
++    safestrcpy( szVarName,"NC_GLOBAL",MAX_ATTRIBUTE_LEN);szVarName[MAX_ATTRIBUTE_LEN]='\0';
++  }
++  else {
++    nc_inq_varname(  root_cdfid, var, szVarName );
++  }
++
++  for( int l=0; l < nbAttr; l++){
++        
++    nc_inq_attname( root_cdfid, var, l, szAttrName);
++    nc_inq_att( root_cdfid, var, szAttrName, &nAttrType, &nAttrLen );
++    szType[1]='\0';
++    switch (nAttrType) {
++      case NC_CHAR:
++        szType[0]='C';//char
++        break;
++      case NC_SHORT:
++        szType[0]='S';//short
++        break;
++      case NC_INT:
++        szType[0]='I';//Int
++        break;
++      case NC_FLOAT:
++        szType[0]='F';//Float
++        break;
++      case NC_DOUBLE:
++        szType[0]='D';//Double
++        break;
++    }
++    snprintf( szMetaName, MAX_ATTRIBUTE_LEN,"%s#[%s]%s", szVarName, szType, szAttrName  );szMetaName[MAX_ATTRIBUTE_LEN]='\0';
++    *szMetaTemp='\0';
++        
++        
++    switch (nAttrType) {
++      case NC_CHAR:
++        char *pszTemp;
++        pszTemp = (char *) CPLCalloc( nAttrLen+1, sizeof( char ) );
++        nc_get_att_text( root_cdfid, var, szAttrName,pszTemp );
++        pszTemp[nAttrLen]='\0';
++        safestrcpy(szMetaTemp,pszTemp,MAX_STR_LEN);
++        CPLFree(pszTemp);
++        break;
++      case NC_SHORT:
++        short *psTemp;
++            
++        psTemp = (short *) CPLCalloc( nAttrLen, sizeof( short ) );
++        nc_get_att_short( root_cdfid, var, szAttrName, psTemp );
++        for(m=0; m < nAttrLen-1; m++) {
++          snprintf( szTemp, MAX_ATTRIBUTE_LEN,"%d, ",psTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++          safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++        }
++        snprintf( szTemp, MAX_ATTRIBUTE_LEN,"%d",psTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++        CPLFree(psTemp);
++        safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++            
++        break;
++      case NC_INT:
++        int *pnTemp;
++            
++        pnTemp = (int *) CPLCalloc( nAttrLen, sizeof( int ) );
++        nc_get_att_int( root_cdfid, var, szAttrName, pnTemp );
++        for(m=0; m < nAttrLen-1; m++) {
++          snprintf( szTemp,MAX_ATTRIBUTE_LEN,"%d",pnTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++          safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++        }
++        snprintf( szTemp, MAX_ATTRIBUTE_LEN,"%d",pnTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++        CPLFree(pnTemp);
++        safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++        break;
++      case NC_FLOAT:
++        float *pfTemp;
++        pfTemp = (float *) CPLCalloc( nAttrLen, sizeof( float ) );
++        nc_get_att_float( root_cdfid, var, szAttrName, pfTemp );
++        for(m=0; m < nAttrLen-1; m++) {
++          snprintf( szTemp, MAX_ATTRIBUTE_LEN,"%e",pfTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++          safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++        }
++        snprintf( szTemp, MAX_ATTRIBUTE_LEN,"%e",pfTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++        CPLFree(pfTemp);
++        safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++            
++        break;
++      case NC_DOUBLE:
++        double *pdfTemp;
++        pdfTemp = (double *) CPLCalloc(nAttrLen, sizeof(double));
++        nc_get_att_double( root_cdfid, var, szAttrName, pdfTemp );
++        for(m=0; m < nAttrLen-1; m++) {
++          snprintf( szTemp, MAX_ATTRIBUTE_LEN,"%g",pdfTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++          safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++        }
++        snprintf( szTemp, MAX_ATTRIBUTE_LEN,"%g",pdfTemp[m] );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++        CPLFree(pdfTemp);
++        safestrcat(szMetaTemp,szTemp,MAX_STR_LEN);
++            
++        break;
++      default:
++        break;
++    }
++    papszMetadata = CSLSetNameValue(papszMetadata, 
++                                    szMetaName, 
++                                    szMetaTemp);
++        
++  }	
++        
++
++  return CE_None;
++
++}
++
++
++/************************************************************************/
++/*                ADAGUCDataset::CreateSubDatasetList()                 */
++/************************************************************************/
++void ADAGUCDataset::CreateSubDatasetList( )
++{
++  CPLDebug("GDAL_ADAGUC","[CreateSubDatasetList]");
++
++  char         szDim [ MAX_ATTRIBUTE_LEN +1];
++  char         szTemp[ MAX_ATTRIBUTE_LEN +1];
++  char         szType[ MAX_ATTRIBUTE_LEN +1];
++  char         szName[ MAX_ATTRIBUTE_LEN +1];
++  char         szVarStdName[ MAX_ATTRIBUTE_LEN +1];
++  int          nVar;
++  int          nVarCount;
++  int          i;
++  nc_type      nVarType;
++  int          *ponDimIds;
++  size_t       nDimLen;
++  int          nSub;
++  nc_type      nAttype;
++  size_t       nAttlen;
++
++  ADAGUCDataset 	*poDS;
++  poDS = this;
++
++  nSub=1;
++
++  nc_inq_nvars ( root_cdfid, &nVarCount );
++  for ( nVar = 0; nVar < nVarCount; nVar++ ) {
++    int nDims=0;        
++    nc_inq_varndims ( root_cdfid, nVar, &nDims );
++    if( nDims >= 2 ) {
++      ponDimIds = (int *) CPLCalloc( nDims, sizeof( int ) );
++      nc_inq_vardimid ( root_cdfid, nVar, ponDimIds );
++            
++      /* -------------------------------------------------------------------- */
++      /*      Create Sub dataset list                                         */
++      /* -------------------------------------------------------------------- */
++      szDim[0]='\0';
++      for( i = 0; i < nDims; i++ ) {
++        nc_inq_dimlen ( root_cdfid, ponDimIds[i], &nDimLen );
++        snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%d", (int) nDimLen);szTemp[MAX_ATTRIBUTE_LEN]='\0';
++        safestrcat(szTemp,  "x" , MAX_ATTRIBUTE_LEN);
++        safestrcat(szDim, szTemp, MAX_ATTRIBUTE_LEN);
++      }
++
++      nc_inq_vartype( root_cdfid, nVar, &nVarType );
++      /* -------------------------------------------------------------------- */
++      /*      Get rid of the last "x" character                               */
++      /* -------------------------------------------------------------------- */
++      szDim[strlen(szDim) - 1] = '\0';
++            
++      switch( nVarType ) {
++        case NC_BYTE:
++          strcpy(szType, "8-bit character");
++          break;
++        case NC_SHORT: 
++          strcpy(szType, "8-bit integer");
++          break;
++        case NC_INT:
++          strcpy(szType, "16-bit integer");
++          break;
++        case NC_FLOAT:
++          strcpy(szType, "32-bit floating-point");
++          break;
++        case NC_DOUBLE:
++          strcpy(szType, "64-bit floating-point");
++          break;
++        default:
++          break;
++      }
++      nc_inq_varname  ( root_cdfid, nVar, szName);
++      nc_inq_att( root_cdfid, nVar, "standard_name", &nAttype, &nAttlen);
++      if( nc_get_att_text ( root_cdfid, nVar, "standard_name", 
++          szVarStdName ) == NC_NOERR ) {
++            szVarStdName[nAttlen] = '\0';
++          }
++          else {
++            safestrcpy( szVarStdName, szName ,MAX_ATTRIBUTE_LEN);szVarStdName[MAX_ATTRIBUTE_LEN]='\0';
++          }
++    
++          snprintf( szTemp,MAX_ATTRIBUTE_LEN, "SUBDATASET_%d_NAME", nSub);szTemp[MAX_ATTRIBUTE_LEN]='\0';
++          poDS->papszSubDatasets =
++              CSLSetNameValue( poDS->papszSubDatasets, szTemp,
++                               CPLSPrintf( "ADAGUC:\"%s\":%s",
++                                           poDS->pszFilename,
++                                           szName) ) ;
++            
++          snprintf(  szTemp, MAX_ATTRIBUTE_LEN,"SUBDATASET_%d_DESC", nSub++ );szTemp[MAX_ATTRIBUTE_LEN]='\0';
++
++          poDS->papszSubDatasets =
++              CSLSetNameValue( poDS->papszSubDatasets, szTemp,
++                               CPLSPrintf( "[%s] %s (%s)", 
++                                           szDim,
++                                           szVarStdName,
++                                           szType ) );
++          CPLFree(ponDimIds);
++    }
++  }
++    
++  CPLDebug("GDAL_ADAGUC","[/CreateSubDatasetList]");
++}
++    
++/************************************************************************/
++/*                                Open()                                */
++/************************************************************************/
++
++GDALDataset *ADAGUCDataset::Open( GDALOpenInfo * poOpenInfo )
++{
++  int          j;
++  unsigned int k;
++  int          nd;
++  int          dim_count, var, var_count;
++  int          i = 0;
++  size_t       lev_count;
++  size_t       nTotLevCount = 1;
++  int          nDim = 2;
++  int          status;
++  int          nDimID;
++  int         numberFileNameParams=0;
++  char         variableName[MAX_ATTRIBUTE_LEN+1];
++  char         pszADAGUCFilename[MAX_ATTRIBUTE_LEN+1];
++  char         szVarName[MAX_ATTRIBUTE_LEN+1];
++  char         szTemp[MAX_ATTRIBUTE_LEN+1];
++  int          ndims, ngatts, unlimdimid;
++  int          nCount=0;
++  int          nVarID=0;
++
++
++  const char * pszValue;	
++  
++  bool forceADAGUCDriver = false;
++  bool isSubDataset = false;
++
++  /* -------------------------------------------------------------------- */
++  /*      Does this appear to be a ADAGUC file?                           */
++  /* -------------------------------------------------------------------- */
++
++  if( !EQUALN(poOpenInfo->pszFilename,"ADAGUC:",7)
++       && ( poOpenInfo->nHeaderBytes < 5 || !EQUALN((const char *) (poOpenInfo->pabyHeader+1),"HDF",3))
++       && ( poOpenInfo->nHeaderBytes < 5 || !EQUALN((const char *) (poOpenInfo->pabyHeader),"CDF\001",5))
++    ){
++    return NULL;
++    }
++
++    CPLDebug("GDAL_ADAGUC","[Open] %s",poOpenInfo->pszFilename);
++
++    /* -------------------------------------------------------------------- */
++    /*       Check if filename start with ADAGUC: tag                       */
++    /* -------------------------------------------------------------------- */
++
++    ADAGUCDataset 	*poDS;
++    poDS = new ADAGUCDataset();
++
++    poDS->papszName = 
++        CSLTokenizeString2( poOpenInfo->pszFilename,":", CSLT_HONOURSTRINGS|CSLT_PRESERVEESCAPES );
++    numberFileNameParams=CSLCount(poDS->papszName);
++
++    if( EQUAL( poDS->papszName[0], "ADAGUC" ) ) {
++      if( numberFileNameParams >= 2  ){
++        poDS->pszFilename = strdup( poDS->papszName[1] );
++        forceADAGUCDriver = true;
++      }
++      if( numberFileNameParams>= 3  )isSubDataset=true;
++    }
++    else {
++      poDS->pszFilename = strdup( poOpenInfo->pszFilename );
++    }
++
++    /* -------------------------------------------------------------------- */
++    /*      Try opening the dataset.                                        */
++    /* -------------------------------------------------------------------- */
++    CPLDebug("GDAL_ADAGUC", "  Opening %s",poDS->pszFilename);
++    status=nc_open( poDS->pszFilename, NC_NOWRITE, &poDS->root_cdfid );
++    if(  status!= NC_NOERR ) {
++      CPLDebug("GDAL_ADAGUC", "  Opening failed:%s",nc_strerror(status));
++      CPLDebug("GDAL_ADAGUC","[/Open nc_open]");
++      delete poDS;poDS=NULL;
++      return NULL;
++    }
++    CPLDebug("GDAL_ADAGUC", "  Opening succeeded");
++    /* -------------------------------------------------------------------- */
++    /*      Is this a real ADAGUC file?                                     */
++    /* -------------------------------------------------------------------- */
++    if(forceADAGUCDriver==false){
++      int temp;
++      status=nc_inq_varid (poDS->root_cdfid,PRODUCT, &temp);
++      if(status!=NC_NOERR){
++        CPLDebug("GDAL_ADAGUC","[/Open nc_inq_varid PRODUCT (nc_close might result in a segmentation violation]");
++        delete poDS;poDS=NULL;
++        return NULL;
++      }
++      status=nc_inq_varid (poDS->root_cdfid,ISO_DATASET, &temp);
++      if(status!=NC_NOERR){
++        CPLDebug("GDAL_ADAGUC","[/Open nc_inq_varid ISO_DATASET]");
++        delete poDS;poDS=NULL;
++        return NULL;
++      }
++    }
++    CPLDebug("GDAL_ADAGUC", "  This is a CF-1.4+ADAGUC file!");
++
++    status = nc_inq(poDS->root_cdfid, &ndims, NULL, &ngatts, &unlimdimid);
++    if( status != NC_NOERR ) {
++      checkncerr("Unable to inquire netcdf file: ",status);
++      delete poDS;poDS=NULL;
++      return NULL;
++    }
++
++
++    /* -------------------------------------------------------------------- */
++    /*      Does the request variable exist?                                */
++    /* -------------------------------------------------------------------- */
++    
++    if( ( CSLCount(poDS->papszName) >= 3  ) ){
++      CPLDebug("GDAL_ADAGUC", "  Does the request variable exist? (%s)",poDS->papszName[2]);
++      status = nc_inq_varid( poDS->root_cdfid, poDS->papszName[2], &var);
++      if( status != NC_NOERR ) {
++        CPLError( CE_Warning, CPLE_AppDefined, 
++                  "%s is a ADAGUC file, but %s is not a variable.",
++                  poOpenInfo->pszFilename, 
++                  poDS->papszName[2] );
++        delete poDS;poDS=NULL;
++        return NULL;
++      }
++    }
++
++    if( nc_inq_ndims( poDS->root_cdfid, &dim_count ) != NC_NOERR || dim_count < 2 )
++    {
++      CPLError( CE_Warning, CPLE_AppDefined,"%s is a ADAGUC file, but not in raster configuration.",
++                poOpenInfo->pszFilename );
++      delete poDS;poDS=NULL;
++      return NULL;
++    }
++
++  
++    CPLDebug("GDAL_ADAGUC", "  dim_count = %d", dim_count );
++    char   *attname = NULL;
++    size_t    attlen;
++    
++    if((status = nc_inq_attlen( poDS->root_cdfid, NC_GLOBAL, "Conventions",&attlen)) != NC_NOERR ) {
++     attname = new char[attlen+1];
++    if((status = nc_get_att_text( poDS->root_cdfid, NC_GLOBAL, "Conventions",attname )) != NC_NOERR ) {
++           CPLError( CE_Warning, CPLE_AppDefined, 
++                     "No UNIDATA NC_GLOBAL:Conventions attribute");
++           /* note that 'Conventions' is always capital 'C' in CF spec*/
++    }
++    }
++    delete[] attname;attname=NULL;
++  
++    /* -------------------------------------------------------------------- */
++    /*      Create a corresponding GDALDataset.                             */
++    /*      Create Netcdf Subdataset if filename as NETCDF tag              */
++    /* -------------------------------------------------------------------- */
++    
++  
++    poDS->ReadAttributes( poDS->root_cdfid, NC_GLOBAL );	
++  
++    /* -------------------------------------------------------------------- */
++    /*  Verify if only one variable has 2 dimensions                        */
++    /* -------------------------------------------------------------------- */
++  
++    /* -------------------------------------------------------------------- */
++    /*      Create band information objects.                                */
++    /* -------------------------------------------------------------------- */
++  
++    if ( nc_inq_nvars ( poDS->root_cdfid, &var_count) != NC_NOERR ){
++      CPLDebug("GDAL_ADAGUC","[/Open Not a valid group id]");
++      CSLDestroy( poDS->papszName );
++      delete poDS;
++      return NULL;    
++    }
++  
++    for ( j = 0; j < var_count; j++ ) {
++  
++      nc_inq_varndims ( poDS->root_cdfid, j, &ndims );
++      if( ndims >= 2 ) {
++  // lat and lon can have 2 dimensions when the file is projected, these must be skipped
++        if(nc_inq_varname( poDS->root_cdfid, j, szVarName) == NC_NOERR){
++          if(!(EQUAL(szVarName,"lat")||EQUAL(szVarName,"lon"))) {
++            nVarID=j;
++            nCount++;
++          }
++        }
++      }
++     }
++        
++        
++         CPLDebug("GDAL_ADAGUC", "  Total var_count = %d, Total Bands= %d",var_count,nCount);
++//There is no variable with 2 or more dimensions!
++         if(nVarID==-1)
++         {
++           CPLDebug("GDAL_ADAGUC","[/Open This netcdf file contains no variable with >=2 dimensions]");
++           CSLDestroy( poDS->papszName );
++           delete poDS;
++           return NULL;
++         }
++         /* -------------------------------------------------------------------- */
++         /*  We have more than one variable with 2 dimensions in the file        */
++         /* -------------------------------------------------------------------- */
++         if(nCount>1&& isSubDataset==false) {
++           poDS->CreateSubDatasetList( );
++           poDS->SetMetadata( poDS->papszMetadata,NULL );
++           CPLDebug("GDAL_ADAGUC","[/Open CreateSubDatasetList]");
++           return( poDS );
++         }
++         /* -------------------------------------------------------------------- */
++         /*  If we have only one varialbe                                        */
++         /*  Generate a new filename with format ADAGUC:"filename":subdataset    */
++         /* -------------------------------------------------------------------- */
++         if(nCount==1&&isSubDataset==false){
++           safestrcpy( pszADAGUCFilename,"ADAGUC:\""             ,MAX_ATTRIBUTE_LEN);
++           safestrcat( pszADAGUCFilename,poOpenInfo->pszFilename ,MAX_ATTRIBUTE_LEN);
++           safestrcat( pszADAGUCFilename,"\""                    ,MAX_ATTRIBUTE_LEN);
++           nc_inq_varname( poDS->root_cdfid, nVarID, szVarName);
++           safestrcat( pszADAGUCFilename,":"                ,MAX_ATTRIBUTE_LEN);
++           safestrcat( pszADAGUCFilename, szVarName         ,MAX_ATTRIBUTE_LEN);
++           CPLDebug("GDAL_ADAGUC", "  ADAGUCFilename = %s", pszADAGUCFilename);
++           CSLDestroy( poDS->papszName );
++           poDS->papszName = CSLTokenizeString2(  pszADAGUCFilename,":", CSLT_HONOURSTRINGS );
++           CPLFree( poDS->pszFilename );
++           poDS->pszFilename = strdup( pszADAGUCFilename );
++         }	
++
++         //Try to find the variable
++         snprintf(variableName,MAX_ATTRIBUTE_LEN,"%s",poDS->papszName[2]);variableName[MAX_ATTRIBUTE_LEN]='\0';
++         var=-1;
++         if(nc_inq_varid( poDS->root_cdfid, variableName, &var)!=NC_NOERR){
++           CPLError( CE_Failure, CPLE_OpenFailed, "Variable %s not found",variableName);
++           delete poDS;poDS=NULL;
++           return NULL;
++         };
++         
++         // Open the NETCDF subdataset ADAGUC:"filename":variable:dimension */
++         // fill in this dimension
++         char szDimension_1[MAX_ATTRIBUTE_LEN+1];
++         szDimension_1[0]='\0';
++         if(numberFileNameParams>3){
++           if(poDS->papszName[3]!=NULL){snprintf(szDimension_1,MAX_ATTRIBUTE_LEN,"%s",poDS->papszName[3]);szDimension_1[MAX_ATTRIBUTE_LEN]='\0';}
++         }
++
++         nc_inq_varndims ( poDS->root_cdfid, var, &nd );
++         poDS->paDimIds = (int *)CPLCalloc(nd, sizeof( int ) );
++         poDS->panBandDimPos = ( int * ) CPLCalloc( nd, sizeof( int ) );
++         nc_inq_vardimid( poDS->root_cdfid, var, poDS->paDimIds );
++
++        
++         /* -------------------------------------------------------------------- */
++         /*      Check fi somebody tried to pass a variable with less than 2D    */
++         /* -------------------------------------------------------------------- */
++
++         if ( nd < 2 ) {
++           CPLError( CE_Failure, CPLE_OpenFailed, "No raster %s",variableName);
++           delete poDS;poDS=NULL;
++           return NULL;
++         }
++
++         /* -------------------------------------------------------------------- */
++         /*      CF-1 Convention                                                 */
++         /*      dimensions to appear in the relative order T, then Z, then Y,   */
++         /*      then X  to the file. All other dimensions should, whenever      */
++         /*      possible, be placed to the left of the spatiotemporal           */
++         /*      dimensions.                                                     */
++         /* -------------------------------------------------------------------- */
++
++         /* -------------------------------------------------------------------- */
++         /*      Get X dimensions information                                    */
++         /* -------------------------------------------------------------------- */
++         poDS->nDimXid = poDS->paDimIds[nd-1];
++         nc_inq_dimlen ( poDS->root_cdfid, poDS->nDimXid, &poDS->xdim );
++         poDS->nRasterXSize = poDS->xdim;
++
++         /* -------------------------------------------------------------------- */
++         /*      Get Y dimension information                                     */
++         /* -------------------------------------------------------------------- */
++         poDS->nDimYid = poDS->paDimIds[nd-2];
++         nc_inq_dimlen ( poDS->root_cdfid, poDS->nDimYid, &poDS->ydim );
++         poDS->nRasterYSize = poDS->ydim;
++
++         for( j=0,k=0; j < nd; j++ ){
++           if( poDS->paDimIds[j] == poDS->nDimXid ){ 
++             poDS->panBandDimPos[0] = j;         // Save Position of XDim
++             k++;
++           }
++           if( poDS->paDimIds[j] == poDS->nDimYid ){
++             poDS->panBandDimPos[1] = j;         // Save Position of YDim
++             k++;
++           }
++         }
++         /* -------------------------------------------------------------------- */
++         /*      X and Y Dimension Ids were not found!                           */
++         /* -------------------------------------------------------------------- */
++         if( k != 2 ) {
++           CPLDebug("GDAL_ADAGUC","[/Open X and Y Dimension Ids were not found!]");
++           delete poDS;poDS=NULL;
++           return NULL;
++           
++         }
++
++
++         /* -------------------------------------------------------------------- */
++         /*      Read Metadata for this variable                                 */
++         /* -------------------------------------------------------------------- */
++         poDS->ReadAttributes( poDS->root_cdfid, var );
++         /* -------------------------------------------------------------------- */
++         /*      Read Metadata from the product and iso_dataset variables  */
++         /* -------------------------------------------------------------------- */
++
++         int varid;
++         status = nc_inq_varid( poDS->root_cdfid, PRODUCT, &varid );
++         if( status == NC_NOERR ) {
++           poDS->ReadAttributes( poDS->root_cdfid, varid );
++         }
++         status = nc_inq_varid( poDS->root_cdfid, ISO_DATASET, &varid );
++         if( status == NC_NOERR ) {
++           poDS->ReadAttributes( poDS->root_cdfid, varid );
++         }
++        
++         // Set the variable name
++         poDS->papszMetadata = CSLSetNameValue(poDS->papszMetadata,
++                                               "product#[C]variables",variableName);
++
++        // Keep a history of all input files processed...
++         pszValue = CSLFetchNameValue(poDS->papszMetadata, "product#[C]input_products");
++         if(pszValue!=NULL)snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s, %s",poDS->papszName[1],pszValue);
++         else              snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s",poDS->papszName[1]);
++         szTemp[MAX_ATTRIBUTE_LEN]='\0';
++         poDS->papszMetadata = CSLSetNameValue(poDS->papszMetadata,"product#[C]input_products",szTemp);
++         poDS->papszMetadata = CSLSetNameValue(poDS->papszMetadata,"custom#[C]input_file",poDS->papszName[1]);
++  
++         /* -------------------------------------------------------------------- */
++         /*      Read Metadata for each dimension                                */
++         /* -------------------------------------------------------------------- */
++
++         for( j=0; j < dim_count; j++ ){
++           nc_inq_dimname( poDS->root_cdfid, j, poDS->papszDimName[j] );
++           status = nc_inq_varid( poDS->root_cdfid, poDS->papszDimName[j], &nDimID );
++           if( status == NC_NOERR ) {
++             poDS->ReadAttributes( poDS->root_cdfid, nDimID );
++           }
++         }
++
++         poDS->SetProjection( poDS->root_cdfid,var );
++         /* -------------------------------------------------------------------- */
++         /*      Create bands                                                    */
++         /* -------------------------------------------------------------------- */
++         poDS->panBandZLev = (int *)CPLCalloc( sizeof( nd ) - 2, 
++         sizeof( int ) );
++
++        // Find out if someone made a index selection in a Dimension
++        // EG TIME=20
++        
++         int selected_level=-1;
++         nTotLevCount = 1;
++         int founddimindex=0,founddimension=0,dimspecified=0;
++         size_t dimensionIndex_1=0;
++         //szDimension_1 has format name=index, split them
++         if(strlen(szDimension_1)>0){
++           char ** dimsplit =  CSLTokenizeString2( szDimension_1,"=", CSLT_HONOURSTRINGS|CSLT_PRESERVEESCAPES );
++           if(CSLCount(dimsplit)>1)
++           {
++             dimensionIndex_1=atoi(dimsplit[1]);
++             snprintf(szDimension_1,MAX_ATTRIBUTE_LEN,"%s",dimsplit[0]);szDimension_1[MAX_ATTRIBUTE_LEN]='\0';
++             dimspecified=1;
++           }
++           CSLDestroy(dimsplit);
++         }
++        if (dim_count>2){
++          for( j=0; j < nd; j++ ){
++            if( ( poDS->paDimIds[j] != poDS->nDimXid ) && ( poDS->paDimIds[j] != poDS->nDimYid ) ){
++              status = nc_inq_dimname (poDS->root_cdfid, poDS->paDimIds[j], szTemp);
++              if(status!=NC_NOERR){    
++                CPLError( CE_Failure, CPLE_OpenFailed,"unable to get dimension name for id %d", poDS->paDimIds[j]);
++                delete poDS;poDS=NULL;
++                return NULL;
++              }
++              status = nc_inq_dimlen ( poDS->root_cdfid, poDS->paDimIds[j], &lev_count );
++              if(status!=NC_NOERR){    
++                CPLError( CE_Failure, CPLE_OpenFailed,"unable to get dimensionlength for %s",szTemp);
++                delete poDS;poDS=NULL;
++                return NULL;
++              }
++              if(dimspecified==1){
++                if(EQUAL(szTemp,szDimension_1)){
++                founddimension=1;
++                  selected_level=dimensionIndex_1;
++                  if(dimensionIndex_1<0||dimensionIndex_1>lev_count){
++                    CPLError( CE_Failure, CPLE_OpenFailed,"Dimension %s out of range",szTemp);
++                    delete poDS;poDS=NULL;
++                    return NULL;
++                  }
++                  founddimindex=1;
++                }
++              }
++              
++              if(founddimindex==0)nTotLevCount *= lev_count;
++              poDS->panBandZLev[ j] = lev_count;
++              poDS->panBandDimPos[ nDim++ ] = j;  //Save Position of ZDim
++            }
++          }
++        }
++        if(dimspecified==1){
++          if(founddimension==0)CPLError( CE_Failure, CPLE_OpenFailed, "dimension <%s> not found",szDimension_1);else
++                 if(founddimindex ==0)CPLError( CE_Failure, CPLE_OpenFailed, 
++                 "dimension index <%d> not found in dim <%s>",dimensionIndex_1,szDimension_1);
++                 if(founddimindex ==0||founddimension==0){
++                   delete poDS;poDS=NULL;
++                   return NULL;
++                 }
++         }
++
++         i=0;
++         if(selected_level<0)selected_level=0;else nTotLevCount=1;
++
++         for ( unsigned int lev = 0; lev < nTotLevCount ; lev++ ) {
++           int level=lev+selected_level;
++           char ** papszToken;
++           papszToken=NULL;
++
++           ADAGUCRasterBand *poBand =
++               new ADAGUCRasterBand(poDS, poDS->root_cdfid,var, nDim, level,
++                                    poDS->panBandZLev, poDS->panBandDimPos, i+1,poDS->positive_up );
++           poDS->SetBand( i+1, poBand );
++           i++;
++         }
++         poDS->nBands = i;
++
++    // Handle angular geographic coordinates here
++
++         /* -------------------------------------------------------------------- */
++         /*      Initialize any PAM information.                                 */
++         /* -------------------------------------------------------------------- */
++         poDS->SetMetadata( poDS->papszMetadata ,"");
++         CPLDebug("GDAL_ADAGUC","[/Open]");
++         poDS->SetDescription( poOpenInfo->pszFilename );
++         poDS->TryLoadXML( );
++         return( poDS );
++}
++
++
++/************************************************************************/
++/*                            ADAGUCCreateBandMetadata()             */
++/*                                                                      */
++/*      Each band will be filled with specific metadata                 */
++/************************************************************************/
++
++void ADAGUCCreateBandMetadata( void  *poSrcDS,int fpVariableGroup, int NCDFVarID,oDynamicMetadata *DynMeta ) 
++{
++        //Put long_name
++  nc_put_att_text( fpVariableGroup,
++                   NCDFVarID,
++                   LNG_NAME, 
++                   strlen(DynMeta->szVariable_LongName) ,
++                   DynMeta->szVariable_LongName);
++
++        //Put standard_name
++  nc_put_att_text( fpVariableGroup,
++                   NCDFVarID,
++                   STD_NAME, 
++                   strlen(DynMeta->szVariable_StandardName) ,
++                   DynMeta->szVariable_StandardName);
++
++        //Put  units
++  nc_put_att_text( fpVariableGroup, 
++                   NCDFVarID,
++                   _UNITS,
++                   strlen(DynMeta->szVariable_Units) ,
++                   DynMeta->szVariable_Units);
++
++  nc_put_att_text( fpVariableGroup, NCDFVarID, GRD_MAPPING, strlen(PROJECTION), PROJECTION);
++  if(DynMeta->Projected==1)nc_put_att_text( fpVariableGroup, NCDFVarID, COORDINATES, strlen("lon lat"), "lon lat");
++}
++
++void PrintISOTime(char * out,size_t maxlen,int year,int month,int day,int hour,int minute,float second)
++{
++  snprintf(out,maxlen,"%04d%02d%02dT%02d:%02d:%09f",year,month,day,hour,minute,second);
++  out[maxlen]='\0';
++}
++
++void OffsetUTTime(char *ISO_Output,size_t maxlen,char * UtUnits,double offset){
++  utUnit  dataunits;
++  int     year, month, day, hour, minute;
++  float   second;
++  if (utInit("") != 0) {
++    CPLError( CE_Warning, CPLE_AppDefined, 
++              "OffsetUTTime: Couldn't initialize Unidata units library");
++    return;
++  }
++  if(utScan(UtUnits,&dataunits) != 0)
++  {
++    CPLError( CE_Warning, CPLE_AppDefined, 
++              "internal error: udu_fmt_time can't parse data unit string");
++    return;
++  }
++  if(utCalendar(offset,&dataunits,&year,&month,&day,&hour,&minute,&second)!=0)
++  {
++    CPLError( CE_Warning, CPLE_AppDefined, 
++              "internal error: utCalendar");
++    return;
++  }
++  PrintISOTime(ISO_Output,maxlen,year,month,day,hour,minute,second);
++  utTerm();
++}
++
++void GetCurrentDate(char *szDate){
++  time_t rawtime;
++  tm * ptm;
++  time ( &rawtime );
++  ptm = gmtime ( &rawtime );
++  PrintISOTime(szDate,MAX_ATTRIBUTE_LEN,
++               ptm->tm_year+1900,
++               ptm->tm_mon+1,
++               ptm->tm_mday,
++               ptm->tm_hour,
++               ptm->tm_min,
++               (float)ptm->tm_sec);
++}
++void ADAGUCUpdateDynamicMetadata(int fpImage,oDynamicMetadata * DynMeta )
++{
++  /* -------------------------------------------------------------------- */
++  /*     Adaguc metadata - Change dynamic metadata items:                 */
++  /*     validity_start,validity_stop and creation_date                   */
++  /* -------------------------------------------------------------------- */
++
++  CPLDebug("GDAL_ADAGUC","[ADAGUCUpdateDynamicMetadata]");
++  int status,varid;
++  char pszCreationDate[MAX_ATTRIBUTE_LEN+1];
++        
++  CPLDebug("GDAL_ADAGUC","  update Dyn attr: creating variable 'iso_dataset'");
++  status = nc_def_var(fpImage,ISO_DATASET, NC_CHAR, 0,0,&varid);
++  // ISO_dataset should have ISO19115:2003 as value... disabled for now.
++  //status = nc_def_var(fpImage,ISO_DATASET, NC_CHAR, 1,&DynMeta->StringDim,&varid);
++  /*if(status == NC_NOERR){
++  size_t start[1],count[1];start[0]=0;count[0]=NC_VAR_STRING_LENGTH;
++  char szTemp[NC_VAR_STRING_LENGTH];
++  for(int j=0;j<NC_VAR_STRING_LENGTH;j++)szTemp[j]='\0';
++  safestrcpy(szTemp,ISO_DATASET_ID,NC_VAR_STRING_LENGTH);
++  status = nc_put_vara_text(fpImage, varid, start,count,szTemp);
++  checkncerr("nc_put_var_text ISO_DATASET_ID", status);
++}*/
++  /* It is possible that the variable name ISO_DATASET is already defined in the XML file, check this here */
++  if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, ISO_DATASET,&varid);
++  checkncerr("defining/finding iso_dataset", status);
++  status = nc_put_att_text(fpImage, varid, "long_name",strlen(ISO_DATASET),ISO_DATASET);
++  CPLDebug("GDAL_ADAGUC","  update Dyn attr: creating variable 'product'");
++  status = nc_def_var(fpImage,PRODUCT, NC_SHORT, 0,0,&varid);
++  if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, PRODUCT,&varid);
++  checkncerr("defining/finding product", status);
++  if(status == NC_NOERR ){
++    CPLDebug("GDAL_ADAGUC","  update Dyn attr: replacing existing attributes by DynMeta values");
++    status = nc_put_att_text(fpImage, varid, "long_name",strlen(PRODUCT),PRODUCT);
++
++                //delete existing attributes
++    status = nc_del_att(fpImage, varid,"validity_start");
++    status = nc_del_att(fpImage, varid,"validity_stop");  
++    status = nc_del_att(fpImage, varid,"creation_date");  
++
++                //assign the new attributes the values from DynMeta
++    status = nc_put_att_text(fpImage, varid, "validity_start",
++                             strlen(DynMeta->szValidityStart), DynMeta->szValidityStart);
++    checkncerr("nc_put_att_text validity_start", status);
++    status = nc_put_att_text(fpImage, varid, "validity_stop",
++                             strlen(DynMeta->szValidityStop), DynMeta->szValidityStop);
++    checkncerr("nc_put_att_text validity_stop", status);
++    //Fill in creation date
++    GetCurrentDate(pszCreationDate);
++    status = nc_put_att_text(fpImage, varid, "creation_date",strlen(pszCreationDate)-1,pszCreationDate);
++    checkncerr("nc_put_att_text creation_date", status);
++  }else CPLError( CE_Warning, CPLE_AppDefined,"Error creating/finding product variable");
++        
++  CPLDebug("GDAL_ADAGUC","[/ADAGUCUpdateDynamicMetadata]");
++}
++
++        /* -------------------------------------------------------------------- */
++        /*     ADAGUCCopyMetadata - Copy metadata from NCML and source file	*/
++        /* -------------------------------------------------------------------- */
++
++int ADAGUCCopyMetadata( void *  poDS, int fpImage, char * NcMLFile ,oDynamicMetadata * DynMeta) {
++  char       **papszMetadata;
++  char       **papszFieldData;
++  char       **papszAttributeData=NULL;
++  const char *pszField;
++  const char *pszValue;
++  char        szTemp[MAX_ATTRIBUTE_LEN+1];
++  char        szHistory[MAX_ATTRIBUTE_LEN+1];
++  char        szInputProducts[MAX_ATTRIBUTE_LEN+1];
++  int         status;
++  int         varid;
++
++  /* -------------------------------------------------------------------- */
++  /*     Adaguc metadata - Set global atttributes				*/
++  /* -------------------------------------------------------------------- */
++  CPLDebug("GDAL_ADAGUC","[ADAGUCCopyMetadata]");
++  CPLDebug("GDAL_ADAGUC","  copy metadata: put global attributes");
++  status = nc_put_att_text( fpImage, NC_GLOBAL, "Conventions",6,"CF-1.4" );
++
++  if(status != NC_NOERR )
++    CPLDebug("GDAL_ADAGUC", "  copy metadata: Unable to write attribute 'Conventions': %s",nc_strerror(status));
++
++  /* -------------------------------------------------------------------- */
++  /*     Adaguc metadata - Copy product,iso_dataset and custom attributes from source	*/
++  /* -------------------------------------------------------------------- */
++  CPLDebug("GDAL_ADAGUC","  copy metadata: Copy product,iso_dataset and custom from source");
++
++  /* GDALMETADATA is in the form off: varname#[T]attributename=value		*/
++  int product_varid=-1,isodataset_varid=-1,custom_varid=-1;
++  
++  if(poDS == NULL){CPLError( CE_Failure, CPLE_AppDefined, "ADAGUCCopyMetadata: GDALDataset poDS == NULL" );    return 1;  }
++  papszMetadata = GDALGetMetadata( (GDALDataset *) poDS,"");
++  if(papszMetadata!=NULL) {
++    if( CSLCount(papszMetadata) > 0 )  {
++      for( int i = 0; papszMetadata[i] != NULL; i++ ){
++        pszField = CSLGetField( papszMetadata, i );
++        papszFieldData = CSLTokenizeString2 (pszField , "#", CSLT_HONOURSTRINGS );
++        if(papszFieldData!=NULL){
++          if( CSLCount(papszFieldData) > 1 )
++          {
++            papszAttributeData = CSLTokenizeString2 ( papszFieldData[1], "=", CSLT_HONOURSTRINGS );
++            varid=-1;
++            int vardefined = 0;
++                    // Create or Search for variables custom, product and iso_dataset, and asign id to varid
++            if(EQUALN(papszFieldData[0], CUSTOM,strlen(CUSTOM))){
++              if(custom_varid==-1){
++                status=nc_def_var	(fpImage,CUSTOM, NC_SHORT, 0, 0, &custom_varid );
++                if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, CUSTOM,&custom_varid);
++              }
++              checkncerr("nc_def_var CUSTOM", status);
++              varid = custom_varid;
++              vardefined=1;
++            }
++
++            if(EQUALN(papszFieldData[0], "NC_GLOBAL" ,strlen("NC_GLOBAL") )){	
++              varid = NC_GLOBAL;
++              vardefined=1;		
++            }
++
++            if(EQUALN(papszFieldData[0], PRODUCT ,strlen(PRODUCT) )){	
++              if(product_varid==-1){
++                status=nc_def_var	(fpImage,PRODUCT, NC_SHORT, 0, 0, &product_varid );
++                if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, PRODUCT,&product_varid);
++              }
++              checkncerr("nc_def_var PRODUCT", status);
++              varid = product_varid;		
++              vardefined=1;
++            }
++
++            if(EQUALN(papszFieldData[0], ISO_DATASET ,strlen(ISO_DATASET) )){	
++              if(isodataset_varid==-1){
++                status=nc_def_var	(fpImage,ISO_DATASET, NC_SHORT, 0, 0, &isodataset_varid );
++                if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, ISO_DATASET,&isodataset_varid);
++              }
++              checkncerr("nc_def_var ISO_DATASET", status);
++              varid = isodataset_varid;     	
++              vardefined=1;
++            }
++
++            // When varid is a valid variable ID, eg!=-1, we can put attributes in that variable ID
++
++            if(vardefined==1){
++              if(CSLCount(papszAttributeData)==2){
++                // Put attribute
++                status = NC_EBADTYPE;
++                // Check of which type the attribute is. The attribute starts with [T} with T is the type
++                // C = String
++                // S = short
++                // I = integer
++                // F = float
++                // D = double
++                if(papszAttributeData[0][0]=='['&&papszAttributeData[0][2]==']')
++                {
++                  if(papszAttributeData[0][1]=='C'){
++                      status = nc_put_att_text( fpImage, 
++                      varid, 
++                      papszAttributeData[0]+3,      // Remove [T] type
++                      strlen(papszAttributeData[1]),
++                      papszAttributeData[1] );
++                    }
++                  if(papszAttributeData[0][1]=='S'){
++                    short val = atoi(papszAttributeData[1]);
++                    status = nc_put_att_short( fpImage, 
++                    varid, 
++                    papszAttributeData[0]+3,      // Remove [T] type
++                    NC_SHORT,
++                    1,
++                    &val);
++                  }
++                  if(papszAttributeData[0][1]=='I'){
++                    int val = atoi(papszAttributeData[1]);
++                    status = nc_put_att_int( fpImage, 
++                    varid, 
++                    papszAttributeData[0]+3,      // Remove [T] type
++                    NC_INT,
++                    1,
++                    &val);
++                  }
++                  if(papszAttributeData[0][1]=='F'){
++                    float val = atof(papszAttributeData[1]);
++                    status = nc_put_att_float( fpImage, 
++                    varid, 
++                    papszAttributeData[0]+3,      // Remove [T] type
++                    NC_FLOAT,
++                    1,
++                    &val);
++                  }
++                  if(papszAttributeData[0][1]=='D'){
++                    double val = atof(papszAttributeData[1]);
++                    status = nc_put_att_double( fpImage, 
++                    varid, 
++                    papszAttributeData[0]+3,      // Remove [T] type
++                    NC_DOUBLE,
++                    1,
++                    &val);
++                  }
++                }else{
++                  //if no type is found the attribute will be put as a String. 
++                  status = nc_put_att_text( fpImage, 
++                    varid, 
++                    papszAttributeData[0], 
++                    strlen(papszAttributeData[1]),
++                    papszAttributeData[1] );
++                }
++                checkncerr("put attributes", status);
++              }
++            }
++            CSLDestroy( papszAttributeData );
++          }
++        }
++        CSLDestroy( papszFieldData );
++      }
++    }
++  }
++
++  /* -------------------------------------------------------------------- */
++  /*     Adaguc metadata - copy all metadata from the selected variable	*/
++  /* -------------------------------------------------------------------- */
++
++  //try to retrieve the variable name	
++  snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s#[C]%s",PRODUCT,"variables");
++  pszValue = CSLFetchNameValue(papszMetadata, szTemp);
++  if(pszValue!=0)safestrcpy(DynMeta->szVariableName,pszValue,MAX_ATTRIBUTE_LEN);
++
++  //try to retrieve long_name	
++  snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s#[C]%s",DynMeta->szVariableName,LNG_NAME);
++  pszValue = CSLFetchNameValue(papszMetadata, szTemp);
++  if(pszValue!=0)safestrcpy(DynMeta->szVariable_LongName,pszValue,MAX_ATTRIBUTE_LEN);
++
++  //try to retrieve standard_name	
++  snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s#[C]%s",DynMeta->szVariableName,STD_NAME);
++  pszValue = CSLFetchNameValue(papszMetadata, szTemp);
++  if(pszValue!=0)safestrcpy(DynMeta->szVariable_StandardName,pszValue,MAX_ATTRIBUTE_LEN);
++
++  //try to retrieve units_name	
++  snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s#[C]%s",DynMeta->szVariableName,_UNITS);
++  pszValue = CSLFetchNameValue(papszMetadata, szTemp);
++  if(pszValue!=0)safestrcpy(DynMeta->szVariable_Units,pszValue,MAX_ATTRIBUTE_LEN);
++
++  //try to retrieve validity_start	
++  snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s#[C]%s",PRODUCT,"validity_start");
++  pszValue = CSLFetchNameValue(papszMetadata, szTemp);
++  if(pszValue!=0)safestrcpy(DynMeta->szValidityStart,pszValue,MAX_ATTRIBUTE_LEN);
++
++  //try to retrieve validity_stop	
++  snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s#[C]%s",PRODUCT,"validity_stop");
++  pszValue = CSLFetchNameValue(papszMetadata, szTemp);
++  if(pszValue!=0)safestrcpy(DynMeta->szValidityStop,pszValue,MAX_ATTRIBUTE_LEN);
++
++  // Keep a history of all applications that have modified the data
++  safestrcpy(szHistory,ADAGUC_DRIVER_ID,MAX_ATTRIBUTE_LEN);
++  pszValue = CSLFetchNameValue(papszMetadata, "product#[C]history");
++  if(pszValue!=NULL){
++    snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s, %s",szHistory,pszValue);
++    safestrcpy(szHistory,szTemp,MAX_ATTRIBUTE_LEN);  
++  }
++
++  // Keep a history of all input products
++  // When the source is opened with this driver we know the input file
++  // Because in the Open () function product#input_products is expanded with
++  // the input file.
++  // In Create copy we do not now the sourcefile anymore
++  // (When translating from other drivers product#input_products isundefined
++  pszValue = CSLFetchNameValue(papszMetadata, "product#[C]input_products");
++  if(pszValue!=NULL)safestrcpy(szInputProducts,pszValue,MAX_ATTRIBUTE_LEN); 
++  else              safestrcpy(	szInputProducts,"",MAX_ATTRIBUTE_LEN);
++  
++  //Attempt to read input file info
++  char **inputFileList= GDALGetFileList( (GDALDataset *) poDS);
++  if(inputFileList!=NULL){
++    int j,l=CSLCount(inputFileList);
++    if(l>0){
++      char szTemp[MAX_ATTRIBUTE_LEN];
++      szTemp[0]='\0';
++      if(l>1)snprintf(szTemp,MAX_ATTRIBUTE_LEN,"{");
++      for(j=0;j<l;j++){
++        if(l>1)snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s, %s",szTemp,inputFileList[j]);
++        else snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s",inputFileList[j]);
++        CPLDebug("GDAL_ADAGUC", "  inputFileList: '%s'.",inputFileList[j] );
++      }
++      if(l>1)snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s}",szTemp);
++      if(strlen(szInputProducts)>1){
++        safestrcat(szTemp,", ",MAX_ATTRIBUTE_LEN);
++        safestrcat(szTemp,szInputProducts,MAX_ATTRIBUTE_LEN);
++      }
++      safestrcpy(szInputProducts,szTemp,MAX_ATTRIBUTE_LEN);
++    }
++    CSLDestroy(inputFileList);
++  }
++
++  /* -------------------------------------------------------------------- */
++  /*     Adaguc metadata - copy all metadata from ncml file		*/
++  /* -------------------------------------------------------------------- */
++  CPLXMLNode *psProduct=NULL, *psNCML,*psVariables,*psAttributes,*psVariableNode,*psAttributeNode;
++  const char *pszVariable,*pszAttributeName,*pszAttributeValue,*pszAttributeType;
++
++  if(NcMLFile!=NULL){
++    psProduct = CPLParseXMLFile( NcMLFile );
++    if(psProduct == NULL){
++      CPLError( CE_Failure, CPLE_OpenFailed,"ADAGUCCopyMetadata: Unable to read NCML file %s.",NcMLFile );
++      return 1;
++    }else { 
++      CPLDebug("GDAL_ADAGUC", "  Openend NcML '%s'.",NcMLFile );
++      psNCML = CPLGetXMLNode(psProduct, "=netcdf" );
++      psVariables = CPLSearchXMLNode(psNCML, "variable" );
++  
++      if( psVariables == NULL ){
++        CPLError( CE_Failure, CPLE_OpenFailed, "Failed to find <variable> in NcML document." );
++        CPLDestroyXMLNode(  psNCML) ;
++        return 1;
++      }
++          
++      for( psVariableNode = psVariables; psVariableNode != NULL;psVariableNode = psVariableNode->psNext ){
++        pszVariable = CPLGetXMLValue( psVariableNode, "name", "" );
++        if(strlen(pszVariable)>0&&
++          ( EQUALN(pszVariable, CUSTOM,strlen(CUSTOM))||
++          EQUALN(pszVariable, PRODUCT ,strlen(PRODUCT))||
++          EQUALN(pszVariable, PROJECTION ,strlen(PROJECTION) )||
++          EQUALN(pszVariable, DynMeta->szVariableName ,strlen(DynMeta->szVariableName) )||
++          EQUALN(pszVariable, ISO_DATASET,strlen(ISO_DATASET))))
++        {
++          varid=-1;
++          
++          if(EQUALN(pszVariable, ISO_DATASET,strlen(ISO_DATASET))){
++            status = nc_def_var(fpImage,pszVariable, NC_CHAR, 0,0,&varid);
++            /*status = nc_def_var(fpImage,pszVariable, NC_CHAR, 1,&DynMeta->StringDim,&varid);
++            if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, pszVariable,&varid);else{
++            size_t start[1],count[1];start[0]=0;count[0]=NC_VAR_STRING_LENGTH;
++            char szTemp[NC_VAR_STRING_LENGTH];
++            for(int j=0;j<NC_VAR_STRING_LENGTH;j++)szTemp[j]='\0';
++            safestrcpy(szTemp,ISO_DATASET_ID,NC_VAR_STRING_LENGTH);
++            status = nc_put_vara_text(fpImage, varid, start,count,szTemp);
++            checkncerr("nc_put_var_text ISO_DATASET_ID", status);
++          }*/
++          }
++          
++                      // Prevent creating the variable with data (DynMeta->szVariableName)
++                      // we are going to create this one later
++                      // The other variables are allowed to be created
++          if(!EQUALN(pszVariable,  DynMeta->szVariableName ,strlen(DynMeta->szVariableName) )){
++            status = nc_def_var(fpImage,pszVariable, NC_CHAR, 0,0,&varid);
++            /* It is possible that the variable name is already defined in the XML file, check this here */
++            if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, pszVariable,&varid);
++          }
++          
++          if(status != NC_NOERR ){
++            CPLError(CE_Warning, CPLE_AppDefined, "Unable to create variable '%s' defined in xml file: %s",
++                    pszVariable,nc_strerror(status));CPLDestroyXMLNode(  psNCML) ;
++            return 1;
++          }
++          psAttributes = CPLSearchXMLNode(psVariableNode, "attribute" );
++          for( psAttributeNode = psAttributes; 
++              psAttributeNode != NULL;
++              psAttributeNode = psAttributeNode->psNext ){
++                pszAttributeName = CPLGetXMLValue( psAttributeNode, "name", "" );
++                pszAttributeValue = CPLGetXMLValue( psAttributeNode, "value", "" );
++                pszAttributeType = CPLGetXMLValue( psAttributeNode, "type", "" );
++                if(strlen(pszAttributeName)>0){
++                  if(varid!=-1){
++                    nc_del_att(fpImage, varid, pszAttributeName);
++                    int AtrrOK=NC_EBADTYPE;
++                    if(EQUALN(pszAttributeType,"short",5)){
++                      short val=atoi(pszAttributeValue);
++                      AtrrOK = nc_put_att_short(fpImage, 
++                                                varid, pszAttributeName,
++                                                NC_SHORT,1,
++                                                &val);
++                    }else 
++  
++                    if(EQUALN(pszAttributeType,"int",3)){
++                      int val=atoi(pszAttributeValue);
++                      AtrrOK = nc_put_att_int(fpImage, 
++                                              varid, pszAttributeName,
++                                              NC_INT,1,
++                                              &val);
++                    }else
++                            /*if(EQUALN(pszAttributeType,"long",4)){
++                              // NetCDF has no long type, uses int32 instead
++                    int val=atol(pszAttributeValue);
++                    AtrrOK = nc_put_att_int(fpImage, 
++                    varid, pszAttributeName,
++                    NC_INT,1,
++                    &val);
++                  }*/
++                    if(EQUALN(pszAttributeType,"float",5)){
++                      float val=atof(pszAttributeValue);
++                      AtrrOK = nc_put_att_float(fpImage, 
++                                                varid, pszAttributeName,
++                                                NC_FLOAT,1,
++                                                &val);
++                    }else
++                    if(EQUALN(pszAttributeType,"double",6)){
++                      double val=atof(pszAttributeValue);
++                      AtrrOK = nc_put_att_double(fpImage, 
++                          varid, pszAttributeName,
++                          NC_DOUBLE,1,
++                          &val);
++                    }else
++                    if(EQUALN(pszAttributeType,"String",6)){
++                      AtrrOK = nc_put_att_text(fpImage, 
++                                                varid, pszAttributeName,
++                                                strlen(pszAttributeValue),
++                                                pszAttributeValue);
++                    }else if(strlen(pszAttributeType)==0){
++                      CPLError(CE_Warning, CPLE_AppDefined, "Not a type defined in NCML file: Assuming type=\"String\" for attribute %s", pszAttributeName);
++                      AtrrOK = nc_put_att_text(fpImage, 
++                                               varid, pszAttributeName,
++                                               strlen(pszAttributeValue),
++                                               pszAttributeValue);
++                    }
++                    if(AtrrOK !=NC_NOERR){
++                      CPLError(CE_Warning, CPLE_AppDefined, "Not a correct type given: Unable to write attribute '%s' error: %s",
++                                pszAttributeName,nc_strerror(AtrrOK));
++                    }
++  
++  
++                  }
++                            //CPLDebug("GDAL_ADAGUC","pszAttributeName [%s]",pszAttributeName);
++  
++                            // Try to retrieve validty start from metadata file
++                  if(EQUALN(pszAttributeName, "validity_start" ,strlen("validity_start") )){
++                    safestrcpy(DynMeta->szValidityStart,pszAttributeValue, MAX_ATTRIBUTE_LEN); 
++                    CPLDebug("GDAL_ADAGUC","validity_start found in xml [%s]",DynMeta->szValidityStart);
++                  }
++                            // Try to retrieve validity_stop from metadata file
++                  if(EQUALN(pszAttributeName, "validity_stop" ,strlen("validity_stop") )){
++                    safestrcpy(DynMeta->szValidityStop,pszAttributeValue, MAX_ATTRIBUTE_LEN); 
++                    CPLDebug("GDAL_ADAGUC","validity_stop found in xml [%s]",DynMeta->szValidityStop);
++                  }
++                            // Keep a history of all applications that have modified the data
++                  if(EQUALN(pszAttributeName, "history" ,strlen("history") )){
++                    char szTemp[MAX_ATTRIBUTE_LEN];
++                    snprintf(szTemp,MAX_ATTRIBUTE_LEN,"%s, %s",pszAttributeValue,szHistory);
++                    safestrcpy(szHistory,szTemp,MAX_ATTRIBUTE_LEN);
++                    CPLDebug("GDAL_ADAGUC","history found in xml [%s]",szHistory);
++                  }
++                            // Keep track of the input files
++                  if(EQUALN(pszAttributeName, "input_products" ,strlen("input_products") )){
++                    char szTemp[MAX_ATTRIBUTE_LEN];
++                    if(strlen(szInputProducts)>0)
++                      snprintf(szTemp,MAX_ATTRIBUTE_LEN,"[NCML:%s], %s",pszAttributeValue,szInputProducts);
++                    else
++                      snprintf(szTemp,MAX_ATTRIBUTE_LEN,"[NCML:%s]",pszAttributeValue);
++                    safestrcpy(szInputProducts,szTemp,MAX_ATTRIBUTE_LEN);
++                    CPLDebug("GDAL_ADAGUC","input files found in xml [%s]",szInputProducts);
++                  }
++                            //CPLDebug("GDAL_ADAGUC","%s = %s",pszAttributeName ,pszAttributeValue);
++                  /***************************************************************/
++                  /*           Retrieve variable infromation from NCML file      */
++                  /***************************************************************/
++                            // TODO It does not matter in which group this information is stored!
++                  if(EQUALN(pszAttributeName, "variables" ,strlen("variables") ))
++                    safestrcpy(DynMeta->szVariableName,pszAttributeValue, MAX_ATTRIBUTE_LEN); 
++                  if(EQUALN(pszAttributeName, _UNITS ,strlen(_UNITS) ))
++                    safestrcpy(DynMeta->szVariable_Units,pszAttributeValue, MAX_ATTRIBUTE_LEN); 
++                  if(EQUALN(pszAttributeName, STD_NAME ,strlen(STD_NAME) ))
++                    safestrcpy(DynMeta->szVariable_StandardName,pszAttributeValue, MAX_ATTRIBUTE_LEN); 
++                  if(EQUALN(pszAttributeName, LNG_NAME ,strlen(LNG_NAME) ))
++                    safestrcpy(DynMeta->szVariable_LongName,pszAttributeValue,MAX_ATTRIBUTE_LEN); 
++                  if(EQUALN(pszAttributeName, EPSG_CODE ,strlen(EPSG_CODE) ))
++                    safestrcpy(DynMeta->szEPSG_code,pszAttributeValue,MAX_ATTRIBUTE_LEN); 
++                  if(EQUALN(pszAttributeName, PROJ4_PARAMS ,strlen(PROJ4_PARAMS))||
++                      EQUALN(pszAttributeName, EPSG_CODE ,strlen(EPSG_CODE)) ){
++                    CPLDebug("GDAL_ADAGUC","  PROJ4 PARAMS found in xml [%s]",pszAttributeValue);
++                    safestrcpy(DynMeta->szProjectionParams,pszAttributeValue,MAX_ATTRIBUTE_LEN); 
++                      }
++                }
++              }
++        }
++      }
++      CPLDestroyXMLNode(  psNCML) ;
++    }
++  }
++        // Update history and input files
++  status = nc_def_var(fpImage,PRODUCT, NC_SHORT, 0,0,&varid);
++  /* It is possible that the variable name is already defined in the XML file, check this here */
++  if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, PRODUCT,&varid);
++  checkncerr("get var PRODUCT", status);
++
++  nc_del_att(fpImage, varid, "history");
++  nc_del_att(fpImage, varid, "input_products");
++
++  // Add the date in front of the history
++  char        szDate[MAX_ATTRIBUTE_LEN+1];
++  GetCurrentDate(szDate);
++  safestrcpy(szTemp,szHistory,MAX_ATTRIBUTE_LEN);
++  snprintf(szHistory,MAX_ATTRIBUTE_LEN,"[Date:%s] %s",szDate,szTemp);
++  
++  status = nc_put_att_text(fpImage, 
++                           varid,
++                           "history",
++                           strlen(szHistory),
++                           szHistory);
++  checkncerr("nc_put_att_text history", status);
++        //CPLDebug("GDAL_ADAGUC","%s = %s",pszAttributeName ,pszAttributeValue);
++
++  status = nc_put_att_text(fpImage, 
++                           varid,
++                           "input_products",
++                           strlen(szInputProducts),
++                           szInputProducts);
++  checkncerr("nc_put_att_text input_products", status);
++  CPLDebug("GDAL_ADAGUC","[/ADAGUCCopyMetadata]");
++  return 0;
++}
++/************************************************************************/
++/*                             getDimScaleValue()                       */
++/************************************************************************/
++
++const char* getBandMetadata(GDALRasterBand *poSrcBand,const char *attribute,char*name){
++
++  char pszTemp[MAX_ATTRIBUTE_LEN+1];
++  char ** papszMetadata = GDALGetMetadata(  poSrcBand,"");
++  if(papszMetadata!=NULL){
++    snprintf(pszTemp,MAX_ATTRIBUTE_LEN,"%s#%s",attribute,name);
++    return CSLFetchNameValue(papszMetadata,pszTemp);
++  }
++  return NULL;
++}
++
++
++/************************************************************************/
++/*                             CreateCopy()                             */
++/************************************************************************/
++
++
++static GDALDataset*
++    ADAGUCCreateCopy( const char * pszFilename, GDALDataset *poSrcDS, 
++                      int bStrict, char ** papszOptions, 
++                      GDALProgressFunc pfnProgress, void * pProgressData ){
++
++  CPLDebug("GDAL_ADAGUC","[ADAGUCCreateCopy]");
++  bool bNCDUMP = CSLFetchBoolean( papszOptions, "NCDUMP" , FALSE );
++  if(bNCDUMP==true){
++    // Keep a history of all input files processed...
++    char**papszMetadata = GDALGetMetadata( (GDALDataset *) poSrcDS,"");
++    const char *pszValue = CSLFetchNameValue(papszMetadata, "custom#[C]input_file");
++    if(pszValue!=NULL)
++    {
++      //#printf("[Metadata of %s]\n\n\n",FileName);
++      FILE *fpipe,*file;
++      char Command[MAX_STR_LEN+1];
++      safestrcpy(Command,"ncdump -h ",MAX_STR_LEN);
++      safestrcat(Command,pszValue,MAX_STR_LEN);
++      char line[256];
++      if ( !(fpipe = (FILE*)popen(Command,"r")) )
++      {  // If fpipe is NULL
++        perror("Problems with pipe");
++        exit(1);
++      }
++      
++      file = fopen(pszFilename,"w"); /* apend file (add text to
++      a file or create a file if it does not exist.*/
++      fprintf(file,"File=\"%s\"\n", pszValue);
++      while ( fgets( line, sizeof line, fpipe))
++      {
++        fprintf(file,"%s", line);
++      }
++      fclose(file); /*done!*/ 
++      pclose(fpipe);
++      
++      ADAGUCDataset *poDS = (ADAGUCDataset *) GDALOpen( pszValue, GA_ReadOnly );
++      CPLDebug("GDAL_ADAGUC","[/ADAGUCCreateCopy]");
++      return poDS;
++    }
++  }
++  int  nBands = poSrcDS->GetRasterCount();
++  int  nXSize = poSrcDS->GetRasterXSize();
++  int  nYSize = poSrcDS->GetRasterYSize();
++
++  int  anBandDims[ NC_MAX_DIMS ];
++  int  anBandMap[  NC_MAX_DIMS ];
++
++//    if( !pfnProgress( 0.0, NULL, pProgressData ) )
++  //      return NULL;
++
++  oDynamicMetadata* DynMeta=new oDynamicMetadata;
++  safestrcpy(DynMeta->szValidityStart 	, UNDEFINED , MAX_ATTRIBUTE_LEN ); 
++  safestrcpy(DynMeta->szValidityStop  	, UNDEFINED , MAX_ATTRIBUTE_LEN );
++  safestrcpy(DynMeta->szVariableName 	        , "variable", MAX_ATTRIBUTE_LEN );
++  safestrcpy(DynMeta->szVariable_LongName 	, UNDEFINED , MAX_ATTRIBUTE_LEN );
++  safestrcpy(DynMeta->szVariable_Units	, UNDEFINED , MAX_ATTRIBUTE_LEN );
++  safestrcpy(DynMeta->szVariable_StandardName , UNDEFINED , MAX_ATTRIBUTE_LEN );
++  safestrcpy(DynMeta->szEPSG_code             , UNDEFINED , MAX_ATTRIBUTE_LEN );
++  DynMeta->szProjectionParams[0]='\0';
++  DynMeta->Projected=0;	
++
++  /* -------------------------------------------------------------------- */
++  /*      Create the dataset.                                             */
++  /* -------------------------------------------------------------------- */
++  int fpImage,fpVariableGroup;
++  int status;
++  int nXDimID = 0;
++  int nYDimID = 0;
++  int nXVarID = 0;
++  int nYVarID = 0;
++
++  int nXCoordinateVariables = 0;
++  int nYCoordinateVariables = 0;
++  int geoCRSVarID;
++
++  bool bForceADAGUC3 = CSLFetchBoolean( papszOptions, "FORCENC3" , FALSE );
++  if(bForceADAGUC3==TRUE)status = nc_create( pszFilename, NC_CLOBBER,  &fpImage );
++  else status = nc_create( pszFilename, NC_NETCDF4|NC_CLOBBER,  &fpImage );
++    
++  if( status != NC_NOERR )
++  {
++    CPLError( CE_Failure, CPLE_OpenFailed, 
++              "CreateCopy: Unable to create ADAGUC file %s.", 
++              pszFilename );
++    delete DynMeta;
++    return NULL;
++  }
++  //status = nc_def_dim(fpImage,"chid",NC_VAR_STRING_LENGTH,&DynMeta->StringDim);
++  //checkncerr("nc_def_dim chid",status);
++  GDALDataType eDT;
++// Assign Metadata
++  const char *pszNcMLMetadata = CSLFetchNameValue( papszOptions, "METANCML" );
++  if(ADAGUCCopyMetadata((void *)poSrcDS, fpImage, (char*)pszNcMLMetadata,DynMeta)!=0){
++    CPLError( CE_Failure, CPLE_OpenFailed, 
++              "CreateCopy: ADAGUCCopyMetadata: Unable to copy metadata");
++    delete DynMeta;
++    return NULL;
++  }
++        
++  /* -------------------------------------------------------------------- */
++  /*      Set Projection for ADAGUC data CF-1 Convention                  */
++  /* -------------------------------------------------------------------- */
++
++        //Write projection attributes
++  status = nc_def_var	(fpImage, "projection", NC_SHORT, 0, 0, &geoCRSVarID );
++  if(status == NC_ENAMEINUSE) status = nc_inq_varid(fpImage, "projection",&geoCRSVarID);
++  checkncerr("def_var crs",status);
++
++  status = nc_put_att_text (fpImage,geoCRSVarID,"long_name",10,"projection");
++  OGRSpatialReference oSRS;
++  char *pszWKT = (char *) poSrcDS->GetProjectionRef();
++        //status = nc_put_att_text(fpImage, geoCRSVarID,"WKT_params",strlen(pszWKT),pszWKT);
++  char *pszProj4 = NULL;
++  if( pszWKT != NULL )oSRS.importFromWkt( &pszWKT ); 
++  if(DynMeta->szProjectionParams[0]!='\0')
++    if(oSRS.SetFromUserInput(DynMeta->szProjectionParams)!=OGRERR_NONE)
++      CPLError(CE_Warning, 1,"Proj4 params from NCML are not valid [%s]",DynMeta->szProjectionParams);
++  if( oSRS.exportToProj4( &pszProj4 ) == CE_None )
++  {
++    if(strlen(pszProj4)==0){
++      CPLError( CE_Warning, CPLE_AppDefined, 
++                "Createcopy: projection not defined: setting WGS84");
++      oSRS.SetWellKnownGeogCS( "WGS84" );
++      if( oSRS.exportToProj4( &pszProj4 ) != CE_None )
++        //Not nice:
++        pszProj4=(char*)"+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
++    }
++    status = nc_del_att(fpImage, geoCRSVarID,PROJ4_PARAMS);
++    status = nc_del_att(fpImage, geoCRSVarID,EPSG_CODE);
++    status = nc_put_att_text (fpImage,geoCRSVarID,PROJ4_PARAMS,
++                              strlen(pszProj4),pszProj4);
++    status = nc_put_att_text (fpImage,geoCRSVarID,EPSG_CODE,
++                              strlen(DynMeta->szEPSG_code),DynMeta->szEPSG_code);
++  } 
++
++  if( oSRS.IsProjected() )
++  {
++    const char  *pszProjection,*pszUnit;
++    DynMeta->Projected=1;	
++    /* Initialize variables and dimensions */
++    CPLDebug("GDAL_ADAGUC", "  CreateCopy: writing projection attributes for projected coordinate system");	
++    status = nc_def_dim		(fpImage, "y", nYSize		, &nYDimID );
++    status = nc_def_dim		(fpImage, "x", nXSize		, &nXDimID );
++    int Dimensions[2];
++    Dimensions[0]=nYDimID;
++    Dimensions[1]=nXDimID;
++    status = nc_def_var		(fpImage, "lat", NC_FLOAT, 2, Dimensions,	&nYVarID); 
++    status = nc_def_var		(fpImage, "lon", NC_FLOAT, 2, Dimensions,	&nXVarID); 
++
++    status = nc_put_att_text	(fpImage, nYVarID,LNG_NAME,8,"latitude");	
++    status = nc_put_att_text	(fpImage, nXVarID,LNG_NAME,9,"longitude");	
++    status = nc_put_att_text	(fpImage, nYVarID,_UNITS,13,"degrees_north");	
++    status = nc_put_att_text	(fpImage, nXVarID,_UNITS,12,"degrees_east");	
++
++    status = nc_def_var		(fpImage, "y", NC_DOUBLE, 1, &nYDimID,	&nYCoordinateVariables); 
++    status = nc_def_var		(fpImage, "x", NC_DOUBLE, 1, &nXDimID,	&nXCoordinateVariables); 
++
++    status = nc_put_att_text	(fpImage, nYCoordinateVariables,LNG_NAME,26,"y coordinate of projection");	
++    status = nc_put_att_text	(fpImage, nXCoordinateVariables,LNG_NAME,26,"x coordinate of projection");	
++    status = nc_put_att_text	(fpImage, nYCoordinateVariables,STD_NAME,23,PROJECTION_Y_COORDINATE);	
++    status = nc_put_att_text	(fpImage, nXCoordinateVariables,STD_NAME,23,PROJECTION_X_COORDINATE);	
++        //status = nc_put_att_text	(fpImage, nYCoordinateVariables,"axis",1,"Y");	
++        //status = nc_put_att_text	(fpImage, nXCoordinateVariables,"axis",1,"X");	
++
++    pszUnit = oSRS.GetAttrValue( "UNIT" );
++    status = nc_put_att_text	(fpImage, nYCoordinateVariables,"units",strlen(pszUnit),pszUnit);	
++    status = nc_put_att_text	(fpImage, nXCoordinateVariables,"units",strlen(pszUnit),pszUnit);	
++
++    /* -------------------------------------------------------------------- */
++    /*      Write Dimension scales						*/
++    /* -------------------------------------------------------------------- */
++        // Start writing Dimension scales x and y
++    CPLDebug("GDAL_ADAGUC", "  CreateCopy: Writing Dimension scales");	
++    double * proj_x_coord=new double[nXSize];
++    double * proj_y_coord=new double[nYSize];
++    double adfGeoTransform[6];
++    poSrcDS->GetGeoTransform( adfGeoTransform );
++    status = nc_enddef( fpImage );
++    int j,ix,iy;
++    for(j=0;j<nXSize;j++)proj_x_coord[j]=adfGeoTransform[0]+(adfGeoTransform[1]*j)+adfGeoTransform[1]/2;	
++    for(j=0;j<nYSize;j++)proj_y_coord[j]=adfGeoTransform[3]+(adfGeoTransform[5]*j)+adfGeoTransform[5]/2;	
++    status=nc_put_var_double(fpImage, nXCoordinateVariables, &proj_x_coord[0]);
++    if(status != NC_NOERR )	CPLDebug("GDAL_ADAGUC", "  Unable to write dimension scales: %s",nc_strerror(status));;
++    status = nc_put_var_double(fpImage, nYCoordinateVariables, &proj_y_coord[0]);
++    if(status != NC_NOERR )	CPLDebug("GDAL_ADAGUC", "  Unable to write dimension scales: %s",nc_strerror(status));;
++
++    CPLDebug("GDAL_ADAGUC", "  nXSize = %d, nYSize = %d", nXSize ,nYSize);
++
++        // Start writing Dimension scales lat and lon
++    OGRSpatialReference oTargetSRS;
++    OGRCoordinateTransformation *poCT;
++
++    oTargetSRS.SetWellKnownGeogCS( "WGS84" );
++    poCT = OGRCreateCoordinateTransformation( &oSRS, &oTargetSRS );
++    if( poCT == NULL)
++      CPLError( CE_Warning, CPLE_AppDefined, "Failed to reproject lat/lon coordinate variables for CF convention");
++    else{
++      CPLDebug("GDAL_ADAGUC", "  Starting lat/lon conversion from projection coordinate variables %d,%d", nXSize ,nYSize);
++      size_t    start[ 3 ];
++      size_t    count[ 3 ];
++      double    *dfScanlineX  = NULL;
++      double    *dfScanlineY  = NULL;
++      dfScanlineX = new double[nXSize];
++      dfScanlineY = new double[nXSize];
++
++      for(iy=0;iy<nYSize;iy++){
++        for(ix=0;ix<nXSize;ix++){
++          dfScanlineX[ix]=proj_x_coord[ix];
++          dfScanlineY[ix]=proj_y_coord[iy];
++        }
++        poCT->Transform(nXSize, dfScanlineX, dfScanlineY);
++        start[0]=iy;start[1]=0;count[0]=1;count[1]=nXSize;
++        status = nc_put_vara_double( fpImage, nXVarID, start,count, dfScanlineX);
++        status = nc_put_vara_double( fpImage, nYVarID, start,count, dfScanlineY);
++      }
++      delete[] dfScanlineX;
++      delete[] dfScanlineY;
++    }
++
++    delete[] proj_x_coord;
++    delete[] proj_y_coord;
++    status = nc_redef( fpImage );	
++                
++
++    /*----------------------------------------------------------------------*/
++    /* Copy projection parameters						*/
++    /*----------------------------------------------------------------------*/
++
++    pszProjection = oSRS.GetAttrValue( "PROJECTION" );
++
++    /* Case of stereographic or oblique stereographic*/
++    if(EQUAL(SRS_PT_STEREOGRAPHIC,pszProjection)||EQUAL(SRS_PT_OBLIQUE_STEREOGRAPHIC,pszProjection))
++    {
++                /*
++      00296     SRS_PT_OBLIQUE_STEREOGRAPHIC,
++      00297     "Oblique Stereographic",		STEREOGRAPHIC
++      00298     SRS_PP_LATITUDE_OF_ORIGIN, 		LAT_PROJ_ORIGIN
++      00299     SRS_PP_CENTRAL_MERIDIAN, 		LON_PROJ_ORIGIN
++      00300     SRS_PP_SCALE_FACTOR, 			SCALE_FACTOR_PROJ_ORIG
++      00301     SRS_PP_FALSE_EASTING,			FALSE_EASTING
++      00302     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++
++      00344     SRS_PT_STEREOGRAPHIC,
++      00345     "Stereographic",			STEREOGRAPHIC
++      00346     SRS_PP_LATITUDE_OF_ORIGIN,		LAT_PROJ_ORIGIN
++      00347     SRS_PP_CENTRAL_MERIDIAN, 		LON_PROJ_ORIGIN
++      00348     SRS_PP_SCALE_FACTOR, 			SCALE_FACTOR_PROJ_ORIG
++      00349     SRS_PP_FALSE_EASTING, 		FALSE_EASTING
++      00350     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++                */
++
++      status = nc_put_att_text	(fpImage, geoCRSVarID,GRD_MAPPING_NAME,strlen(STEREOGRAPHIC),STEREOGRAPHIC); 
++      double val;
++                
++      val=oSRS.GetNormProjParm(SRS_PP_LATITUDE_OF_ORIGIN,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,LAT_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_CENTRAL_MERIDIAN,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LON_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_SCALE_FACTOR,1.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, SCALE_FACTOR_PROJ_ORIG,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_EASTING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, FALSE_EASTING,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_NORTHING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,FALSE_NORTHING,NC_DOUBLE,1,&val);
++
++                
++    }
++
++    /* Case of Polar stereographic*/
++    if(EQUAL(SRS_PT_POLAR_STEREOGRAPHIC,pszProjection))
++    {
++                /*
++      00321     SRS_PT_POLAR_STEREOGRAPHIC,
++      00322     "Polar Stereographic",		POLAR_STEREOGRAPHIC
++      00323     SRS_PP_LATITUDE_OF_ORIGIN,		LAT_PROJ_ORIGIN
++      00324     SRS_PP_CENTRAL_MERIDIAN, 		STRAIGHT_VERT_LON_POLE
++      00325     SRS_PP_SCALE_FACTOR, 			SCALE_FACTOR_PROJ_ORIG
++      00326     SRS_PP_FALSE_EASTING,			FALSE_EASTING
++      00327     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++                */
++
++      status = nc_put_att_text	(fpImage, geoCRSVarID,GRD_MAPPING_NAME,strlen(POLAR_STEREOGRAPHIC),POLAR_STEREOGRAPHIC); 
++      double val;
++                
++      val=oSRS.GetNormProjParm(SRS_PP_LATITUDE_OF_ORIGIN,0.0f);
++
++      status = nc_put_att_double( fpImage,geoCRSVarID, LAT_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_CENTRAL_MERIDIAN,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, STRAIGHT_VERT_LON_POLE,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_SCALE_FACTOR,1.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, SCALE_FACTOR_PROJ_ORIG,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_EASTING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, FALSE_EASTING,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_NORTHING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,FALSE_NORTHING,NC_DOUBLE,1,&val);
++    }
++
++
++    /* Case of transverse mercator*/
++    if(EQUAL(SRS_PT_TRANSVERSE_MERCATOR,pszProjection))
++    {
++                /*
++      00082     SRS_PT_TRANSVERSE_MERCATOR,
++      00083     "Transverse Mercator",		TRANSVERSE_MERCATOR
++      00084     SRS_PP_LATITUDE_OF_ORIGIN,		LAT_PROJ_ORIGIN
++      00085     SRS_PP_CENTRAL_MERIDIAN, 		LON_CENTRAL_MERIDIAN
++      00086     SRS_PP_SCALE_FACTOR,			SCALE_FACTOR
++      00087     SRS_PP_FALSE_EASTING,			FALSE_EASTING
++      00088     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++                */
++
++      status = nc_put_att_text	(fpImage, geoCRSVarID,GRD_MAPPING_NAME,strlen(TRANSVERSE_MERCATOR),TRANSVERSE_MERCATOR); 
++      double val;
++                
++      val=oSRS.GetNormProjParm(SRS_PP_LATITUDE_OF_ORIGIN,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LAT_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_CENTRAL_MERIDIAN,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LON_CENTRAL_MERIDIAN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_SCALE_FACTOR,1.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, SCALE_FACTOR,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_EASTING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, FALSE_EASTING,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_NORTHING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,FALSE_NORTHING,NC_DOUBLE,1,&val);
++    }
++
++    /* Case of albers_conical_equal_area*/
++    if(EQUAL(SRS_PT_ALBERS_CONIC_EQUAL_AREA,pszProjection))
++    {
++                /*
++      00108     SRS_PT_ALBERS_CONIC_EQUAL_AREA,
++      00109     "Albers Conic Equal Area",		ALBERS_CONICAL_EQUAL
++      00110     SRS_PP_STANDARD_PARALLEL_1,		STD_PARALLEL_1
++      00111     SRS_PP_STANDARD_PARALLEL_2,		STD_PARALLEL_2
++      00112     SRS_PP_LATITUDE_OF_CENTER, 		LAT_PROJ_ORIGIN
++      00113     SRS_PP_LONGITUDE_OF_CENTER,		LON_CENTRAL_MERIDIAN
++      00114     SRS_PP_FALSE_EASTING, 		FALSE_EASTING
++      00115     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++                */
++      status = nc_put_att_text(fpImage, geoCRSVarID,GRD_MAPPING_NAME,strlen(ALBERS_CONICAL_EQUAL),ALBERS_CONICAL_EQUAL); 
++      double val;
++                
++      val=oSRS.GetNormProjParm(SRS_PP_STANDARD_PARALLEL_1,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, STD_PARALLEL_1,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_STANDARD_PARALLEL_2,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, STD_PARALLEL_2,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_LATITUDE_OF_CENTER,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LAT_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_LONGITUDE_OF_CENTER,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LON_CENTRAL_MERIDIAN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_EASTING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, FALSE_EASTING,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_NORTHING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,FALSE_NORTHING,NC_DOUBLE,1,&val);
++    }
++
++    /* Case of azimuthal_equidistant*/
++    if(EQUAL(SRS_PT_AZIMUTHAL_EQUIDISTANT,pszProjection))
++    {
++                /*
++      00118     SRS_PT_AZIMUTHAL_EQUIDISTANT,
++      00119     "Azimuthal Equidistant",		AZIMUTHAL_EQUIDISTANT
++      00120     SRS_PP_LATITUDE_OF_CENTER, 		LAT_PROJ_ORIGIN
++      00121     SRS_PP_LONGITUDE_OF_CENTER,		LON_PROJ_ORIGIN
++      00122     SRS_PP_FALSE_EASTING, 		FALSE_EASTING
++      00123     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++                */
++      status = nc_put_att_text(fpImage,
++                               geoCRSVarID,
++                               GRD_MAPPING_NAME,
++                               strlen(AZIMUTHAL_EQUIDISTANT),
++                               AZIMUTHAL_EQUIDISTANT); 
++      double val;
++                
++      val=oSRS.GetNormProjParm(SRS_PP_LATITUDE_OF_CENTER,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LAT_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_LONGITUDE_OF_CENTER,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LON_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_EASTING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, FALSE_EASTING,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_NORTHING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,FALSE_NORTHING,NC_DOUBLE,1,&val);
++    }
++
++    /* Case of lambert_azimuthal_equal_area*/
++    if(EQUAL(SRS_PT_LAMBERT_AZIMUTHAL_EQUAL_AREA,pszProjection))
++    {
++                /*
++      00227     SRS_PT_LAMBERT_AZIMUTHAL_EQUAL_AREA,
++      00228     "Lambert Azimuthal Equal Area",	LAMBERT_AZIMUTHAL_EQUAL
++      00229     SRS_PP_LATITUDE_OF_CENTER, 		LAT_PROJ_ORIGIN	
++      00230     SRS_PP_LONGITUDE_OF_CENTER,		LON_PROJ_ORIGIN
++      00231     SRS_PP_FALSE_EASTING, 		FALSE_EASTING
++      00232     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++                */
++      status = nc_put_att_text(fpImage, geoCRSVarID,GRD_MAPPING_NAME,strlen(LAMBERT_AZIMUTHAL_EQUAL),LAMBERT_AZIMUTHAL_EQUAL); 
++      double val;
++                
++      val=oSRS.GetNormProjParm(SRS_PP_LATITUDE_OF_CENTER,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LAT_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_LONGITUDE_OF_CENTER,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LON_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_EASTING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, FALSE_EASTING,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_NORTHING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,FALSE_NORTHING,NC_DOUBLE,1,&val);
++    }
++
++    /* Case of lambert_conformal_conic*/
++    if(EQUAL(SRS_PT_LAMBERT_CONFORMAL_CONIC_2SP,pszProjection))
++    {
++                /*
++      00235     SRS_PT_LAMBERT_CONFORMAL_CONIC_2SP,
++      00236     "Lambert Conformal Conic (2SP)",	LAMBERT_CONFORMAL_CONIC
++      00237     SRS_PP_STANDARD_PARALLEL_1, 		STD_PARALLEL_1
++      00238     SRS_PP_STANDARD_PARALLEL_2, 		STD_PARALLEL_2
++      00239     SRS_PP_LATITUDE_OF_ORIGIN, 		LAT_PROJ_ORIGIN
++      00240     SRS_PP_CENTRAL_MERIDIAN, 		LON_CENTRAL_MERIDIAN
++      00241     SRS_PP_FALSE_EASTING, 		FALSE_EASTING
++      00242     SRS_PP_FALSE_NORTHING,		FALSE_NORTHING
++                */
++
++      status = nc_put_att_text(fpImage, geoCRSVarID,GRD_MAPPING_NAME,strlen(LAMBERT_CONFORMAL_CONIC),LAMBERT_CONFORMAL_CONIC); 
++      double val;
++                
++      val=oSRS.GetNormProjParm(SRS_PP_STANDARD_PARALLEL_1,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, STD_PARALLEL_1,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_STANDARD_PARALLEL_2,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, STD_PARALLEL_2,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_LATITUDE_OF_ORIGIN,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LAT_PROJ_ORIGIN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_CENTRAL_MERIDIAN,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, LON_CENTRAL_MERIDIAN,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_EASTING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID, FALSE_EASTING,NC_DOUBLE,1,&val);
++
++      val=oSRS.GetNormProjParm(SRS_PP_FALSE_NORTHING,0.0f);
++      status = nc_put_att_double( fpImage,geoCRSVarID,FALSE_NORTHING,NC_DOUBLE,1,&val);
++    }
++                
++    double val;
++        //exp
++                
++//    val=oSRS.GetInvFlattening();
++    //status = nc_put_att_double( fpImage,geoCRSVarID,INVERSE_FLATTENING,NC_DOUBLE,1,&val);
++
++    val=oSRS.GetSemiMajor();//*1000.0f;
++    status = nc_put_att_double( fpImage,geoCRSVarID,SEMI_MAJOR_AXIS,NC_DOUBLE,1,&val);
++
++    val=oSRS.GetSemiMinor();//*1000.0f;
++    status = nc_put_att_double( fpImage,geoCRSVarID,SEMI_MINOR_AXIS,NC_DOUBLE,1,&val);
++
++//	val=oSRS.GetAngularUnits();
++//	status = nc_put_att_double( fpImage,geoCRSVarID,ANGULAR_UNITS,NC_DOUBLE,1,&val);
++        
++//    val=oSRS.GetPrimeMeridian();
++  //  status = nc_put_att_double( fpImage,geoCRSVarID,LON_PRIM_MERIDIAN,NC_DOUBLE,1,&val);
++
++
++        //exp
++
++
++  }else 
++//if( oSRS.IsGeographic() ) // TODO Bit indiscriminant indeed, but we require this metadata !
++  {
++    DynMeta->Projected=0;	
++    CPLDebug("GDAL_ADAGUC", "  CreateCopy: writing projection attributes for geographic coordinate system");	
++    status = nc_def_dim		(fpImage, "lat", nYSize, &nYDimID );
++    status = nc_def_dim		(fpImage, "lon", nXSize, &nXDimID );
++    status = nc_def_var		(fpImage, "lat", NC_DOUBLE, 1, &nYDimID, &nYCoordinateVariables);
++    status = nc_def_var		(fpImage, "lon", NC_DOUBLE, 1, &nXDimID, &nXCoordinateVariables);
++    status = nc_put_att_text	(fpImage, nYCoordinateVariables,"long_name",8,"latitude");
++    status = nc_put_att_text	(fpImage, nXCoordinateVariables,"long_name",9,"longitude");
++    status = nc_put_att_text	(fpImage, nYCoordinateVariables,"units",13,"degrees_north");
++    status = nc_put_att_text	(fpImage, nXCoordinateVariables,"units",12,"degrees_east");
++    status = nc_put_att_text	(fpImage, geoCRSVarID,GRD_MAPPING_NAME,18,"latitude_longitude"); 
++
++    /* -------------------------------------------------------------------- */
++    /*      Dimension scales						*/
++    /* -------------------------------------------------------------------- */
++        // Start writing Dimension scales
++    CPLDebug("GDAL_ADAGUC", "  CreateCopy: Writing Dimension scales");	
++    double * lon=new double[nXSize];
++    double * lat=new double[nYSize];
++    double adfGeoTransform[6];
++    poSrcDS->GetGeoTransform( adfGeoTransform );
++
++    status = nc_enddef( fpImage );
++    int j;
++    for(j=0;j<nXSize;j++)lon[j]=adfGeoTransform[0]+(adfGeoTransform[1]*j)+adfGeoTransform[1]/2;	
++    for(j=0;j<nYSize;j++)lat[j]=adfGeoTransform[3]+(adfGeoTransform[5]*j)+adfGeoTransform[5]/2;	
++    status=nc_put_var_double(fpImage, nXCoordinateVariables, &lon[0]);
++    if(status != NC_NOERR )	CPLDebug("GDAL_ADAGUC", "  Unable to write dimension scales: %s",nc_strerror(status));;
++    status = nc_put_var_double(fpImage, nYCoordinateVariables, &lat[0]);
++    if(status != NC_NOERR )	CPLDebug("GDAL_ADAGUC", "  Unable to write dimension scales: %s",nc_strerror(status));;
++    delete[] lon;
++    delete[] lat;
++    status = nc_redef( fpImage );
++    CPLDebug("GDAL_ADAGUC", "  nXSize = %d, nYSize = %d", nXSize ,nYSize);
++  }
++
++  /* -------------------------------------------------------------------- */
++  /*      Initialize Band Map                                             */
++  /* -------------------------------------------------------------------- */
++
++  for(int j=1; j <= nBands; j++ ) {
++    anBandMap[j-1]=j;
++  }
++  CPLDebug("GDAL_ADAGUC", "  Bands:%d", nBands);
++
++  /* -------------------------------------------------------------------- */
++  /*      Write Time dimension scale                                      */
++  /* -------------------------------------------------------------------- */
++  int WriteBandDimension=0;
++  int InvalidMetadata=0;
++  int nBandNrDimID,nBandNrVariableID;
++  double maxdim=-1,mindim=-1;
++  char pszTimeUnits[MAX_ATTRIBUTE_LEN+1];
++  char pszTemp[MAX_ATTRIBUTE_LEN+1];
++  char pszDimName[MAX_ATTRIBUTE_LEN+1];
++  safestrcpy(pszDimName,"time",MAX_ATTRIBUTE_LEN);	// For now we will only support time subsetting
++
++  const char  *pszUnits=NULL;
++  pszTimeUnits[0]='\0';
++  for(int i=0;i<nBands;i++){
++    GDALRasterBand *poSrcBand = poSrcDS->GetRasterBand( i+1 );
++    if(poSrcBand!=NULL){
++      char **papszMetadata = GDALGetMetadata(  poSrcBand,"");
++      pszUnits=NULL;
++      if(papszMetadata==NULL)InvalidMetadata=1;
++      if(InvalidMetadata==0){
++        sprintf(pszTemp,"UNITS#%s",pszDimName);
++        pszUnits=CSLFetchNameValue(papszMetadata,pszTemp);
++        if(pszUnits==NULL)InvalidMetadata=1;
++        else safestrcpy(pszTimeUnits,pszUnits,MAX_ATTRIBUTE_LEN);
++      }
++                    // Check if all bands have the same time units
++                    // For now we do not support mixing time units of different datasets 
++                    // This is possible with UMN MapServer WCS for example
++                    // TODO support different time units within bands
++      if(pszTimeUnits[0]!='\0'&&InvalidMetadata==0){
++        if(!EQUAL(pszTimeUnits,pszUnits)){
++          CPLError( CE_Failure, CPLE_AppDefined, 
++                    "Time units of bands differ! Mixing B_%d: %s with B_%d: %s", 
++                    i-1+1,
++                    pszTimeUnits,
++                    i+1,
++                    pszUnits);
++          InvalidMetadata=1;
++        }
++      }
++    }
++  }
++
++  // When we are reading from a not adaguc format
++  // some metadata is not available. time dimension becomes BAND dimension
++  if(InvalidMetadata==1&&nBands>1){
++    snprintf(pszTimeUnits,MAX_ATTRIBUTE_LEN,"band number");
++  }
++  //TODO try to create a time dimension on basis of validity start
++  /*if(InvalidMetadata==1&&nBands==1){
++    strncpy(pszTimeUnits,"seconds since 1950-1-1 0:0:0",MAX_ATTRIBUTE_LEN);
++}*/
++  CPLDebug("GDAL_ADAGUC", "  Time Units = %s", pszTimeUnits );
++  
++  for(int i=0;i<nBands;i++){
++    GDALRasterBand *poSrcBand = poSrcDS->GetRasterBand( i+1 );
++    if(poSrcBand!=NULL){
++      double bandcoordinatevar=i+1;
++      size_t start[1],count[1];
++      const char  *pszInterval;
++      if(InvalidMetadata==0){
++        // Find time extent of the product we are going to write
++        pszInterval=getBandMetadata(poSrcBand,"DIMENSION",pszDimName);
++        if(pszInterval!=NULL)bandcoordinatevar=atof(pszInterval);
++        if(mindim==-1)mindim=bandcoordinatevar;
++        if(maxdim==-1)maxdim=bandcoordinatevar;
++        if(mindim>bandcoordinatevar)mindim=bandcoordinatevar;
++        if(maxdim<bandcoordinatevar)maxdim=bandcoordinatevar;
++      }
++
++      if(nBands>0&&(!(nBands==1&&InvalidMetadata==1))){
++        CPLDebug("GDAL_ADAGUC", "  Writing time dim: B = %d, dimscale = %f",i+1,bandcoordinatevar);
++        if(WriteBandDimension==0){
++          WriteBandDimension=1;
++          status = nc_def_dim(fpImage, pszDimName, nBands   , &nBandNrDimID );
++          if(status == NC_ENAMEINUSE) status = nc_inq_dimid(fpImage, pszDimName,&nBandNrDimID);
++          status = nc_def_var(fpImage, pszDimName, NC_DOUBLE, 1, &nBandNrDimID, &nBandNrVariableID); 
++          if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpImage, pszDimName,&nBandNrVariableID);
++          status = nc_put_att_text(fpImage, 
++                                   nBandNrVariableID,
++                                   LNG_NAME   ,
++                                   strlen(pszDimName)  ,
++                                   pszDimName);	
++          status = nc_put_att_text(fpImage, 
++                                   nBandNrVariableID,_UNITS,
++                                   strlen(pszTimeUnits)     ,
++                                   pszTimeUnits);	
++        }
++        start[0]=i;
++        count[0]=1;
++        status = nc_enddef( fpImage );
++        status=nc_put_vara_double(fpImage, nBandNrVariableID, start,count,&bandcoordinatevar);
++        if(status != NC_NOERR )	CPLDebug("GDAL_ADAGUC", 
++        "  Unable to write additional dimension scales: %s",nc_strerror(status));;
++        status = nc_redef( fpImage );
++      }
++    }
++  }
++
++        // Calculate VALSTART and VALSTOP using the UDUNITS package
++  if(InvalidMetadata==0){
++    if(mindim>-1)OffsetUTTime(DynMeta->szValidityStart,MAX_ATTRIBUTE_LEN,pszTimeUnits,mindim);
++    if(maxdim>-1)OffsetUTTime(DynMeta->szValidityStop ,MAX_ATTRIBUTE_LEN,pszTimeUnits,maxdim);
++    strncpy(DynMeta->szValidityStop ,"Can't be determined",MAX_ATTRIBUTE_LEN);
++  }
++        //printf("min:%f - max: %f - units: %s<br>",mindim,maxdim,pszTimeUnits);
++        //printf("valstart: %s<br>",DynMeta->szValidityStart);
++        //printf("valstop : %s<br>",DynMeta->szValidityStop);
++
++
++  /* -------------------------------------------------------------------- */
++  /*      Retrieve Custom Options (-co)                                   */
++  /*      Dynamic metadata can always be overridden by commandline options*/
++  /* -------------------------------------------------------------------- */
++  const char *psTempVariableName = CSLFetchNameValue( papszOptions, "DATASETNAME" );
++  if(psTempVariableName!=NULL)safestrcpy(DynMeta->szVariableName,psTempVariableName, MAX_ATTRIBUTE_LEN); 
++  
++        //Remove spaces from variablename, replace them with _
++  int j,s=strlen(DynMeta->szVariableName);
++  for(j=0;j<s;j++)
++    if(DynMeta->szVariableName[j]==' ')
++      DynMeta->szVariableName[j]='_';
++
++  const char *psTempVariableLongName = CSLFetchNameValue( papszOptions, "LONGNAME" );
++  if(psTempVariableLongName!=NULL)
++    safestrcpy(DynMeta->szVariable_LongName,psTempVariableLongName, MAX_ATTRIBUTE_LEN);
++
++  const char *psTempVariableStandardName = CSLFetchNameValue( papszOptions, "STDNAME" );
++  if(psTempVariableStandardName!=NULL)
++    safestrcpy(DynMeta->szVariable_StandardName,psTempVariableStandardName, MAX_ATTRIBUTE_LEN);
++
++  const char *psTempVariableUnits = CSLFetchNameValue( papszOptions, "UNITS" );
++  if(psTempVariableUnits!=NULL)
++    safestrcpy(DynMeta->szVariable_Units,psTempVariableUnits, MAX_ATTRIBUTE_LEN);
++
++  const char *psTempStart = CSLFetchNameValue( papszOptions, "VALSTART" );
++  if(psTempStart!=NULL)safestrcpy(DynMeta->szValidityStart,psTempStart, MAX_ATTRIBUTE_LEN); 
++
++  const char *psTempStop = CSLFetchNameValue( papszOptions, "VALSTOP" );
++  if(psTempStop!=NULL)safestrcpy(DynMeta->szValidityStop,psTempStop, MAX_ATTRIBUTE_LEN); 
++
++        // Update the dynamic metadata
++  ADAGUCUpdateDynamicMetadata(fpImage,DynMeta);
++
++  /* -------------------------------------------------------------------- */
++  /*      Create ADAGUC variable                                          */
++  /* -------------------------------------------------------------------- */
++    // Find nodata value from format option
++  const char *psTempNAN = CSLFetchNameValue( papszOptions, "NAN" );
++
++  for( int i=1; i <= nBands; i++ ) {
++
++    char      szBandName[ MAX_ATTRIBUTE_LEN + 1 ];
++    GByte     *pabScanline  = NULL;
++    GInt16    *pasScanline  = NULL;
++    GInt32    *panScanline  = NULL;
++    float     *pafScanline  = NULL;
++    double    *padScanline  = NULL;
++    int       NCDFVarID;
++    int 	  NrOfDimensions=2;
++    size_t    start[ 3 ];
++    size_t    count[ 3 ];
++        
++    double    dfNoDataValue;
++    unsigned char      cNoDataValue;
++    float     fNoDataValue;
++    int       nlNoDataValue;
++    short     nsNoDataValue;
++    //GDALRasterBandH	hBand;
++
++    GDALRasterBand *poSrcBand = poSrcDS->GetRasterBand( i );
++    //hBand = GDALGetRasterBand( poSrcDS, i );
++        //printf("Band:%d<br>",poSrcBand->GetBand());
++    if(WriteBandDimension==1)NrOfDimensions++;
++
++        
++    snprintf( szBandName, MAX_ATTRIBUTE_LEN, "%s",DynMeta->szVariableName);
++    fpVariableGroup=fpImage;
++
++    eDT = poSrcDS->GetRasterBand(i)->GetRasterDataType();
++    if(NrOfDimensions>2)
++      anBandDims[NrOfDimensions-3] = nBandNrDimID;
++    anBandDims[NrOfDimensions-2] = nYDimID;
++    anBandDims[NrOfDimensions-1] = nXDimID;
++        
++    CPLErr      eErr = CE_None;
++
++    dfNoDataValue = poSrcBand->GetNoDataValue(0);
++
++    if(psTempNAN!=NULL)dfNoDataValue=CPLStrtod (psTempNAN,NULL);
++
++
++    if( eDT == GDT_Byte ) {
++      CPLDebug("GDAL_ADAGUC", "  %s = GDT_Byte ", szBandName );
++      if(bForceADAGUC3==true){
++
++        status = nc_def_var( fpVariableGroup, szBandName, NC_SHORT, NrOfDimensions, anBandDims, &NCDFVarID );
++        if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpVariableGroup, szBandName,&NCDFVarID);else{
++          CPLError( CE_Warning, CPLE_AppDefined, 
++                    "NetCDF3 does not support datatype NC_UBYTE. NC_SHORT will be used instead (NetCDF4 does support NC_UBYTE).");
++        }
++        if(status != NC_NOERR ){
++          CPLError( CE_Failure, CPLE_AppDefined,  "CreateCopy : nc_def_var:%s",nc_strerror(status) );
++          CPLFree( pasScanline );nc_close( fpImage );delete DynMeta;return NULL;
++        }
++        /* -------------------------------------------------------------------- */
++        /*      Write Fill Value                                                */
++        /* -------------------------------------------------------------------- */
++        nsNoDataValue=(GInt16) dfNoDataValue;
++        nc_put_att_short( fpVariableGroup,
++                          NCDFVarID,
++                          MISSING_VALUE,
++                          NC_SHORT,
++                          1,
++                          &nsNoDataValue );
++      }
++      else 
++      {
++        status = nc_def_var( fpVariableGroup, szBandName, NC_UBYTE, NrOfDimensions, anBandDims, &NCDFVarID );
++        if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpVariableGroup, szBandName,&NCDFVarID);
++        if(status != NC_NOERR ){
++          CPLError( CE_Failure, CPLE_AppDefined,  "CreateCopy : nc_def_var:%s",nc_strerror(status) );
++          CPLFree( pasScanline );nc_close( fpImage );delete DynMeta;return NULL;
++        }
++        /* -------------------------------------------------------------------- */
++        /*      Write Fill Value                                                */
++        /* -------------------------------------------------------------------- */
++        cNoDataValue=(unsigned char) dfNoDataValue;
++        status = nc_put_att_uchar( fpVariableGroup,
++                          NCDFVarID,
++                          MISSING_VALUE,
++                          NC_UBYTE,
++                          1,
++                          &cNoDataValue );
++      }
++        
++      ADAGUCCreateBandMetadata( (void*)poSrcDS,  fpVariableGroup, NCDFVarID ,DynMeta);
++
++
++      /* -------------------------------------------------------------------- */
++      /*      Write data line per line                                        */
++      /* -------------------------------------------------------------------- */
++
++      pabScanline = (GByte *) CPLMalloc( nBands * nXSize * nYSize *
++          sizeof( GByte ) );
++      for( int iLine = 0; iLine < nYSize && eErr == CE_None; iLine++ )
++      {
++        eErr = poSrcBand->RasterIO( GF_Read, 0, iLine, nXSize, 1, 
++                                    pabScanline, nXSize, 1, GDT_Byte,
++                                    0,0);
++
++        if(NrOfDimensions==3){
++          start[NrOfDimensions-3]=i-1;
++          count[NrOfDimensions-3]=1;
++        }
++        start[NrOfDimensions-2]=iLine;
++        count[NrOfDimensions-2]=1;
++        start[NrOfDimensions-1]=0;
++        count[NrOfDimensions-1]=nXSize;
++        status = nc_enddef( fpImage );
++
++        // In netCDF3  mode we have to write int16, because byte values are not supported in netcdf3.
++        if(bForceADAGUC3==true){
++          GInt16* pasScanline = (GInt16 *) CPLMalloc( nBands * nXSize * nYSize *sizeof( GInt16 ) );
++          // Convert GByte to GInt16
++          for(int scanx=0;scanx<nXSize;scanx++)pasScanline[scanx]=(GInt16)pabScanline[scanx];
++          status = nc_put_vara_short (fpVariableGroup, NCDFVarID, start,count,pasScanline);
++          checkncerr("nc_put_vara_short",status);
++          CPLFree( pasScanline );
++        }else{
++          status = nc_put_vara_uchar (fpVariableGroup, NCDFVarID, start,count, pabScanline);
++          checkncerr("nc_put_vara_short",status);
++        }
++        status = nc_redef( fpImage );
++                
++      }
++      CPLFree( pabScanline );
++      /* -------------------------------------------------------------------- */
++      /*      Int16                                                           */
++      /* -------------------------------------------------------------------- */
++
++    } else if( ( eDT == GDT_UInt16 ) || ( eDT == GDT_Int16 ) ) {
++      CPLDebug("GDAL_ADAGUC", "  %s = GDT_Int16 ",szBandName );
++
++      status = nc_def_var( fpVariableGroup, szBandName, NC_SHORT, 
++                           NrOfDimensions, anBandDims, &NCDFVarID );
++      if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpVariableGroup, szBandName,&NCDFVarID);
++      if(status != NC_NOERR ){
++        CPLError( CE_Failure, CPLE_AppDefined,  "CreateCopy : nc_def_var:%s",nc_strerror(status) );
++        CPLFree( pasScanline );nc_close( fpImage );delete DynMeta;return NULL;
++      }
++      ADAGUCCreateBandMetadata( (void*)poSrcDS,  fpVariableGroup, NCDFVarID ,DynMeta);
++      pasScanline = (GInt16 *) CPLMalloc( nBands * nXSize * nYSize *
++          sizeof( GInt16 ) );
++      /* -------------------------------------------------------------------- */
++      /*      Write Fill Value                                                */
++      /* -------------------------------------------------------------------- */
++      nsNoDataValue= (GInt16) dfNoDataValue;
++      nc_put_att_short( fpVariableGroup,
++                                 NCDFVarID,
++                                 MISSING_VALUE,
++                                 NC_SHORT,
++                                 1,
++                                 &nsNoDataValue );
++                
++      for( int iLine = 0; iLine < nYSize && eErr == CE_None; iLine++ )  {
++
++        eErr = poSrcBand->RasterIO( GF_Read, 0, iLine, nXSize, 1, 
++                                    pasScanline, nXSize, 1, GDT_Int16,
++                                    0,0);
++        if(NrOfDimensions==3){
++          start[NrOfDimensions-3]=i-1;
++          count[NrOfDimensions-3]=1;
++        }
++        start[NrOfDimensions-2]=iLine;
++        count[NrOfDimensions-2]=1;
++        start[NrOfDimensions-1]=0;
++        count[NrOfDimensions-1]=nXSize;
++
++
++        status = nc_enddef( fpImage );
++        status = nc_put_vara_short( fpVariableGroup, NCDFVarID, start,count, pasScanline);
++        checkncerr("nc_put_vara_short",status);
++        status = nc_redef( fpImage );
++        if(status != NC_NOERR )	CPLDebug("GDAL_ADAGUC", "  nc_redef:%s",nc_strerror(status));;
++
++      }
++      CPLFree( pasScanline );
++      /* -------------------------------------------------------------------- */
++      /*      Int32                                                           */
++      /* -------------------------------------------------------------------- */
++
++    } else if( (eDT == GDT_UInt32) || (eDT == GDT_Int32) ) {
++      CPLDebug("GDAL_ADAGUC", "  %s = GDT_Int32 ",szBandName );
++      status = nc_def_var( fpVariableGroup, szBandName, NC_INT, 
++                           NrOfDimensions, anBandDims, &NCDFVarID );
++      if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpVariableGroup, szBandName,&NCDFVarID);
++      if(status != NC_NOERR ){
++        CPLError( CE_Failure, CPLE_AppDefined,  "CreateCopy : nc_def_var:%s",nc_strerror(status) );
++        CPLFree( pasScanline );nc_close( fpImage );delete DynMeta;return NULL;
++      }
++      ADAGUCCreateBandMetadata( (void*)poSrcDS,  fpVariableGroup, NCDFVarID ,DynMeta);
++      panScanline = (GInt32 *) CPLMalloc( nBands * nXSize * nYSize *
++          sizeof( GInt32 ) );
++      /* -------------------------------------------------------------------- */
++      /*      Write Fill Value                                                */
++      /* -------------------------------------------------------------------- */
++      nlNoDataValue= (GInt32) dfNoDataValue;
++
++      nc_put_att_int( fpVariableGroup,
++                      NCDFVarID,
++                      MISSING_VALUE,//MISSING_VALUE,
++                      NC_INT,
++                      1,
++                      &nlNoDataValue );
++      
++      for( int iLine = 0; iLine < nYSize && eErr == CE_None; iLine++ )  {
++
++        eErr = poSrcBand->RasterIO( GF_Read, 0, iLine, nXSize, 1, 
++                                    panScanline, nXSize, 1, GDT_Int32,
++                                    0,0);
++
++        
++        if(NrOfDimensions==3){
++          start[NrOfDimensions-3]=i-1;
++          count[NrOfDimensions-3]=1;
++        }
++        start[NrOfDimensions-2]=iLine;
++        count[NrOfDimensions-2]=1;
++        start[NrOfDimensions-1]=0;
++        count[NrOfDimensions-1]=nXSize;
++
++
++
++        status = nc_enddef( fpImage );
++        status = nc_put_vara_int( fpVariableGroup, NCDFVarID, start,
++                                  count, panScanline);
++        checkncerr("nc_put_vara_int",status);
++        status = nc_redef( fpImage );
++      }
++      CPLFree( panScanline );
++      /* -------------------------------------------------------------------- */
++      /*      float                                                           */
++      /* -------------------------------------------------------------------- */
++    } else if( (eDT == GDT_Float32) ) {
++      CPLDebug("GDAL_ADAGUC", "  %s = GDT_Float32 ",szBandName );
++      status = nc_def_var( fpVariableGroup, szBandName, NC_FLOAT, 
++                           NrOfDimensions, anBandDims, &NCDFVarID );
++      if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpVariableGroup, szBandName,&NCDFVarID);
++      if(status != NC_NOERR ){
++        CPLError( CE_Failure, CPLE_AppDefined,  "CreateCopy : nc_def_var:%s",nc_strerror(status) );
++        CPLFree( pasScanline );nc_close( fpImage );delete DynMeta;return NULL;
++      }
++      ADAGUCCreateBandMetadata( (void*)poSrcDS,  fpVariableGroup, NCDFVarID ,DynMeta);
++      /* -------------------------------------------------------------------- */
++      /*      Write Fill Value                                                */
++      /* -------------------------------------------------------------------- */
++      fNoDataValue= (float) dfNoDataValue;
++      nc_put_att_float( fpVariableGroup,
++                        NCDFVarID,
++                        MISSING_VALUE,
++                        NC_FLOAT,
++                        1,
++                        &fNoDataValue );
++      
++      pafScanline = (float *) CPLMalloc( nBands * nXSize * nYSize *
++          sizeof( float ) );
++                          
++      for( int iLine = 0; iLine < nYSize && eErr == CE_None; iLine++ )  {
++
++        eErr = poSrcBand->RasterIO( GF_Read, 0, iLine, nXSize, 1, 
++                                    pafScanline, nXSize, 1, 
++                                    GDT_Float32,
++                                    0,0);
++
++        if(NrOfDimensions==3){
++          start[NrOfDimensions-3]=i-1;
++          count[NrOfDimensions-3]=1;
++        }
++        start[NrOfDimensions-2]=iLine;
++        count[NrOfDimensions-2]=1;
++        start[NrOfDimensions-1]=0;
++        count[NrOfDimensions-1]=nXSize;
++
++        
++
++        status = nc_enddef( fpImage );checkncerr("nc_enddef",status);
++        status = nc_put_vara_float( fpVariableGroup, NCDFVarID, start,
++                                    count, pafScanline);
++        checkncerr("nc_put_vara_float",status);
++        status = nc_redef( fpImage );checkncerr("nc_redef",status);
++      }
++      CPLFree( pafScanline );
++      /* -------------------------------------------------------------------- */
++      /*      double                                                          */
++      /* -------------------------------------------------------------------- */
++    } else if( (eDT == GDT_Float64) ) {
++      CPLDebug("GDAL_ADAGUC", "  %s = GDT_Float64 ",szBandName );
++      status = nc_def_var( fpVariableGroup, szBandName, NC_DOUBLE, 
++                           NrOfDimensions, anBandDims, &NCDFVarID );//bl5
++      if(status == NC_ENAMEINUSE)status = nc_inq_varid(fpVariableGroup, szBandName,&NCDFVarID);
++      if(status != NC_NOERR ){
++        CPLError( CE_Failure, CPLE_AppDefined,  "CreateCopy : nc_def_var:%s",nc_strerror(status) );
++        CPLFree( pasScanline );nc_close( fpImage );delete DynMeta;return NULL;
++      }
++      ADAGUCCreateBandMetadata( (void*)poSrcDS,  fpVariableGroup, NCDFVarID ,DynMeta);
++      padScanline = (double *) CPLMalloc( nBands * nXSize * nYSize *
++          sizeof( double ) );
++      /* -------------------------------------------------------------------- */
++      /*      Write Fill Value                                                */
++      /* -------------------------------------------------------------------- */
++      nc_put_att_double( fpVariableGroup,
++                         NCDFVarID,
++                         MISSING_VALUE,//MISSING_VALUE,
++                         NC_DOUBLE,
++                         1,
++                         &dfNoDataValue );
++
++      for( int iLine = 0; iLine < nYSize && eErr == CE_None; iLine++ )  {
++
++        eErr = poSrcBand->RasterIO( GF_Read, 0, iLine, nXSize, 1, 
++                                    padScanline, nXSize, 1, 
++                                    GDT_Float64,
++                                    0,0);
++        if(NrOfDimensions==3){
++          start[NrOfDimensions-3]=i-1;
++          count[NrOfDimensions-3]=1;
++        }
++        start[NrOfDimensions-2]=iLine;
++        count[NrOfDimensions-2]=1;
++        start[NrOfDimensions-1]=0;
++        count[NrOfDimensions-1]=nXSize;
++
++
++        status = nc_enddef( fpImage );
++        status = nc_put_vara_double( fpVariableGroup, NCDFVarID, start,
++                                     count, padScanline);
++        checkncerr("nc_put_vara_float",status);
++        status = nc_redef( fpImage );
++      }
++      CPLFree( padScanline );
++    }
++
++  }
++  /* -------------------------------------------------------------------- */
++  /*      Cleanup and close.                                              */
++  /* -------------------------------------------------------------------- */
++  CPLDebug("GDAL_ADAGUC", "  Closing NetCDF4 file");
++  nc_close( fpImage );
++  /* -------------------------------------------------------------------- */
++  /*      Re-open dataset, and copy any auxilary pam information.         */
++  /* -------------------------------------------------------------------- */
++  CPLDebug("GDAL_ADAGUC", "  Re-opening the dataset for copy");
++  ADAGUCDataset *poDS = (ADAGUCDataset *) GDALOpen( pszFilename, GA_ReadOnly );
++
++  // if( poDS )        poDS->CloneInfo( poSrcDS, GCIF_PAM_DEFAULT );
++  CPLDebug("GDAL_ADAGUC","[/ADAGUCCreateCopy]");
++  delete DynMeta;
++  return poDS;
++
++
++}
++
++/************************************************************************/
++/*                          GDALRegister_ADAGUC()                       */
++/************************************************************************/
++
++void GDALRegister_ADAGUC()
++
++{
++  GDALDriver	*poDriver;
++
++  if (! GDAL_CHECK_VERSION("ADAGUC ADAGUC4 driver"))
++    return;
++
++  if( GDALGetDriverByName( "ADAGUC" ) == NULL )
++  {
++    poDriver = new GDALDriver( );
++        
++    poDriver->SetDescription( "ADAGUC" );
++    poDriver->SetMetadataItem( GDAL_DMD_LONGNAME, ADAGUC_DRIVER_LONGID);
++    poDriver->SetMetadataItem( GDAL_DMD_HELPTOPIC, 
++                               "frmt_various.html#NETCDF" );
++    poDriver->SetMetadataItem( GDAL_DMD_EXTENSION, "nc" );
++        //poDriver->SetMetadataItem( "Driver ID", ADAGUC_DRIVER_ID );
++        //poDriver->SetMetadataItem( "Version", ADAGUC_DRIVER_VERSION );
++    poDriver->SetMetadataItem( GDAL_DMD_CREATIONOPTIONLIST, 
++                               "<CreationOptionList>\n"
++                                   "   <Option name='METANCML' type='string' description='Provide additional metadata in NCML xml file'/>\n"
++                                   "   <Option name='FORCENC3' type='boolean' description='TRUE forces the driver to write in netCDF3 mode, default=netCDF4'/>\n"
++                                   "   <Option name='VALSTART' type='string' description='Sets the validity_start attribute'/>\n"
++                                   "   <Option name='VALSTOP' type='string' description='Sets the validity_stop attribute'/>\n"
++                                   "   <Option name='DATASETNAME' type='string' description='Sets the name of the dataset'/>\n"
++                                   "   <Option name='LONGNAME' type='string' description='Sets the dataset long name'/>\n"
++                                   "   <Option name='STDNAME' type='string' description='Sets the dataset standard name'/>\n"
++                                   "   <Option name='UNITS' type='string' description='Sets the dataset units'/>\n"
++                                   "   <Option name='NAN' type='string' description='Nodata value'/>\n"
++                                   "   <Option name='NCDUMP' type='string' description='Return the result of NCDUMP'/>\n"
++                                   "</CreationOptionList>\n" );
++    poDriver->pfnOpen = ADAGUCDataset::Open;
++    poDriver->pfnCreateCopy = ADAGUCCreateCopy;
++
++
++    GetGDALDriverManager( )->RegisterDriver( poDriver );
++  }
++}
+diff --git a/frmts/netcdf/adagucdataset.h b/frmts/netcdf/adagucdataset.h
+new file mode 100644
+index 0000000..a4c15d3
+--- /dev/null
++++ frmts/netcdf/adagucdataset.h
+@@ -0,0 +1,175 @@
++/******************************************************************************
++* $Id: ADAGUCdataset.h 12878 2007-11-20 04:43:08Z warmerdam $
++*
++* Project:  ADAGUC read/write Driver
++* Purpose:  GDAL bindings over ADAGUC library.
++* Author:   Frank Warmerdam, warmerdam@pobox.com
++*
++******************************************************************************
++* Copyright (c) 2004, Frank Warmerdam
++*
++* Permission is hereby granted, free of charge, to any person obtaining a
++* copy of this software and associated documentation files (the "Software"),
++* to deal in the Software without restriction, including without limitation
++* the rights to use, copy, modify, merge, publish, distribute, sublicense,
++* and/or sell copies of the Software, and to permit persons to whom the
++* Software is furnished to do so, subject to the following conditions:
++*
++* The above copyright notice and this permission notice shall be included
++* in all copies or substantial portions of the Software.
++*
++* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++* DEALINGS IN THE SOFTWARE.
++****************************************************************************/
++
++#ifndef _ADAGUCDATASET_H_INCLUDED_
++#define _ADAGUCATASET_H_INCLUDED_
++
++#include <float.h>
++#include "gdal_pam.h"
++#include "gdal_priv.h"
++#include "gdal_frmts.h"
++#include "cpl_string.h"
++#include "ogr_spatialref.h"
++#include "netcdf.h"
++#include "udunits.h"
++#include <time.h>
++#include <sys/types.h>
++
++/************************************************************************/
++/* ==================================================================== */
++/*			     ADAGUCDataset				*/
++/* ==================================================================== */
++/************************************************************************/
++#define MAX_STR_LEN            8192
++#define MAX_ATTRIBUTE_LEN      8192
++#define LAMBERT_CONFORMAL_CONIC "lambert_conformal_conic"
++#define TRANSVERSE_MERCATOR    "transverse_mercator"
++#define STEREOGRAPHIC          "stereographic"
++#define POLAR_STEREOGRAPHIC    "polar_stereographic"
++#define ALBERS_CONICAL_EQUAL   "albers_conical_equal_area"
++#define AZIMUTHAL_EQUIDISTANT  "azimuthal_equidistant"
++#define LAMBERT_AZIMUTHAL_EQUAL	"lambert_azimuthal_equal_area"
++#define LATITUDE_LONGITUDE	"latitude_longitude"
++
++#define INVERSE_FLATTENING	"inverse_flattening"
++#define SEMI_MAJOR_AXIS		"semi_major_axis"
++#define SEMI_MINOR_AXIS		"semi_minor_axis"
++#define LON_PRIM_MERIDIAN	"longitude_of_prime_meridian"
++#define ANGULAR_UNITS		"angular_units"
++
++
++#define GRD_MAPPING_NAME       "grid_mapping_name"
++#define GRD_MAPPING            "grid_mapping"
++#define COORDINATES            "coordinates"
++#define LONLAT                 "lon lat"
++
++#define STD_PARALLEL           "standard_parallel"
++#define STD_PARALLEL_1         "standard_parallel_1"
++#define STD_PARALLEL_2         "standard_parallel_2"
++#define LONG_CENTRAL_MERIDIAN  "central_meridian"
++#define LAT_PROJ_ORIGIN        "latitude_of_projection_origin"
++#define LON_PROJ_ORIGIN        "longitude_of_projection_origin"
++#define LON_CENTRAL_MERIDIAN   "longitude_of_central_meridian"
++#define EARTH_SHAPE            "GRIB_earth_shape"
++#define EARTH_SHAPE_CODE       "GRIB_earth_shape_code"
++#define SCALE_FACTOR           "scale_factor_at_central_meridian"
++#define STRAIGHT_VERT_LON_POLE "straight_vertical_longitude_from_pole"
++#define SCALE_FACTOR_PROJ_ORIG "scale_factor_at_projection_origin"
++#define FALSE_EASTING          "false_easting"
++#define FALSE_NORTHING         "false_northing"
++
++#define STD_NAME               "standard_name"
++#define LNG_NAME               "long_name"
++#define _UNITS                 "units"
++#define AXIS                   "axis"
++#define BOUNDS                 "bounds"
++#define ORIG_AXIS              "original_units"
++#define PROJECTION_Y_COORDINATE "projection_y_coordinate"
++#define PROJECTION_X_COORDINATE "projection_x_coordinate"
++
++#define PROJ4_PARAMS           "proj4_params"
++#define EPSG_CODE              "EPSG_code"
++#define MISSING_VALUE          "_FillValue"
++#define PROJECTION             "projection"
++#define UNDEFINED              "undefined"
++
++#define MAXDIMINTERVALDIFF      0.001
++#define DIM_NAME                "dim_name"
++#define DIM_INTERVAL            "dim_interval"
++#define DIM_INDEX               "dim_index"
++#define ISO_DATASET             "iso_dataset"
++#define PRODUCT                 "product"
++#define CUSTOM                  "custom"
++#define ISO_DATASET_ID          "ISO-19115:2003"
++#define ADAGUC_DRIVER_ID        "GDAL_ADAGUC_V0.3"
++#define ADAGUC_DRIVER_LONGID    "ADAGUC NetCDF Raster format V0.3" 
++#define ADAGUC_DRIVER_VERSION   "0.3"
++//#define NC_VAR_STRING_LENGTH    16
++ // Length of ISO_DATASET_ID 
++
++
++typedef struct {
++    char *ADAGUCSRS;
++    char *SRS; }
++oADAGUCSRS;
++
++class ADAGUCRasterBand;
++
++class ADAGUCDataset : public GDALPamDataset
++{
++    double      adfGeoTransform[6];
++    char        **papszSubDatasets;
++    char        **papszGeolocation;
++    char        **papszName;
++    char        *pszFilename;
++  
++    int          *panBandDimPos;         // X, Y, Z postion in array
++    int          *panBandZLev;
++    char         *pszProjection;
++    int          bGotGeoTransform;
++    double       rint( double );
++
++    double       FetchCopyParm( const char *pszGridMappingValue, 
++                                const char *pszParm, double dfDefault );
++
++  public:
++    int           root_cdfid;
++    int           positive_up;
++
++    char         **papszMetadata;
++    char          papszDimName[NC_MAX_NAME][1024];
++    char          papszDimXName[1024];
++    char          papszDimYName[1024];
++    
++    int          *paDimIds;
++    size_t        xdim, ydim;
++    int           nDimXid, nDimYid;
++
++                ADAGUCDataset( );
++                ~ADAGUCDataset( );
++    
++    static GDALDataset *Open( GDALOpenInfo * );
++
++    CPLErr      ReadAttributes( int, int );
++
++    CPLErr 	GetGeoTransform( double * );    
++
++    const char * GetProjectionRef();
++
++    char ** GetMetadata( const char * );
++
++  CPLErr SetMetadata( char ** papszMD, const char *pszDomain );
++
++    void  CreateSubDatasetList( );
++
++    void  SetProjection( int,int );
++
++};
++
++#endif
+diff --git a/gcore/gdal_frmts.h b/gcore/gdal_frmts.h
+index 2a3526b..cbb8504 100644
+--- gcore/gdal_frmts.h
++++ gcore/gdal_frmts.h
+@@ -97,6 +97,7 @@ void CPL_DLL GDALRegister_PCIDSK(void);
+ void CPL_DLL GDALRegister_BT(void);
+ void CPL_DLL GDALRegister_DODS(void);
+ void CPL_DLL GDALRegister_GMT(void);
++void CPL_DLL GDALRegister_ADAGUC(void);
+ void CPL_DLL GDALRegister_netCDF(void);
+ void CPL_DLL GDALRegister_LAN(void);
+ void CPL_DLL GDALRegister_CPG(void);
+-- 
+1.8.5.1
+
+
+From 3f03fa0e5dc83b5ecc261b733572aecae4628671 Mon Sep 17 00:00:00 2001
+From: Carsten Ehbrecht <ehbrecht@dkrz.de>
+Date: Tue, 6 Jan 2015 17:44:37 +0100
+Subject: [PATCH 2/2] fixed makefile for adaguc build
+
+---
+ frmts/netcdf/GNUmakefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/frmts/netcdf/GNUmakefile b/frmts/netcdf/GNUmakefile
+index 42c56a7..eb84d8c 100644
+--- frmts/netcdf/GNUmakefile
++++ frmts/netcdf/GNUmakefile
+@@ -1,7 +1,7 @@
+ 
+ include ../../GDALmake.opt
+ 
+-OBJ	=	netcdfdataset.o gmtdataset.o
++OBJ	=	netcdfdataset.o gmtdataset.o adagucdataset.o
+ 
+ XTRA_OPT = 
+ ifeq ($(NETCDF_HAS_NC4),yes)
+-- 
+1.8.5.1
+
