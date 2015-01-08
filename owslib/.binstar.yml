@@ -39,17 +39,17 @@ user: birdhouse
 #   - echo "before_script!"
 ## Put your main computations here!  
 script:
-  - echo "owslib binstar build!"
+  - conda build .
 ## This will run after the script regardless of the result of script
 ## BINSTAR_BUILD_RESULT=[succcess|failure] 
-after_script:
-   - echo "The build was a $BINSTAR_BUILD_RESULT" | tee artifact1.txt
+#after_script:
+#   - echo "The build was a $BINSTAR_BUILD_RESULT" | tee artifact1.txt
 ## This will be run only after a successfull build
-after_success:
-   - echo "after_success!"
+#after_success:
+#   - echo "after_success!"
 ## This will be run only after a build failure
-after_failure:
-   - echo "after_failure!"
+#after_failure:
+#   - echo "after_failure!"
 
 #===============================================================================
 # Build Results
@@ -72,5 +72,5 @@ after_failure:
 ## The special build targets 'conda' and 'pypi' may be used to 
 ## upload conda builds  
 ## e.g. conda is an alias for /opt/anaconda/conda-bld/<os-arch>/*.tar.bz2
-#build_targets:
-#   - conda
+build_targets:
+   - conda
