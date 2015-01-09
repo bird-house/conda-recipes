@@ -1,9 +1,0 @@
-diff -r 14410ebda4e9 -r e99bc9cdc4a7 CCDFDataModel/Makefile
---- CCDFDataModel/Makefile	Mon Jan 05 17:06:16 2015 +0100
-+++ CCDFDataModel/Makefile	Mon Jan 05 17:16:02 2015 +0100
-@@ -1,4 +1,4 @@
--INCLUDEDIR=-I../hclasses  -I/usr/include/libxml2/ -I/usr/include/udunits2/ $(CPPFLAGS) $(LDFLAGS)
-+INCLUDEDIR=-I../hclasses $(CPPFLAGS) $(LDFLAGS)
- 
- CCOMPILER=g++ -Wall $(INCLUDEDIR) 
- 
