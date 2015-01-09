@@ -1,0 +1,36 @@
+package:
+    name: icclim
+    version: 2.2.0 
+
+source:
+    git_url: https://github.com/tatarinova/icclim.git
+    git_tag: master
+
+build:
+    number: 1
+
+requirements:
+    build:
+        - python
+        - setuptools
+        - numpy
+        - netcdf4
+#        - ctypes
+
+    run:
+        - python
+        - numpy
+        - netcdf4
+#        - ctypes
+
+test:
+    imports:
+        - icclim
+
+    #commands:
+    #    -
+
+about:
+    home: https://github.com/tatarinova/icclim
+    license: WTFPL 
+
