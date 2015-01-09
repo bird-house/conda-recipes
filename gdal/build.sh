@@ -15,6 +15,6 @@ make install
 
 # Copy data files 
 mkdir -p $PREFIX/share/gdal/
-cp data/*csv $PREFIX/share/gdal/
-cp data/*wkt $PREFIX/share/gdal/
+cp -f data/* $PREFIX/share/gdal
+cp -f LICENSE.TXT $PREFIX/share/gdal
 
