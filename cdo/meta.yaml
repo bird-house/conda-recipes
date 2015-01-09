@@ -1,14 +1,14 @@
 package:
   name: cdo
-  version: 1.6.5
+  version: 1.6.7
 
 source:
-  fn: cdo-1.6.5.tar.gz
-  url: https://code.zmaw.de/attachments/download/9250/cdo-1.6.5.1.tar.gz
-  md5: 4d51785cd09ee8a7884af5a1031f791c 
+  fn: cdo-1.6.7.tar.gz
+  url: https://code.zmaw.de/attachments/download/9444/cdo-1.6.7.tar.gz
+  md5: 101f66b481903d7edfc134811f82b226 
 
 build:
-  number: 6 
+  number: 0
 
 requirements:
   build:
