@@ -1,0 +1,9 @@
+diff -r 14410ebda4e9 -r e99bc9cdc4a7 hclasses/Makefile
+--- hclasses/Makefile	Mon Jan 05 17:06:16 2015 +0100
++++ hclasses/Makefile	Mon Jan 05 17:16:02 2015 +0100
+@@ -1,4 +1,4 @@
+-INCLUDEDIR=. -I/usr/include/libxml2/ $(CPPFLAGS) $(LDFLAGS)
++INCLUDEDIR=. $(CPPFLAGS) $(LDFLAGS)
+ 
+ 
+ CCOMPILER=g++ -Wall -I $(INCLUDEDIR)

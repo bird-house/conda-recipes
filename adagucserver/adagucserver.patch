@@ -1,0 +1,30 @@
+diff --git a/CCDFDataModel/Makefile b/CCDFDataModel/Makefile
+--- CCDFDataModel/Makefile
++++ CCDFDataModel/Makefile
+@@ -1,4 +1,4 @@
+-INCLUDEDIR=-I../hclasses  -I/usr/include/libxml2/ -I/usr/include/udunits2/ $(CPPFLAGS) $(LDFLAGS)
++INCLUDEDIR=-I../hclasses $(CPPFLAGS) $(LDFLAGS)
+ 
+ CCOMPILER=g++ -Wall $(INCLUDEDIR) 
+ 
+diff --git a/adagucserverEC/Makefile b/adagucserverEC/Makefile
+--- adagucserverEC/Makefile
++++ adagucserverEC/Makefile
+@@ -4,7 +4,7 @@
+ CCDFDATAMODEL = ../CCDFDataModel
+ CCDFDATAMODELOBJ = $(CCDFDATAMODEL)/CCDFDataModel.a
+ 
+-INCLUDEDIR= $(CPPFLAGS) -I $(HELPERCLASSES) -I $(CCDFDATAMODEL) -I/usr/include/libxml2/  -I/usr/include/udunits2/ -I/usr/include/freetype2/ -I/usr/include/postgresql/ -I/usr/include/cairo/ -I/usr/include/gdal/
++INCLUDEDIR= $(CPPFLAGS) -I $(HELPERCLASSES) -I $(CCDFDATAMODEL) 
+ 
+ 
+ 
+diff --git a/hclasses/Makefile b/hclasses/Makefile
+--- hclasses/Makefile
++++ hclasses/Makefile
+@@ -1,4 +1,4 @@
+-INCLUDEDIR=. -I/usr/include/libxml2/ $(CPPFLAGS) $(LDFLAGS)
++INCLUDEDIR=. $(CPPFLAGS) $(LDFLAGS)
+ 
+ 
+ CCOMPILER=g++ -Wall -I $(INCLUDEDIR)
