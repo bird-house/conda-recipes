@@ -1,0 +1,22 @@
+package:
+  name: grib_api
+  version: 1.10.4
+
+source:
+  fn: grib_api-1.10.4.tar.gz
+  url: https://software.ecmwf.int/wiki/download/attachments/3473437/grib_api-1.10.4.tar.gz?api=v2
+  md5: 34ce631af96316441f9e3e8e54ecf719
+
+requirements:
+  build:
+    - python
+    - numpy
+    - jasper
+#    - libnetcdf
+
+build:
+  number: 2 
+
+about:
+  home: https://software.ecmwf.int/wiki/display/GRIB/Home
+  license: Apache License v2.0 (http://www.apache.org/licenses/)
