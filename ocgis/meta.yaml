@@ -1,0 +1,43 @@
+package:
+    name: ocgis
+    version: 1.0.1 
+
+source:
+    git_url: https://github.com/NCPP/ocgis.git
+    git_tag: next
+
+build:
+    number: 4
+
+requirements:
+    build:
+        - python
+        - setuptools
+        - numpy
+        - netcdf4
+        - shapely
+        - fiona
+        - gdal
+        - icclim
+
+    run:
+        - python
+        - numpy
+        - netcdf4
+        - shapely
+        - fiona
+        - gdal
+        - icclim
+
+test:
+    # export GDAL_DATA=${prefix}/share/gdal
+    #imports:
+    #    - ocgis
+
+    commands:
+        - export GDAL_DATA=${PREFIX}/share/gdal;python -c "import ocgis"
+
+about:
+    home: http://ncpp.github.io/ocgis/install.html#installing-openclimategis
+    license: NCSA License
+
