@@ -6,7 +6,7 @@ package: ocgis
 ## You can also specify the account to upload to,
 ## you must be an admin of that account, this 
 ## defaults to your user account
-user: pingucarsti
+user: birdhouse
 
 #===============================================================================
 # Build Matrix Options
@@ -36,7 +36,7 @@ user: pingucarsti
 
 ## Run before the script
 before_script:
-  - conda config --add channels https://conda.binstar.org/pingucarsti
+  - conda config --add channels https://conda.binstar.org/birdhouse
 ## Put your main computations here!  
 script:
   - export GDAL_DATA=/opt/miniconda/envs/_test/share/gdal
