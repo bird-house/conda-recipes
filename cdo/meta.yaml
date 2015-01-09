@@ -1,0 +1,32 @@
+package:
+  name: cdo
+  version: 1.6.5
+
+source:
+  fn: cdo-1.6.5.tar.gz
+  url: https://code.zmaw.de/attachments/download/9250/cdo-1.6.5.1.tar.gz
+  md5: 4d51785cd09ee8a7884af5a1031f791c 
+
+build:
+  number: 6 
+
+requirements:
+  build:
+    - jasper
+    - grib_api
+    - libnetcdf
+    - proj4
+  run:
+    - jasper
+    - grib_api
+    - libnetcdf
+    - proj4
+
+test:
+  commands:
+    # DYLD_LIBRARY_PATH=/Users/pingu/anaconda/lib
+    - cdo -h
+
+about:
+  home: https://code.zmaw.de/projects/cdo
+  license: GNU General Public License v2 (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
