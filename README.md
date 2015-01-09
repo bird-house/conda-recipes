@@ -3,9 +3,13 @@ Additional or customized conda recipes used by birdhouse components
 
 ## conda build
 
-* create recipe
-* cd recipe
-conda build .
+create recipe:
+
+build recipe:
+
+    $ cd recipe
+    $ conda build .
+    $ binstar upload -u birdhouse ...
 
 Links:
 * http://conda.pydata.org/docs/build.html
@@ -23,6 +27,7 @@ create recipe:
 
 build recipe with binstar:
 
+   $ cd recipe
    $ binstar-build init    # adds .binstar.yml config file
    $ vim .binstar.yml      # edit file: package, user=birdhouse, script=conda build ., build-targets: conda
    $ binstar-build submit .
