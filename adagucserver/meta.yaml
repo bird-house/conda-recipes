@@ -22,6 +22,7 @@ requirements:
     - freetype
     - curl
     - jpeg
+    - libgd
   run:
     - proj4
     - libnetcdf
@@ -33,6 +34,7 @@ requirements:
     - freetype
     - curl
     - jpeg
+    - libgd
 #test:
 #  commands:
 #    - adagucserver
