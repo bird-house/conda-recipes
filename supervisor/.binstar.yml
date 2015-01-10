@@ -16,8 +16,8 @@ user: birdhouse
 
 ## The platforms to build on.
 ## platform defaults to linux-64 
-# platform: 
-#  - linux-64
+platform: 
+  - linux-64
 #  - linux-32
 ## The engine are the inital conda packages you want to run with 
 engine:
@@ -35,8 +35,8 @@ engine:
 #===============================================================================
 
 ## Run before the script
-# before_script:
-#   - echo "before_script!"
+before_script:
+  - conda config --add channels https://conda.binstar.org/birdhouse
 ## Put your main computations here!  
 script:
   - conda build .

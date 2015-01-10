@@ -6,7 +6,7 @@ package: meld3
 ## You can also specify the account to upload to,
 ## you must be an admin of that account, this 
 ## defaults to your user account
-user: pingucarsti
+user: birdhouse
 
 #===============================================================================
 # Build Matrix Options

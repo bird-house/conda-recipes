@@ -37,6 +37,7 @@ requirements:
 
   run:
     - python
+    - setuptools
     - meld3 >=0.6.5
 
 test:
