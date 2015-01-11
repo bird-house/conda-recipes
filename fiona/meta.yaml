@@ -32,12 +32,14 @@ requirements:
     - setuptools
     - click
     - six
+    - gdal
 
   run:
     - python
     - setuptools
     - click
     - six
+    - gdal
 
 test:
   # Python imports
