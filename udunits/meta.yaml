@@ -9,12 +9,12 @@ source:
 
 requirements:
   build:
-    - expat  # [win]
+    - expat 
   run:
-    - expat  # [win]
+    - expat
 
 build:
-    number: 4
+    number: 5
     detect_binary_files_with_prefix: true
 
 test:
