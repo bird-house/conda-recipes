@@ -1,0 +1,31 @@
+package:
+  name: cfunits
+  version: 0.9.6
+
+source:
+  fn: cfunits-0.9.6.tar.gz
+  url: http://cfunits-python.googlecode.com/files/cfunits-0.9.6.tar.gz
+  md5: e876322cac0d939b5dd9ce53ad708b7e
+
+build:
+  number: 2
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - udunits
+    - netcdf4
+
+  run:
+    - python
+    - udunits
+    - netcdf4
+
+about:
+  home: https://code.google.com/p/cfunits-python/
+  license: MIT License
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
