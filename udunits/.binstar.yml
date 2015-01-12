@@ -36,6 +36,7 @@ user: birdhouse
 
 ## Run before the script
 before_script:
+#  - conda install -c https://conda.binstar.org/asmeurer autoconf
   - conda config --add channels https://conda.binstar.org/birdhouse
 ## Put your main computations here!  
 script:
