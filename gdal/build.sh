@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./configure LIBS="-ludunits2" --with-python --prefix=$PREFIX \
+./configure LIBS="-ludunits2" --prefix=$PREFIX \
 --with-geos=$PREFIX/bin/geos-config \
 --with-static-proj4=$PREFIX \
 --with-hdf5=$PREFIX \
@@ -8,9 +8,11 @@
 --with-xerces=$PREFIX \
 --with-jpeg=$PREFIX \
 --with-jasper=$PREFIX \
+--with-sqlite=$PREFIX \
 --without-pam \
+--with-python \
 --disable-rpath
-make
+make -j 4
 make install
 
 # Copy data files 
