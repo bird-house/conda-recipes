@@ -7,7 +7,7 @@ source:
     git_tag: next
 
 build:
-    number: 5
+    number: 6
 
 requirements:
     build:
@@ -19,7 +19,8 @@ requirements:
         - fiona
         - gdal
         - icclim
-
+        - cfunits
+        - udunits
     run:
         - python
         - numpy
@@ -28,7 +29,8 @@ requirements:
         - fiona
         - gdal
         - icclim
-
+        - cfunits
+        - udunits
 test:
     # export GDAL_DATA=${prefix}/share/gdal
     #imports:
