@@ -1,27 +1,28 @@
 package:
     name: cdat-lite
-    version: 5.2.1
+    version: 5.2rc1
 
 source:
-    fn: cdat_lite-5.2-1.tar.gz
-    url: http://ndg.nerc.ac.uk/dist/cdat_lite-5.2-1.tar.gz
-    sha1: 8d7f373367cd05c0378d310ce78ee4a1a68d258b
+    fn: cdat_lite-5.2rc1.tar.gz
+    url: https://pypi.python.org/packages/source/c/cdat-lite/cdat_lite-5.2rc1.tar.gz
+    #url: http://ndg.nerc.ac.uk/dist/cdat_lite-5.2-1.tar.gz
+    #sha1: 8d7f373367cd05c0378d310ce78ee4a1a68d258b
 
 build:
-    number: 3
+    number: 1
 
 requirements:
     build:
         - python
-        - numpy
+        - numpy 1.8.2
         - setuptools
-        - libnetcdf 4.*
-        - hdf5 1.8.9
+        - libnetcdf
+        - hdf5
     run:
         - python
-        - numpy
-        - libnetcdf 4.*
-        - hdf5 1.8.9
+        - numpy 1.8.2
+        - libnetcdf
+        - hdf5
 
 test:
     imports:
