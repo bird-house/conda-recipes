@@ -1,0 +1,30 @@
+
+package:
+    name: htmltmpl 
+    version: 1.22
+
+source:
+    fn: htmltmpl-1.22.tar.gz
+    url: http://sourceforge.net/projects/htmltmpl/files/htmltmpl/1.22/htmltmpl-1.22.tar.gz/download#egg=htmltmpl-1.22
+
+build:
+    number: 0
+
+requirements:
+    build:
+        - python
+
+    run:
+        - python
+
+test:
+    imports:
+        - htmltmpl
+
+    #commands:
+    #    -
+
+about:
+    home: http://htmltmpl.sourceforge.net/
+    license: GPLv2
+
