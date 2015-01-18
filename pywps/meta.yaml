@@ -4,11 +4,11 @@ package:
     version: !!str 3.2.2
 
 source:
-    git_url: https://github.com/cehbrecht/PyWPS.git
+    git_url: https://github.com/bird-house/PyWPS.git
     git_tag: master
 
 build:
-    number: 1
+    number: 2 
 
 requirements:
     build:
