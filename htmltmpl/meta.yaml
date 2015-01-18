@@ -8,7 +8,7 @@ source:
     url: http://sourceforge.net/projects/htmltmpl/files/htmltmpl/1.22/htmltmpl-1.22.tar.gz/download#egg=htmltmpl-1.22
 
 build:
-    number: 0
+    number: 1
 
 requirements:
     build:
