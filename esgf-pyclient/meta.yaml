@@ -3,7 +3,7 @@ package:
   version: !!str 0.1.2
 
 source:
-  git_url: https://github.com/cehbrecht/esgf-pyclient.git
+  git_url: https://github.com/bird-house/esgf-pyclient.git
   git_tag: master
   #fn: esgf-pyclient-0.1.2.tar.gz
   #url: https://pypi.python.org/packages/source/e/esgf-pyclient/esgf-pyclient-0.1.2.tar.gz
@@ -25,7 +25,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 2
+  number: 3
 
 requirements:
   build:
