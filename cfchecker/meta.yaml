@@ -8,7 +8,7 @@ source:
     sha1: 8709708c8c9417e91403a0e0aa539d3bae55f346
 
 build:
-    number: 3
+    number: 4
 
     entry_points:
         - cfchecks = cfchecker:cfchecks_main
