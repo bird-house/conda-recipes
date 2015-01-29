@@ -1,5 +1,9 @@
 # conda-recipes
-Additional or customized conda recipes used by birdhouse components
+Additional or customized conda recipes used by birdhouse components.
+
+The recipes are available on Binstar (Anaconda Server):
+
+https://binstar.org/birdhouse
 
 ## conda build
 
