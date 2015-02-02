@@ -1,14 +1,14 @@
 package:
     name: cfchecker
-    version: 2.0.5
+    version: 2.0.6
 
 source:
-    fn: cfchecker-2.0.5ceda.p1.tar.gz
-    url: https://pypi.python.org/packages/source/c/cfchecker/cfchecker-2.0.5ceda.p1.tar.gz
-    sha1: 8709708c8c9417e91403a0e0aa539d3bae55f346
+    fn: cfchecker-2.0.6.tar.gz
+    url: https://pypi.python.org/packages/source/c/cfchecker/cfchecker-2.0.6.tar.gz#md5=84dbd1827da00c62f86d45e43ab9a9bd
+    #sha1:
 
 build:
-    number: 4
+    number: 0
 
     entry_points:
         - cfchecks = cfchecker:cfchecks_main
