@@ -1,11 +1,11 @@
 package:
-  name: python-swiftclient
-  version: !!str 2.3.1
+  name: simplejson
+  version: "3.6.5"
 
 source:
-  fn: python-swiftclient-2.3.1.tar.gz
-  url: https://pypi.python.org/packages/source/p/python-swiftclient/python-swiftclient-2.3.1.tar.gz
-  md5: 7ad68f32a9df6ef7bb81878261b89ab6
+  fn: simplejson-3.6.5.tar.gz
+  url: https://pypi.python.org/packages/source/s/simplejson/simplejson-3.6.5.tar.gz
+  md5: b65dc21c7aaad14c6b4ad0d9179e437d
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -16,9 +16,9 @@ source:
     # Put any entry points (scripts to be generated automatically) here. The
     # syntax is module:function.  For example
     #
-    # - python-swiftclient = python-swiftclient:main
+    # - simplejson = simplejson:main
     #
-    # Would create an entry point called python-swiftclient that calls python-swiftclient.main()
+    # Would create an entry point called simplejson that calls simplejson.main()
 
 
   # If this is a new build for the same version, increment the build
@@ -29,17 +29,15 @@ requirements:
   build:
     - python
     - setuptools
-    - pbr
-    - simplejson
+
   run:
     - python
-    - pbr
-    - simplejson
 
-
-# test:
+test:
   # Python imports
-  # imports:
+  imports:
+    - simplejson
+    - simplejson.tests
 
   # commands:
     # You can put test commands to be run here.  Use this to test that the
@@ -54,9 +52,9 @@ requirements:
     # - nose
 
 about:
-  #home: The package home page
-  license: Apache Software License
-  summary: 'OpenStack Object Storage API Client Library'
+  home: http://github.com/simplejson/simplejson
+  license: MIT License or Academic Free License (AFL)
+  summary: 'Simple, fast, extensible JSON encoder/decoder for Python'
 
 # See
 # http://docs.continuum.io/conda/build.html for
