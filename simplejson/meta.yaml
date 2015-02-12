@@ -37,7 +37,6 @@ test:
   # Python imports
   imports:
     - simplejson
-    - simplejson.tests
 
   # commands:
     # You can put test commands to be run here.  Use this to test that the

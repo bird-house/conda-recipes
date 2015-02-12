@@ -41,9 +41,6 @@ test:
   # Python imports
   imports:
     - pbr
-    - pbr.cmd
-    - pbr.hooks
-    - pbr.tests
 
   commands:
     # You can put test commands to be run here.  Use this to test that the
