@@ -1,11 +1,11 @@
 package:
   name: malleefowl
-  version: !!str 0.1.8
+  version: !!str 0.2.0
 
 source:
-  fn: malleefowl-0.1.8.tar.gz
-  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.1.8.tar.gz
-  md5: 2460fc03a8bb648e5e747968f8ce0b03
+  fn: malleefowl-0.2.0.tar.gz
+  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.2.0.tar.gz
+  md5: 0a4fa77d406efc84311cf8c1ffe9e529
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -25,7 +25,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 1
+  number: 0
 
 requirements:
   build:
