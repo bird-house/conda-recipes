@@ -1,0 +1,26 @@
+
+package:
+    name: apache-tomcat
+    version: 7.0.54
+
+source:
+    fn: apache-tomcat-7.0.54.tar.gz 
+    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.54/bin/apache-tomcat-7.0.54.tar.gz
+    md5: e43771bc8c6a10956495d13300567244
+
+build:
+    number: 0
+
+requirements:
+    build:
+
+    run:
+
+test:
+    commands:
+        - catalina.sh version
+
+about:
+    home: http://tomcat.apache.org/
+    license: Apache License v2.0
+
