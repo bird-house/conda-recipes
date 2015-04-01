@@ -1,0 +1,26 @@
+
+package:
+    name: thredds
+    version: 4.3.22
+
+source:
+    fn: thredds.war 
+    url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.3/4.3.22/thredds.war
+    md5: 0a863f6e3a4e040d0861e84ce508b07e
+
+build:
+    number: 0
+
+requirements:
+    build:
+        - apache-tomcat
+
+    run:
+        - apache-tomcat
+
+test:
+
+about:
+    home: http://www.unidata.ucar.edu/software/thredds/current/tds/
+    license: 
+
