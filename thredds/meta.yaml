@@ -1,12 +1,12 @@
 
 package:
     name: thredds
-    version: 4.3.22
+    version: 4.3.23
 
 source:
     fn: thredds.war 
-    url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.3/4.3.22/thredds.war
-    md5: 0a863f6e3a4e040d0861e84ce508b07e
+    url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.3/4.3.23/thredds.war
+    md5: d032618c3e9acfa860795e2f10a36f86
 
 build:
     number: 0
