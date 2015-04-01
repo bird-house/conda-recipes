@@ -28,3 +28,22 @@ diff --git a/hclasses/Makefile b/hclasses/Makefile
  
  
  CCOMPILER=g++ -Wall -I $(INCLUDEDIR)
+
+diff --git a/adagucserverEC/CCairoPlotter.h b/adagucserverEC/CCairoPlotter.h
+--- adagucserverEC/CCairoPlotter.h
++++ adagucserverEC/CCairoPlotter.h
+@@ -39,10 +39,10 @@
+ #include "CDebugger.h"
+ #include "CTypes.h"
+   #include <ft2build.h>
+-  #include <freetype/freetype.h>
+-  #include <freetype/ftglyph.h>
+-  #include <freetype/ftoutln.h>
+-  #include <freetype/fttrigon.h>
++  #include <freetype2/freetype.h>
++  #include <freetype2/ftglyph.h>
++  #include <freetype2/ftoutln.h>
++  #include <freetype2/fttrigon.h>
+   #include FT_FREETYPE_H
+ #include <stdio.h>
+ #include <math.h>
