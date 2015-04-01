@@ -1,12 +1,12 @@
 
 package:
     name: apache-tomcat
-    version: 7.0.54
+    version: 7.0.59
 
 source:
-    fn: apache-tomcat-7.0.54.tar.gz 
-    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.54/bin/apache-tomcat-7.0.54.tar.gz
-    md5: e43771bc8c6a10956495d13300567244
+    fn: apache-tomcat-7.0.59.tar.gz 
+    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.59/bin/apache-tomcat-7.0.59.tar.gz
+    md5: ec570258976edf9a833cd88fd9220909
 
 build:
     number: 0
