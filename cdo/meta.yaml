@@ -1,11 +1,11 @@
 package:
   name: cdo
-  version: 1.6.7
+  version: 1.6.8
 
 source:
-  fn: cdo-1.6.7.tar.gz
-  url: https://code.zmaw.de/attachments/download/9444/cdo-1.6.7.tar.gz
-  md5: 101f66b481903d7edfc134811f82b226 
+  fn: cdo-1.6.8.tar.gz
+  url: https://code.zmaw.de/attachments/download/10030/cdo-1.6.8.tar.gz
+  md5: 8f91f086db2d7c71b81bffd0a7817dfd
 
 build:
   number: 0
@@ -30,3 +30,4 @@ test:
 about:
   home: https://code.zmaw.de/projects/cdo
   license: GNU General Public License v2 (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+  summary: CDO is a collection of command line Operators to manipulate and analyse Climate and NWP model Data.
