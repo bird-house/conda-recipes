@@ -1,12 +1,12 @@
 
 package:
     name: thredds
-    version: 4.3.23
+    version: 4.6.1
 
 source:
     fn: thredds.war 
-    url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.3/4.3.23/thredds.war
-    md5: d032618c3e9acfa860795e2f10a36f86
+    url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.6/4.6.1/thredds.war
+    md5: 0d96a37068429d96f59bb8236781b6af
 
 build:
     number: 0
@@ -23,4 +23,5 @@ requirements:
 about:
     home: http://www.unidata.ucar.edu/software/thredds/current/tds/
     license: 
+    summary: The THREDDS Data Server (TDS) is a web server that provides metadata and data access for scientific datasets, using a variety of remote data access protocols. 
 
