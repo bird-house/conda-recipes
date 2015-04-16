@@ -7,11 +7,6 @@ source:
   url: https://software.ecmwf.int/wiki/download/attachments/3473437/grib_api-1.12.3.tar.gz?api=v2
   md5: 584f60702aeed70330cca42d13b96889
 
-binary_relocation: false
-
-binary_has_prefix_files:
-  - bin/grib_info
-
 requirements:
   build:
     - python
@@ -25,6 +20,9 @@ requirements:
 
 build:
   number: 1
+  binary_relocation: true
+  binary_has_prefix_files:
+    - bin/grib_info
 
 about:
   home: https://software.ecmwf.int/wiki/display/GRIB/Home
