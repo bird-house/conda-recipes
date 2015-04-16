@@ -12,6 +12,10 @@ build:
 
 requirements:
   build:
+    - jasper
+    - grib_api >=1.13.0
+    - libnetcdf
+    - proj4
   run:
     - jasper
     - grib_api >=1.13.0
