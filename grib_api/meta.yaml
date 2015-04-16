@@ -1,11 +1,11 @@
 package:
   name: grib_api
-  version: 1.12.3
+  version: 1.13.0
 
 source:
-  fn: grib_api-1.12.3.tar.gz
-  url: https://software.ecmwf.int/wiki/download/attachments/3473437/grib_api-1.12.3.tar.gz?api=v2
-  md5: 584f60702aeed70330cca42d13b96889
+  fn: grib_api-1.13.0.tar.gz
+  url: https://software.ecmwf.int/wiki/download/attachments/3473437/grib_api-1.13.0.tar.gz?api=v2
+  md5: 3fdae4e771c486e5f660a073de1ecd8a
 
 requirements:
   build:
@@ -19,7 +19,7 @@ requirements:
     - jasper
 
 build:
-  number: 2
+  number: 1 
   detect_binary_files_with_prefix: true
 
 about:
