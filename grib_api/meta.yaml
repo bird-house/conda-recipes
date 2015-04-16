@@ -1,10 +1,10 @@
 package:
   name: grib_api
-  version: 1.13.0
+  version: 1.12.3
 
 source:
-  fn: grib_api-1.13.0.tar.gz
-  url: https://software.ecmwf.int/wiki/download/attachments/3473437/grib_api-1.13.0.tar.gz?api=v2
+  fn: grib_api-1.12.3.tar.gz
+  url: https://software.ecmwf.int/wiki/download/attachments/3473437/grib_api-1.12.3.tar.gz?api=v2
   md5: 3fdae4e771c486e5f660a073de1ecd8a
 
 requirements:
@@ -13,9 +13,13 @@ requirements:
     - numpy
     - jasper
 #    - libnetcdf
+  run:
+    - python
+    - numpy
+    - jasper
 
 build:
-  number: 0 
+  number: 0
 
 about:
   home: https://software.ecmwf.int/wiki/display/GRIB/Home
