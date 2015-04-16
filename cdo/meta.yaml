@@ -8,17 +8,13 @@ source:
   md5: 8f91f086db2d7c71b81bffd0a7817dfd
 
 build:
-  number: 1
+  number: 2
 
 requirements:
   build:
-    - jasper
-    - grib_api
-    - libnetcdf
-    - proj4
   run:
     - jasper
-    - grib_api
+    - grib_api >=1.13.0
     - libnetcdf
     - proj4
 
