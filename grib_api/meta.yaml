@@ -19,10 +19,8 @@ requirements:
     - jasper
 
 build:
-  number: 1
-  binary_relocation: true
-  binary_has_prefix_files:
-    - bin/grib_info
+  number: 2
+  detect_binary_files_with_prefix: true
 
 about:
   home: https://software.ecmwf.int/wiki/display/GRIB/Home
