@@ -1,11 +1,11 @@
 package:
   name: pycdo
-  version: 1.2.3
+  version: 1.2.5
 
 source:
-  fn: cdo-1.2.3.tar.gz
-  url: https://pypi.python.org/packages/source/c/cdo/cdo-1.2.3.tar.gz
-  md5: fe4b010e9c29a3e7df560bf830e474a7
+  fn: cdo-1.2.5.tar.gz
+  url: https://pypi.python.org/packages/source/c/cdo/cdo-1.2.5.tar.gz
+  md5: fbf112706c21d4a60baaeeda098bc53d
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -50,6 +50,7 @@ test:
 about:
   home: https://code.zmaw.de/projects/cdo/wiki/Cdo%7Brbpy%7D
   license: GPLv2
+  summary: Cdo{rb,py} allows you to use CDO in the context of Python and Ruby as if it would be a native library.
 
 # See
 # http://docs.continuum.io/conda/build.html for
