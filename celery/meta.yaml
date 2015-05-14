@@ -50,7 +50,6 @@ test:
     - celery.app
     - celery.apps
     - celery.backends
-    - celery.backends.database
     - celery.bin
     - celery.concurrency
     - celery.contrib
