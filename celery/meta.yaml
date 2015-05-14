@@ -62,14 +62,14 @@ test:
     - celery.utils.dispatch
     - celery.worker
 
-  commands:
+#  commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
 
-    - celery --help
-    - celeryd --help
-    - celerybeat --help
-    - celeryd-multi --help
+    #- celery --help
+    #- celeryd --help
+    #- celerybeat --help
+    #- celeryd-multi --help
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
