@@ -33,13 +33,13 @@ requirements:
   build:
     - python
     - setuptools
-    - pytz >dev
+    - pytz
     - billiard >=3.3.0.20,<3.4
     - kombu >=3.0.25,<3.1
 
   run:
     - python
-    - pytz >dev
+    - pytz
     - billiard >=3.3.0.20,<3.4
     - kombu >=3.0.25,<3.1
 
