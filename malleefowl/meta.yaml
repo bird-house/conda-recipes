@@ -40,11 +40,11 @@ requirements:
     - dispel4py
     - esgf-pyclient
     - birdhouse-birdy
+    - python-swiftclient
     - nose
 
   run:
     - python
-    - setuptools
     - pywps
     - htmltmpl
     - python-magic
@@ -54,6 +54,7 @@ requirements:
     - dispel4py
     - esgf-pyclient
     - birdhouse-birdy
+    - python-swiftclient
     - nose
 
 test:
