@@ -38,6 +38,7 @@ requirements:
     - lxml
     - owslib
     - pyyaml
+    - netcdf4
     - dispel4py
     - esgf-pyclient
     - birdhouse-birdy
@@ -53,6 +54,7 @@ requirements:
     - lxml
     - owslib
     - pyyaml
+    - netcdf4
     - dispel4py
     - esgf-pyclient
     - birdhouse-birdy
