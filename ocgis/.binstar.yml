@@ -36,7 +36,8 @@ user: birdhouse
 
 ## Run before the script
 before_script:
-  - conda config --add channels https://conda.binstar.org/birdhouse
+  - conda update -n root conda-build
+  - conda config --add channels birdhouse
 ## Put your main computations here!  
 script:
   - export GDAL_DATA=/opt/miniconda/envs/_test/share/gdal
