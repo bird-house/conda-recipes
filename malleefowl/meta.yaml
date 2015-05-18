@@ -37,6 +37,7 @@ requirements:
     - ordereddict
     - lxml
     - owslib
+    - pyyaml
     - dispel4py
     - esgf-pyclient
     - birdhouse-birdy
@@ -51,6 +52,7 @@ requirements:
     - ordereddict
     - lxml
     - owslib
+    - pyyaml
     - dispel4py
     - esgf-pyclient
     - birdhouse-birdy
