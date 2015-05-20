@@ -1,10 +1,12 @@
 package:
   name: dispel4py
-  version: !!str 0.0.1
+  version: !!str 1.0.1
 
 source:
-    git_url: https://github.com/akrause2014/dispel4py
-    git_tag: master  
+  fn: dispel4py-1.0.1.tar.gz
+  url: https://pypi.python.org/packages/source/d/dispel4py/dispel4py-1.0.1.tar.gz
+  url: https://pypi.python.org/packages/source/F/Fiona/Fiona-1.4.8.tar.gz
+  md5: 29f35c291c385b310b7a5c18c33a9bd3
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -20,7 +22,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 1
+  number: 0
 
 requirements:
   build:
@@ -43,8 +45,6 @@ test:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
 
-    #- birdy --help
-
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
 
@@ -53,7 +53,7 @@ test:
     # - nose
 
 about:
-  home: https://github.com/akrause2014/dispel4py
+  home: https://github.com/dispel4py/dispel4py
   license: Apache License v2.0
   summary: 'Dispel4py is a Python library used to describe abstract workflows for distributed data-intensive applications.'
 
