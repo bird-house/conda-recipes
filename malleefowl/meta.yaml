@@ -1,11 +1,11 @@
 package:
   name: malleefowl
-  version: !!str 0.2.1
+  version: !!str 0.3.0
 
 source:
-  fn: malleefowl-0.2.1.tar.gz
-  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.2.1.tar.gz
-  md5: 62d55ecb7a42a7ce3f109ad489c36d14
+  fn: malleefowl-0.3.0.tar.gz
+  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.3.0.tar.gz
+  md5: 0bad8f9dcd2cfcf90d7c0264ba1ba38b
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -41,7 +41,6 @@ requirements:
     - netcdf4
     - dispel4py
     - esgf-pyclient
-    - birdhouse-birdy
     - python-swiftclient
     - nose
 
@@ -57,7 +56,6 @@ requirements:
     - netcdf4
     - dispel4py
     - esgf-pyclient
-    - birdhouse-birdy
     - python-swiftclient
     - nose
 
