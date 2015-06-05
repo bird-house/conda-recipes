@@ -29,12 +29,14 @@ requirements:
   build:
     - python
     - setuptools
+    - requests
     - lxml
     - beautiful-soup
     - pytest
 
   run:
     - python
+    - requests
     - lxml
     - beautiful-soup
 
