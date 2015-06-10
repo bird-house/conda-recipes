@@ -8,7 +8,7 @@ source:
     git_tag: pingudev
 
 build:
-    number: 9 
+    number: 10 
 
 requirements:
     build:
@@ -16,14 +16,12 @@ requirements:
         - setuptools
         - htmltmpl
         - lxml
-        - ordereddict
         - python-magic
 
     run:
         - python
         - htmltmpl
         - lxml
-        - ordereddict
         - python-magic
 
 test:
