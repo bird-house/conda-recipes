@@ -1,10 +1,10 @@
 package:
   name: threddsclient
-  version: !!str 0.2.0
+  version: !!str 0.3.0
 
 source:
   git_url: https://github.com/bird-house/threddsclient.git
-  git_tag: birdhouse
+  git_tag: master
 
 #  patches:
    # List any patch files here
@@ -32,7 +32,6 @@ requirements:
     - requests
     - lxml
     - beautiful-soup
-    - pytest
 
   run:
     - python
@@ -45,17 +44,17 @@ test:
   imports:
     - threddsclient
 
-  #commands:
+  commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
-
+    - py.test
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
 
-  # requires:
+  requires:
     # Put any additional test requirements here.  For example
-    # - nose
+    - pytest
 
 about:
   home: https://github.com/bird-house/threddsclient 
