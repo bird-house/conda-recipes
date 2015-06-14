@@ -1,11 +1,11 @@
 
 package:
     name: thredds
-    version: 4.6.1
+    version: 4.6.2
 
 source:
     fn: thredds.war 
-    url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.6/4.6.1/thredds.war
+    url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.6/4.6.2/thredds.war
     md5: 89d4b7e38cc0b576ce1b78f42d5584ea
 
 build:
