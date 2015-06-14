@@ -6,7 +6,7 @@ package:
 source:
     fn: thredds.war 
     url: ftp://ftp.unidata.ucar.edu/pub/thredds/4.6/4.6.2/thredds.war
-    md5: 89d4b7e38cc0b576ce1b78f42d5584ea
+    md5: 7faab11dc567a3acd0b689a2a435d5ae 
 
 build:
     number: 0
