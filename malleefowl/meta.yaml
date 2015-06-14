@@ -41,6 +41,7 @@ requirements:
     - dispel4py
     - esgf-pyclient
     - python-swiftclient
+    - threddsclient  
     - nose
 
   run:
@@ -48,7 +49,6 @@ requirements:
     - pywps
     - htmltmpl
     - python-magic
-    - ordereddict
     - lxml
     - owslib
     - pyyaml
@@ -56,6 +56,7 @@ requirements:
     - dispel4py
     - esgf-pyclient
     - python-swiftclient
+    - threddsclient  
     - nose
 
 test:
