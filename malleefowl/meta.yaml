@@ -1,11 +1,11 @@
 package:
   name: malleefowl
-  version: !!str 0.3.0
+  version: !!str 0.3.1
 
 source:
-  fn: malleefowl-0.3.0.tar.gz
-  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.3.0.tar.gz
-  md5: 0bad8f9dcd2cfcf90d7c0264ba1ba38b
+  fn: malleefowl-0.3.1.tar.gz
+  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.3.1.tar.gz
+  md5: af11e4b08e3ca420f7c95cd35f45ed6c
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -34,7 +34,6 @@ requirements:
     - pywps
     - htmltmpl
     - python-magic
-    - ordereddict
     - lxml
     - owslib
     - pyyaml
