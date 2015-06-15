@@ -1,12 +1,12 @@
 
 ## The package attribure specifies a binstar package namespace to build the package to. 
 ## This can be specified here or on the command line
-package: owslib
+package: owslib 
 
 ## You can also specify the account to upload to,
 ## you must be an admin of that account, this 
 ## defaults to your user account
-user: birdhouse
+user: birdhouse 
 
 #===============================================================================
 # Build Matrix Options
@@ -16,11 +16,11 @@ user: birdhouse
 
 ## The platforms to build on.
 ## platform defaults to linux-64 
-#platform: 
+# platform: 
 #  - linux-64
 #  - linux-32
 ## The engine are the inital conda packages you want to run with 
-#engine:
+# engine:
 #  - python=2
 #  - python=3
 ## The env param is an environment variable list 
@@ -30,25 +30,26 @@ user: birdhouse
 
 #===============================================================================
 # Scrip options
-# Thes options may be broken out into the before_script, script and #after_script
+# Thes options may be broken out into the before_script, script and after_script
 # or not, that is up to you 
 #===============================================================================
 
 ## Run before the script
-# before_script:
-#   - echo "before_script!"
+before_script:
+  - conda update -n root conda-build
+  - conda config --add channels birdhouse
 ## Put your main computations here!  
 script:
   - conda build .
 ## This will run after the script regardless of the result of script
 ## BINSTAR_BUILD_RESULT=[succcess|failure] 
-#after_script:
+# after_script:
 #   - echo "The build was a $BINSTAR_BUILD_RESULT" | tee artifact1.txt
 ## This will be run only after a successfull build
-#after_success:
+# after_success:
 #   - echo "after_success!"
 ## This will be run only after a build failure
-#after_failure:
+# after_failure:
 #   - echo "after_failure!"
 
 #===============================================================================
@@ -73,4 +74,4 @@ script:
 ## upload conda builds  
 ## e.g. conda is an alias for /opt/anaconda/conda-bld/<os-arch>/*.tar.bz2
 build_targets:
-   - conda
+  - conda
