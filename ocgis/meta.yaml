@@ -16,7 +16,7 @@ requirements:
         - numpy
         - netcdf4
         - shapely
-        - fiona==1.4.8
+        - fiona ==1.4.8
         - gdal
         - proj4
         - icclim
@@ -27,7 +27,7 @@ requirements:
         - numpy
         - netcdf4
         - shapely
-        - fiona==1.4.8
+        - fiona ==1.4.8
         - gdal
         - proj4
         - icclim
