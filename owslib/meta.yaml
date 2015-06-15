@@ -29,12 +29,14 @@ requirements:
   build:
     - python
     - setuptools
+    - requests
     - dateutil >=1.5
     - pytz
     - lxml
 
   run:
     - python
+    - requests
     - dateutil >=1.5
     - pytz
     - lxml
