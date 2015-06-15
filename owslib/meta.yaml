@@ -1,11 +1,11 @@
 package:
   name: owslib
-  version: !!str 0.8.13
+  version: !!str 0.9.0
 
 source:
-  fn: OWSLib-0.8.13.tar.gz
-  url: https://pypi.python.org/packages/source/O/OWSLib/OWSLib-0.8.13.tar.gz
-  #md5: 0d5d63dd741ff8c3ff83a5f36249736e
+  fn: OWSLib-0.9.0.tar.gz
+  url: https://pypi.python.org/packages/source/O/OWSLib/OWSLib-0.9.0.tar.gz
+  md5: e511e8bdddce0e59abefc892f090e033
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -46,9 +46,6 @@ test:
     - owslib.coverage
     - owslib.feature
     - owslib.swe
-    - owslib.swe.observation
-    - owslib.swe.sensor
-    - owslib.waterml
     - owslib.wps
 
   # commands:
