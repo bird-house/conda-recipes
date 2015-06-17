@@ -1,11 +1,11 @@
 package:
   name: dispel4py
-  version: !!str 1.0.1
+  version: !!str 1.1.2
 
 source:
-  fn: dispel4py-1.0.1.tar.gz
-  url: https://pypi.python.org/packages/source/d/dispel4py/dispel4py-1.0.1.tar.gz
-  md5: 29f35c291c385b310b7a5c18c33a9bd3
+  fn: dispel4py-1.1.2.tar.gz
+  url: https://pypi.python.org/packages/source/d/dispel4py/dispel4py-1.1.2.tar.gz
+  md5: 6e858e575fa875411face95c2b40b062
 #  patches:
    # List any patch files here
    # - fix.patch
