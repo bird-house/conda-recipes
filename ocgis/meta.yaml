@@ -7,39 +7,41 @@ source:
     git_tag: next
 
 build:
-    number: 6 
+    number: 7 
 
 requirements:
     build:
         - python
         - setuptools
         - numpy
-        - netcdf4
+        - netcdf4 ==1.1.1
         - shapely
-        - fiona ==1.4.8
+        - fiona
         - gdal
         - proj4
         - icclim
         - cfunits
         - udunits
+        - nose
     run:
         - python
         - numpy
-        - netcdf4
+        - netcdf4 ==1.1.1
         - shapely
-        - fiona ==1.4.8
+        - fiona
         - gdal
         - proj4
         - icclim
         - cfunits
         - udunits
-test:
+        - nose
+#test:
     # export GDAL_DATA=${prefix}/share/gdal
     #imports:
     #    - ocgis
 
-    commands:
-        - export GDAL_DATA=${PREFIX}/share/gdal;python -c "import ocgis"
+    #commands:
+    #    - export GDAL_DATA=${PREFIX}/share/gdal;python -c "import ocgis"
 
 about:
     home: http://ncpp.github.io/ocgis/install.html#installing-openclimategis
