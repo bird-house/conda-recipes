@@ -36,8 +36,8 @@ user: birdhouse
 
 ## Run before the script
 before_script:
-  - conda config --add channels https://conda.binstar.org/birdhouse
-  - conda update conda
+  - conda update -n root conda-build
+  - conda config --add channels birdhouse
 ## Put your main computations here!  
 script:
   - conda build .
