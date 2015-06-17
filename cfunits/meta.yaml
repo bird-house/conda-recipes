@@ -8,19 +8,19 @@ source:
   md5: e876322cac0d939b5dd9ce53ad708b7e
 
 build:
-  number: 2
+  number: 3
 
 requirements:
   build:
     - python
     - setuptools
     - udunits
-    - netcdf4
+    - netcdf4 ==1.1.1
 
   run:
     - python
     - udunits
-    - netcdf4
+    - netcdf4 ==1.1.1
 
 about:
   home: https://code.google.com/p/cfunits-python/
