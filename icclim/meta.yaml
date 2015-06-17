@@ -32,6 +32,6 @@ test:
 
 about:
     home: https://github.com/tatarinova/icclim
-    summary: "icclim" is a short of Index Calculation CLIMate, a Python library for climate indices calculation.
+    summary: icclim is a short of Index Calculation CLIMate, a Python library for climate indices calculation.
     license: WTFPL 
 
