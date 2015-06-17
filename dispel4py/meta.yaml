@@ -29,11 +29,13 @@ requirements:
     - setuptools
     - networkx
     - mpi4py  
+    - flake8
 
   run:
     - python
     - networkx
     - mpi4py  
+    - flake8
 
 test:
   # Python imports
