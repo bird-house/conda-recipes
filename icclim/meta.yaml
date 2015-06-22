@@ -3,11 +3,11 @@ package:
     version: 3.0.2 
 
 source:
-    git_url: https://github.com/tatarinova/icclim.git
+    git_url: https://github.com/cerfacs-globc/icclim
     git_tag: master
 
 build:
-    number: 0
+    number: 1
 
 requirements:
     build:
@@ -31,7 +31,7 @@ test:
     #    -
 
 about:
-    home: https://github.com/tatarinova/icclim
-    summary: icclim is a short of Index Calculation CLIMate, a Python library for climate indices calculation.
+    home: https://github.com/cerfacs-globc/icclim
+    summary: 'icclim is a short of Index Calculation CLIMate, a Python library for climate indices calculation.'
     license: WTFPL 
 
