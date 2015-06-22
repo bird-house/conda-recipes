@@ -5,7 +5,7 @@ package:
 source:
   fn: cfunits-0.9.6.tar.gz
   url: https://bitbucket.org/cfpython/cfunits-python/downloads/cfunits-1.0.tar.gz
-  md5: e876322cac0d939b5dd9ce53ad708b7e
+  md5: ac74742daf7f5afc4d758ed2d70d46e2
 
 build:
   number: 0
