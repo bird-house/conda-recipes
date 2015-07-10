@@ -3,7 +3,7 @@ Additional or customized conda recipes used by birdhouse components.
 
 The recipes are available on Binstar (Anaconda Server):
 
-https://binstar.org/birdhouse
+https://anaconda.org/birdhouse
 
 ## conda build
 
@@ -23,7 +23,7 @@ Links:
 
 add binstar-build:
 
-    $ conda config --add https://conda.binstar.org/binstar
+    $ conda config --add binstar
     $ conda install binstar-build
 
 
@@ -37,6 +37,6 @@ build recipe with binstar:
    $ binstar-build submit .
 
 Links:
-* http://docs.binstar.org/draft/examples.html#BinstarBuild
-* http://docs.binstar.org/draft/build-config.html
+* http://docs.anaconda.org/draft/examples.html#BinstarBuild
+* http://docs.anaconda.org/draft/build-config.html
 
