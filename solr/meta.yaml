@@ -13,7 +13,7 @@ build:
 
 test:
     commands:
-        - solr
+        - solr start -help
 
 about:
     home: http://lucene.apache.org/solr/

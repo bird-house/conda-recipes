@@ -11,7 +11,14 @@ fi
 SOLR_INSTALL=${PREFIX}/opt/solr
 
 mkdir -vp ${SOLR_INSTALL};
+
 mv * ${SOLR_INSTALL}
 
-ls ${SOLR_INSTALL}
+mkdir -vp ${PREFIX}/bin || exit 1;
+
+pushd ${PREFIX}/bin || return 1;
+ln -vs ${SOLR_INSTALL}/bin/solr . || return 1;
+ln -vs ${SOLR_INSTALL}/bin/post . || return 1;
+popd || return 1;
+
 
