@@ -1,11 +1,11 @@
 package:
   name: pycsw
-  version: "1.10.1"
+  version: "1.10.2"
 
 source:
-  fn: pycsw-1.10.1.tar.gz
-  url: https://pypi.python.org/packages/source/p/pycsw/pycsw-1.10.1.tar.gz
-  md5: f13152c4b2d28cc86c1b946d39d74d30
+  fn: pycsw-1.10.2.tar.gz
+  url: https://pypi.python.org/packages/source/p/pycsw/pycsw-1.10.2.tar.gz
+  md5: 85eb21f9386e827bd1c28be982c40c2a
 #  patches:
    # List any patch files here
    # - fix.patch
