@@ -17,4 +17,5 @@ test:
 
 about:
     home: http://lucene.apache.org/solr/
+    summary: 'Solr is the popular, blazing-fast, open source enterprise search platform built on Apache Lucene'
     license: Apache 2.0 license
