@@ -1,0 +1,20 @@
+package:
+    name: solr 
+    version: "5.2.1" 
+
+source:
+    fn: solr-5.2.1.tgz
+    url: http://archive.apache.org/dist/lucene/solr/5.2.1/solr-5.2.1.tgz
+    md5: 50b87813e33665512c78ab056842c4d3
+      
+    
+build:
+    number: 0
+
+test:
+    commands:
+        - solr
+
+about:
+    home: http://lucene.apache.org/solr/
+    license: Apache 2.0 license
