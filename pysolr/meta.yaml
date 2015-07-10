@@ -36,9 +36,10 @@ requirements:
     - python
     - requests >=2.0
 
-# test:
+test:
   # Python imports
-  # imports:
+  imports:
+    - pysolr
 
   # commands:
     # You can put test commands to be run here.  Use this to test that the
