@@ -1,0 +1,67 @@
+package:
+  name: tika
+  version: "1.9.3"
+
+source:
+  fn: tika-1.9.3.tar.gz
+  url: https://pypi.python.org/packages/source/t/tika/tika-1.9.3.tar.gz
+  md5: 1b6dae35b398a4126c68974223b07f8f
+#  patches:
+   # List any patch files here
+   # - fix.patch
+
+build:
+  # noarch_python: True
+  preserve_egg_dir: True
+  entry_points:
+    # Put any entry points (scripts to be generated automatically) here. The
+    # syntax is module:function.  For example
+    #
+    # - tika = tika:main
+    #
+    # Would create an entry point called tika that calls tika.main()
+
+    - tika-python = tika.tika:main
+
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  # number: 1
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - requests
+
+  run:
+    - python
+    - setuptools
+    - requests
+
+test:
+  # Python imports
+  imports:
+    - tika
+    - tika.tests
+
+  commands:
+    # You can put test commands to be run here.  Use this to test that the
+    # entry points work.
+
+    - tika-python --help
+
+  # You can also put a file called run_test.py in the recipe that will be run
+  # at test time.
+
+  # requires:
+    # Put any additional test requirements here.  For example
+    # - nose
+
+about:
+  home: http://github.com/chrismattmann/tika-python
+  license: Apache Software License
+  summary: 'Apache Tika Python library'
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
