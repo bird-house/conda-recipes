@@ -17,9 +17,13 @@ requirements:
     build:
         - python
         - setuptools
+        - numpy
+        - cdat-lite
+        - udunits
 
     run:
         - python
+        - setuptools
         - numpy
         - cdat-lite
         - udunits
