@@ -1,11 +1,11 @@
 package:
     name: cfchecker
-    version: 2.0.6
+    version: 2.0.7
 
 source:
-    fn: cfchecker-2.0.6.tar.gz
-    url: https://pypi.python.org/packages/source/c/cfchecker/cfchecker-2.0.6.tar.gz#md5=84dbd1827da00c62f86d45e43ab9a9bd
-    #sha1:
+    fn: cfchecker-2.0.7.tar.gz
+    url: https://pypi.python.org/packages/source/c/cfchecker/cfchecker-2.0.7.tar.gz
+    md5: 993f538bf58027416b777be8c97266a5
 
 build:
     number: 0
@@ -17,12 +17,10 @@ requirements:
     build:
         - python
         - setuptools
-        - cdat-lite
-        - udunits
+
     run:
         - python
-        - numpy 1.8.2
-        - setuptools
+        - numpy
         - cdat-lite
         - udunits
 
