@@ -47,6 +47,7 @@ requirements:
 
   run:
     - python
+    - setuptools
     - pywps
     - htmltmpl
     - python-magic
