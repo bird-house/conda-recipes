@@ -37,7 +37,7 @@ user: birdhouse
 ## Run before the script
 before_script:
   - conda update -n root conda-build
-  - conda install -n root binstar
+  - conda install -n root conda-server
   - conda config --add channels birdhouse
 ## Put your main computations here!  
 script:
