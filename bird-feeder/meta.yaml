@@ -36,6 +36,7 @@ requirements:
     - argcomplete
     - pysolr
     - threddsclient
+    - netcdf4
     - python-dateutil
     - nose
 
@@ -44,6 +45,7 @@ requirements:
     - argcomplete
     - pysolr
     - threddsclient
+    - netcdf4
     - python-dateutil
     - nose
 
