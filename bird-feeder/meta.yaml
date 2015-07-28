@@ -34,7 +34,7 @@ requirements:
     - argcomplete
     - pysolr
     - threddsclient
-    - dateutil
+    - python-dateutil
     - nose
 
   run:
@@ -42,7 +42,7 @@ requirements:
     - argcomplete
     - pysolr
     - threddsclient
-    - dateutil
+    - python-dateutil
     - nose
 
 test:
