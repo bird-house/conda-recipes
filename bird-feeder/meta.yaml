@@ -39,6 +39,7 @@ requirements:
 
   run:
     - python
+    - setuptools
     - argcomplete
     - pysolr
     - threddsclient
