@@ -1,11 +1,11 @@
 package:
   name: malleefowl
-  version: !!str 0.3.5
+  version: !!str 0.3.6
 
 source:
-  fn: malleefowl-0.3.5.tar.gz
-  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.3.5.tar.gz
-  md5: 0a705b88dd5d16e1f2b71204ad2897e3
+  fn: malleefowl-0.3.6.tar.gz
+  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.3.6.tar.gz
+  md5: 635d069f4f31f443fc0ab40b2cc2808f
 #  patches:
    # List any patch files here
    # - fix.patch
