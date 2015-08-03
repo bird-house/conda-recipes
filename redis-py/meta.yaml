@@ -1,5 +1,5 @@
 package:
-  name: redis
+  name: redis-py
   version: "2.10.3"
 
 source:
@@ -30,14 +30,16 @@ requirements:
   build:
     - python
     - setuptools
+    - redis >=3.0
 
   run:
     - python
+    - redis >=3.0
 
 test:
   # Python imports
   imports:
-    - redis >= 3.0
+    - redis
 
   # commands:
     # You can put test commands to be run here.  Use this to test that the
