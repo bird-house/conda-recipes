@@ -1,0 +1,19 @@
+package:
+  name: java-jdk
+  version: 8.0.45
+
+build:
+  number: 0
+
+source:
+  fn: zulu1.8.0_45-8.7.0.5-x86lx64.zip
+  md5: 2ab4a4f118c5450f90b50dee44935cdb
+  url: http://cdn.azulsystems.com/zulu/2015-04-8.7-bin/zulu1.8.0_45-8.7.0.5-x86lx64.zip
+
+test:
+  commands:
+    - java -version
+
+about:
+  home: http://www.azulsystems.com/products/zulu
+  license: GPL
