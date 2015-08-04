@@ -1,11 +1,11 @@
 package:
     name: cfchecker
-    version: 2.0.7
+    version: 2.0.8
 
 source:
-    fn: cfchecker-2.0.7.tar.gz
-    url: https://pypi.python.org/packages/source/c/cfchecker/cfchecker-2.0.7.tar.gz
-    md5: 993f538bf58027416b777be8c97266a5
+    fn: cfchecker-2.0.8.tar.gz
+    url: https://pypi.python.org/packages/source/c/cfchecker/cfchecker-2.0.8.tar.gz
+    md5: c8d786c3f442ab75ab53fbc7b05aa601
 
 build:
     number: 0
