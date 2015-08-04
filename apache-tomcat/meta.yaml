@@ -1,11 +1,11 @@
 
 package:
     name: apache-tomcat
-    version: 7.0.59
+    version: 7.0.63
 
 source:
-    fn: apache-tomcat-7.0.59.tar.gz 
-    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.59/bin/apache-tomcat-7.0.59.tar.gz
+    fn: apache-tomcat-7.0.63.tar.gz 
+    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.63/bin/apache-tomcat-7.0.63.tar.gz
     md5: ec570258976edf9a833cd88fd9220909
 
 build:
@@ -13,8 +13,10 @@ build:
 
 requirements:
     build:
+      - java-jdk
 
     run:
+      - java-jdk
 
 test:
     commands:
@@ -22,5 +24,6 @@ test:
 
 about:
     home: http://tomcat.apache.org/
+    summary: 'Apache Tomcat is an open source software implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies.'
     license: Apache License v2.0
 
