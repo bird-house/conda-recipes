@@ -18,9 +18,9 @@ requirements:
     run:
       - java-jdk
 
-test:
-    commands:
-        - catalina.sh version
+#test:
+#    commands:
+#        - catalina.sh version
 
 about:
     home: http://tomcat.apache.org/
