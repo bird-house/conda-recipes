@@ -1,0 +1,12 @@
+--- setup_util.py	2014-05-19 20:27:51.931128424 +0100
++++ setup_util.py.patched	2014-05-19 20:27:59.806883112 +0100
+@@ -434,8 +434,7 @@
+             if inc[:2] == '-I':
+                 self.include_dirs.append(inc[2:])
+             else:
+-                #!TODO: should be warning?
+-                raise Exception("Unrecognised nc-config cflag %s" % inc)
++                pass
+             
+         # Now detect netcdf_incdir and hdf5_incdir
+         for path in self.include_dirs:

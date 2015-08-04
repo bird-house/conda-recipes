@@ -1,33 +1,36 @@
 package:
     name: cdat-lite
-    version: 5.2rc1
+    version: 6.0rc2
 
 source:
-    fn: cdat_lite-5.2rc1.tar.gz
-    url: https://pypi.python.org/packages/source/c/cdat-lite/cdat_lite-5.2rc1.tar.gz
-    #url: http://ndg.nerc.ac.uk/dist/cdat_lite-5.2-1.tar.gz
+    fn: cdat_lite-6.0rc2.tar.gz
+    url: http://ndg.nerc.ac.uk/dist/cdat_lite-6.0rc2.tar.gz
+    #url: https://pypi.python.org/packages/source/c/cdat-lite/cdat_lite-6.0rc2.tar.gz
     #sha1: 8d7f373367cd05c0378d310ce78ee4a1a68d258b
 
+    patches:
+        - cdatlite.build.patch
+
 build:
-    number: 2
+    number: 0
 
 requirements:
     build:
         - python
-        - numpy 1.8.2
         - setuptools
-        - libnetcdf
-        - hdf5
+        - numpy
+        - netcdf4
+
     run:
         - python
-        - numpy 1.8.2
-        - libnetcdf
-        - hdf5
+        - numpy
+        - netcdf4
 
 test:
     imports:
-        - cdtime
+        - cdms2
 
 about:
-  home: http://proj.badc.rl.ac.uk/cedaservices/wiki/CdatLite
+  home: https://pypi.python.org/pypi/cdat-lite/6.0rc2
   summary: A Python package for managing and analysing climate science data.
+  license: http://www-pcmdi.llnl.gov/software-portal/cdat/docs/cdat-license
