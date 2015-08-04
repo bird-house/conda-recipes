@@ -6,7 +6,7 @@ package:
 source:
     fn: apache-tomcat-7.0.63.tar.gz 
     url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.63/bin/apache-tomcat-7.0.63.tar.gz
-    md5: ec570258976edf9a833cd88fd9220909
+    md5: c771aa7b2903691d6034f6584c95304c
 
 build:
     number: 0
