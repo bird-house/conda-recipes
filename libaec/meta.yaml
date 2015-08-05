@@ -1,0 +1,19 @@
+package:
+  name: libaec 
+  version: 0.3.2
+
+source:
+  fn: libaec-0.3.2.tar.gz
+  url: https://www.dkrz.de/redmine/attachments/download/453
+#  patches:
+   # List any patch files here
+   # - fix.patch
+build:
+  number: 0
+about:
+  home: https://www.dkrz.de/redmine/projects/aec
+  license: Copyright DKRZ and MPI-M
+  summary: 'Adaptive Entropy Coding library'
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
