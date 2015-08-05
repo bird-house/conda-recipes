@@ -1,6 +1,6 @@
 package:
   name: libaec 
-  version: 0.3.2
+  version: !!str 0.3.2
 
 source:
   fn: libaec-0.3.2.tar.gz
