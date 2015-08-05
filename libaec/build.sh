@@ -1,6 +1,6 @@
 #!/bin/bash
 ./configure --prefix=$PREFIX
-make install
+make check install
 # Add more build steps here, if they are necessary.
 
 # See
