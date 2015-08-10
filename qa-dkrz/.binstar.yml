@@ -1,0 +1,9 @@
+package: qa-dkrz
+user: birdhouse 
+before_script:
+  - conda update -n root conda-build
+  - conda config --add channels birdhouse
+script:
+  - conda build .
+build_targets:
+  - conda

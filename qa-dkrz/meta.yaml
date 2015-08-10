@@ -1,0 +1,31 @@
+package:
+  name: qa-dkrz
+  version: '0.5.0'
+
+build:
+  number: 0
+
+source:
+  git_url: https://github.com/h-dh/QA-DKRZ
+  git_tag: develop
+
+requirements:
+  build:
+    - libnetcdf
+    - hdf5
+    - zlib
+    - udunits
+  run:
+    - libnetcdf
+    - hdf5
+    - zlib
+    - udunits
+
+test:
+  commands:
+    - dkrz-cf-checker -h
+
+about:
+  home: http://qa-dkrz.readthedocs.org/en/latest/
+  summary: 'Quality Assurance checker of meta-data in climate data sets (netCDF files) for CF conformance and CMIP5 and CORDEX projects conventions.'
+  license: Copyright DKRZ
