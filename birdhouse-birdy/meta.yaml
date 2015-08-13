@@ -33,12 +33,14 @@ requirements:
     - argcomplete
     - lxml
     - owslib
+    - nose
 
   run:
     - python
     - argcomplete
     - lxml
     - owslib
+    - nose
 
 test:
   # Python imports
