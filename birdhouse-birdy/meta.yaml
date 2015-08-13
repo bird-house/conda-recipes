@@ -30,13 +30,14 @@ requirements:
   build:
     - python
     - setuptools
+    - argcomplete
     - lxml
     - owslib
     - nose
 
   run:
     - python
-    - setuptools
+    - argcomplete
     - lxml
     - owslib
     - nose
@@ -46,11 +47,11 @@ test:
   imports:
     - birdy
 
-  #commands:
+  commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
 
-      #- birdy --help
+      - birdy -h
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
