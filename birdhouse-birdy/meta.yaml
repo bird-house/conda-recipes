@@ -36,6 +36,7 @@ requirements:
 
   run:
     - python
+    - setuptools
     - lxml
     - owslib
     - nose
