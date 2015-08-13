@@ -47,18 +47,18 @@ test:
   imports:
     - birdy
 
-  #commands:
+  commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
 
-    #- nosetests -A 'not slow and not online'
+    - nosetests -A 'not slow and not online'
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
 
-  #requires:
+  requires:
     # Put any additional test requirements here.  For example
-    #- nose
+    - nose
 
 about:
   home: https://github.com/bird-house/birdy
