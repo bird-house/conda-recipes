@@ -4,10 +4,10 @@ package:
 
 source:
     git_url: https://github.com/ioos/compliance-checker.git
-    git_tag: 1.1.1
+    git_tag: master
 
 build:
-    number: 0
+    number: 1
     entry_points:
         - compliance-checker = cchecker:main
 
@@ -21,6 +21,7 @@ requirements:
         - cf_units 
         - requests
         - python-dateutil
+        - jinja2
     run:
         - python
         - owslib
@@ -29,6 +30,7 @@ requirements:
         - cf_units
         - requests
         - python-dateutil
+        - jinja2
 
 test:
     imports:
