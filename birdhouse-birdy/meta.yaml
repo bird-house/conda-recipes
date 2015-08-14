@@ -1,11 +1,11 @@
 package:
   name: birdhouse-birdy
-  version: !!str 0.1.1
+  version: !!str 0.1.2
 
 source:
-  fn: birdhouse-birdy-0.1.1.tar.gz
-  url: https://pypi.python.org/packages/source/b/birdhouse-birdy/birdhouse-birdy-0.1.1.tar.gz
-  md5: b0ba50dd3b88c8605d8ed0926b987798
+  fn: birdhouse-birdy-0.1.2.tar.gz
+  url: https://pypi.python.org/packages/source/b/birdhouse-birdy/birdhouse-birdy-0.1.2.tar.gz
+  md5: 4dd4017f5f984160e964b2d1eb62414c
 #  patches:
    # List any patch files here
    # - fix.patch
