@@ -4,7 +4,7 @@ package:
 
 source:
   fn: tika-1.10.0.tar.gz
-  url: https://pypi.python.org/packages/source/t/tika/tika-1.10.0.tar.gz
+  url: https://pypi.python.org/packages/source/t/tika/tika-1.10.tar.gz
   md5: 90af002964608f7581e316d8b580bb5a
 #  patches:
    # List any patch files here
