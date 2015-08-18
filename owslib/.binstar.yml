@@ -1,5 +1,5 @@
-package: owslib
-user: birdhouse 
+package: owslib 
+user: birdhouse
 before_script:
   - conda update -n root conda-build
   - conda config --add channels birdhouse

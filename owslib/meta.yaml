@@ -31,9 +31,15 @@ requirements:
   build:
     - python
     - setuptools
+    - requests
+    - python-dateutil
+    - pytz
+    - lxml
+    - pyproj
 
   run:
     - python
+    - setuptools
     - requests
     - python-dateutil
     - pytz
