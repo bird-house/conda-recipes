@@ -69,7 +69,7 @@ test:
     - pytest-cov
     - tox
     - pep8
-    - Pillow
+    - pillow
 
 about:
   home: http://geopython.github.io/OWSLib
