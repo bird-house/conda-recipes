@@ -25,7 +25,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 5
+  number: 6
 
 requirements:
   build:
@@ -55,17 +55,21 @@ test:
     - owslib.swe
     - owslib.wps
 
-  # commands:
+  commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
-
+    - python -m pytest
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
 
-  # requires:
+  requires:
     # Put any additional test requirements here.  For example
-    # - nose
+    - pytest
+    - pytest-cov
+    - tox
+    - pep8
+    - Pillow
 
 about:
   home: http://geopython.github.io/OWSLib
