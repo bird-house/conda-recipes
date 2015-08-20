@@ -1,11 +1,11 @@
 package:
   name: gunicorn
-  version: 19.3.0
+  version: 19.2.1
 
 source:
-  fn: gunicorn-19.3.0.tar.gz
-  url: https://pypi.python.org/packages/source/g/gunicorn/gunicorn-19.3.0.tar.gz
-  md5: faa3e80661efd67e5e06bba32699af20
+  fn: gunicorn-19.2.1.tar.gz
+  url: https://pypi.python.org/packages/source/g/gunicorn/gunicorn-19.2.1.tar.gz
+  md5: 2d643e171dc20e2d182d8b11158d4401
 
 build:
   entry_points:
