@@ -1,4 +1,4 @@
-package: owslib 
+package: owslib
 user: birdhouse
 before_script:
   - conda update -n root conda-build
