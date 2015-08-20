@@ -1,11 +1,11 @@
 package:
   name: gunicorn
-  version: 19.2.1
+  version: 19.1.1
 
 source:
-  fn: gunicorn-19.2.1.tar.gz
-  url: https://pypi.python.org/packages/source/g/gunicorn/gunicorn-19.2.1.tar.gz
-  md5: 2d643e171dc20e2d182d8b11158d4401
+  fn: gunicorn-19.1.1.tar.gz
+  url: https://pypi.python.org/packages/source/g/gunicorn/gunicorn-19.1.1.tar.gz
+  md5: eaa72bff5341c05169b76ce3dcbb8140
 
 build:
   entry_points:
@@ -22,7 +22,7 @@ requirements:
   run:
     - python
     - setuptools
-    - paste.deploy
+    - pastedeploy
 
 test:
   imports:
@@ -32,9 +32,8 @@ test:
     - gunicorn_django --help
     - gunicorn_paster --help
   requires:
-    - paste
+    - pastedeploy
 
 about:
   home: http://gunicorn.org
   license: MIT License
-  summary: 'WSGI HTTP Server for UNIX'
