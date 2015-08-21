@@ -10,6 +10,7 @@ echo "INCLUDE=\"${PREFIX}/include\":/usr/include/uuid" >> install_configure
 # run build
 export QA_PATH="$PWD"
 ./install CF
+./install CORDEX
 
 # copy all necessary files to opt/qa-dkrz
 export QA_PATH=${PREFIX}/opt/qa-dkrz
@@ -17,9 +18,13 @@ mkdir -vp ${QA_PATH}
 cp -r ./bin ${QA_PATH}
 cp -r ./scripts ${QA_PATH}
 cp -r ./tables ${QA_PATH}
+cp install* ${QA_PATH}
+cp .install_configure ${QA_PATH}
+cp README* ${QA_PATH}
 
-# install wrapper script in bin/ to call cfchecker
-cp $RECIPE_DIR/wrapper.sh $PREFIX/bin/dkrz-cf-checker
+# install wrapper script in bin/ to call cfchecker and qa-dkrz
+cp $RECIPE_DIR/cfchecker-wrapper.sh $PREFIX/bin/dkrz-cf-checker
+cp $RECIPE_DIR/qa-wrapper.sh $PREFIX/bin/qa-dkrz
 chmod +x $PREFIX/bin 
 
 

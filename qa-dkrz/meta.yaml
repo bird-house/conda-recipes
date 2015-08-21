@@ -24,6 +24,7 @@ requirements:
 test:
   commands:
     - dkrz-cf-checker -h
+    - qa-dkrz -h
 
 about:
   home: http://qa-dkrz.readthedocs.org/en/latest/
