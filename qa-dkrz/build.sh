@@ -18,6 +18,7 @@ mkdir -vp ${QA_PATH}
 cp -r ./bin ${QA_PATH}
 cp -r ./scripts ${QA_PATH}
 cp -r ./tables ${QA_PATH}
+cp ./example/qa-test.task ${QA_PATH}
 cp install* ${QA_PATH}
 cp .install_configure ${QA_PATH}
 cp README* ${QA_PATH}
