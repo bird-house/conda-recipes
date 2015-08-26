@@ -7,21 +7,23 @@ echo "CXXFLAGS=\"-O2 -Wall -D NC4\"" >> install_configure
 echo "LIB=\"${PREFIX}/lib\":/lib64" >> install_configure
 echo "INCLUDE=\"${PREFIX}/include\":/usr/include/uuid" >> install_configure
 
+# prepare qa home in opt/qa-dkrz
+QA_HOME=${PREFIX}/opt/qa-dkrz
+mkdir -vp ${QA_HOME}
+cp -r ./scripts ${QA_HOME}
+cp -r ./tables ${QA_HOME}
+cp README* ${QA_HOME}
+
 # run build
 export QA_PATH="$PWD"
 ./install CF
 ./install CORDEX
 
-# copy all necessary files to opt/qa-dkrz
-export QA_PATH=${PREFIX}/opt/qa-dkrz
-mkdir -vp ${QA_PATH}
-cp -r ./bin ${QA_PATH}
-cp -r ./scripts ${QA_PATH}
-cp -r ./tables ${QA_PATH}
-cp ./example/qa-test.task ${QA_PATH}
-cp install* ${QA_PATH}
-cp .install_configure ${QA_PATH}
-cp README* ${QA_PATH}
+# copy generate files to opt/qa-dkrz
+cp -r ./bin ${QA_HOME}
+cp ./example/qa-test.task ${QA_HOME}
+cp install* ${QA_HOME}
+cp .install_configure ${QA_HOME}
 
 # install wrapper script in bin/ to call cfchecker and qa-dkrz
 cp $RECIPE_DIR/cfchecker-wrapper.sh $PREFIX/bin/dkrz-cf-checker
