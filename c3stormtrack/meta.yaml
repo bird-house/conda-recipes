@@ -1,0 +1,33 @@
+package:
+    name: c3stormtrack
+    version: "1.0.0"
+
+source:
+
+build:
+    number: 0
+
+requirements:
+    build:
+        - python
+        - setuptools
+        - netcdf4
+        - cdo
+        - pycdo
+        - nco
+        - nco-bindings
+    run:
+        - python
+        - netcdf4
+        - cdo
+        - pycdo
+        - nco
+        - nco-bindings
+ 
+test:
+    imports:
+        - c3stormtrack
+
+about:
+    license:  http://creativecommons.org/licenses/by-nc/4.0/
+    summary: 'C3 Stromtrack calculator for climate data in NetCDF format.'
