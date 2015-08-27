@@ -12,6 +12,7 @@ QA_HOME=${PREFIX}/opt/qa-dkrz
 mkdir -vp ${QA_HOME}
 cp -r ./scripts ${QA_HOME}
 cp -r ./tables ${QA_HOME}
+cp -r ./CF-TestSuite ${QA_HOME}
 cp README* ${QA_HOME}
 
 # run build
