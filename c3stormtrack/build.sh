@@ -1,6 +1,10 @@
 #!/bin/bash
+export PREFIX=$PREFIX
 
-$PYTHON setup.py install --single-version-externally-managed 
+make build-src
+make install-src
+
+$PYTHON setup.py install
 
 # Add more build steps here, if they are necessary.
 

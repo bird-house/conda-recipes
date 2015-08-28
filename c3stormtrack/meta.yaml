@@ -13,11 +13,13 @@ requirements:
     build:
         - python
         - setuptools
+        - pytest-runner
         - netcdf4
         - cdo
         - pycdo
         - nco
         - nco-bindings
+        
     run:
         - python
         - netcdf4
@@ -28,8 +30,11 @@ requirements:
  
 test:
     imports:
-        - c3stormtrack
+        - stormtrack
 
+    requires:
+        - pytest
+        
 about:
     license:  http://creativecommons.org/licenses/by-nc/4.0/
     summary: 'C3 Stromtrack calculator for climate data in NetCDF format.'
