@@ -3,6 +3,8 @@ package:
     version: "1.0.0"
 
 source:
+    git_url: /home/pingu/sandbox/dkrz/c3-stormtrack
+    git_tag: develop
 
 build:
     number: 0
