@@ -1,19 +1,18 @@
 package:
-    name: c3stormtrack
+    name: c3-stormtrack
     version: "1.0.0"
 
 source:
-    git_url: /home/pingu/sandbox/dkrz/c3-stormtrack
+    git_url: /home/binstar/sandbox/dkrz/c3-stormtrack
     git_tag: develop
 
 build:
-    number: 0
+    number: 2
 
 requirements:
     build:
         - python
         - setuptools
-        - pytest-runner
         - netcdf4
         - cdo
         - pycdo
@@ -30,7 +29,7 @@ requirements:
  
 test:
     imports:
-        - stormtrack
+        - c3stormtrack
 
     requires:
         - pytest
