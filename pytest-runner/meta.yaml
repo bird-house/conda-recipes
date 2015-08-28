@@ -30,10 +30,12 @@ requirements:
   build:
     - python
     - setuptools
+    - setuptools-scm
 
   run:
     - python
     - setuptools
+    - setuptools-scm
 
 # test:
   # Python imports
