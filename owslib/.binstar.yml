@@ -1,7 +1,8 @@
 package: owslib
 user: birdhouse
 before_script:
-  - conda update -n root conda-build binstar anaconda-build
+  - conda install -n root anaconda-build
+  - conda update -n root conda-build binstar
   - conda config --add channels birdhouse
 script:
   - conda build .
