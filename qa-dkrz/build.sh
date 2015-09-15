@@ -26,6 +26,10 @@ cp ./example/qa-test.task ${QA_HOME}
 cp install* ${QA_HOME}
 cp .install_configure ${QA_HOME}
 
+# write git version to install.log
+echo "branch=$(git branch | grep '*' | awk '{print $2}')" > ${QA_HOME}/install.log
+echo "hexa=$(git log --pretty=format:'%h' -n 1)" >> ${QA_HOME}/install.log 
+
 # install wrapper script in bin/ to call cfchecker and qa-dkrz
 cp $RECIPE_DIR/cfchecker-wrapper.sh $PREFIX/bin/dkrz-cf-checker
 cp $RECIPE_DIR/qa-wrapper.sh $PREFIX/bin/qa-dkrz
