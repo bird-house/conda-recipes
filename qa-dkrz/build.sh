@@ -17,12 +17,13 @@ cp README* ${QA_HOME}
 
 # run build
 export QA_PATH="$PWD"
+touch .ignore_GitHub_update # avoids git update!
 ./install CF
 ./install CORDEX
 
 # copy generate files to opt/qa-dkrz
 cp -r ./bin ${QA_HOME}
-cp ./example/qa-test.task ${QA_HOME}
+cp ./example/templates/qa-test.task ${QA_HOME}
 cp install* ${QA_HOME}
 cp .install_configure ${QA_HOME}
 
