@@ -1,13 +1,13 @@
 package:
     name: c3-stormtrack
-    version: "1.0.0"
+    version: "2.3.0"
 
 source:
     git_url: /home/binstar/sandbox/dkrz/c3-stormtrack
-    git_tag: develop
+    git_tag: master
 
 build:
-    number: 2
+    number: 0
 
 requirements:
     build:

@@ -1,10 +1,10 @@
 #!/bin/bash
-#export PREFIX=$PREFIX
+export PREFIX=$PREFIX
 
 $PYTHON setup.py install
 
-#make build-src
-#make install-src
+make build-src
+make install-src
 
 # Add more build steps here, if they are necessary.
 
