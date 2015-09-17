@@ -28,7 +28,7 @@ build:
 requirements:
   build:
     - python
-    - geolinks==0.0.1 
+    - geolinks ==0.0.1 
     - lxml
     - owslib
     - pyproj
@@ -39,7 +39,7 @@ requirements:
 
   run:
     - python
-    - geolinks==0.0.1 
+    - geolinks ==0.0.1 
     - lxml 
     - owslib 
     - pyproj 
