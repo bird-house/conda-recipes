@@ -1,13 +1,13 @@
 package:
   name: owslib
-  version: !!str 0.9.1
+  version: !!str 0.9.2
 
 source:
   #git_url: https://github.com/bird-house/OWSLib.git
   #git_branch: birdhouse
-  fn: OWSLib-0.9.1.tar.gz
-  url: https://pypi.python.org/packages/source/O/OWSLib/OWSLib-0.9.1.tar.gz
-  md5: 9ca33a5815d07ae8c97dfa3747118d2c
+  fn: OWSLib-0.9.2.tar.gz
+  url: https://pypi.python.org/packages/source/O/OWSLib/OWSLib-0.9.2.tar.gz
+  md5: 01e1e142dc26bbeab61eae1d26a44c46
 #  patches:
    # List any patch files here
    # - fix.patch
