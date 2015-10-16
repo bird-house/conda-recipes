@@ -5,7 +5,7 @@ package:
 source:
     fn: ncWMS2.war 
     url: https://github.com/Reading-eScience-Centre/edal-java/releases/download/edal-1.0.2/ncWMS2.war
-    md5: 7faab11dc567a3acd0b689a2a435d5ae 
+    md5: 14ee05d69a099ea0efaab68ffe38275e
 
 build:
     number: 0
