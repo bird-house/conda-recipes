@@ -1,12 +1,14 @@
 package:
   name: adagucserver
-  version: !!str 1.8.0
+  version: !!str 1.9.3
 
 source:
-  fn: adagucserver-1.8.tar.gz
-  url: http://adaguc.knmi.nl/software/adagucserver-1.8.tar.gz
-  patches:
-    - adagucserver.patch
+  hg_tag: 1.9.3
+  hg_url: http://dev.knmi.nl/hg/adagucserver
+  #fn: adagucserver-1.8.tar.gz
+  #url: http://adaguc.knmi.nl/software/adagucserver-1.8.tar.gz
+  #patches:
+  #  - adagucserver.patch
 build:
   number: 0
 
@@ -17,7 +19,8 @@ requirements:
     - udunits
     - gdal
     - cairo
-    - postgresql
+    - sqlite
+#    - postgresql
     - libxml2
     - freetype
     - curl
@@ -29,7 +32,8 @@ requirements:
     - udunits
     - gdal
     - cairo
-    - postgresql
+    - sqlite
+ #   - postgresql
     - libxml2
     - freetype
     - curl
