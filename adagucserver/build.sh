@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export ADAGUCCOMPILERSETTINGS="-msse -msse2 -msse3 -mssse3 -mfpmath=sse -O2"
+
 export CPPFLAGS="-I$PREFIX/include -I$PREFIX/include/libxml2 -I$PREFIX/include/cairo -I$PREFIX/include/freetype2"
 export LDFLAGS="-L$PREFIX/lib/"
 
@@ -29,6 +31,7 @@ make -j4
 # copy executables
 cp adagucserver $PREFIX/bin/
 cp h5ncdump $PREFIX/bin/
+cp aggregate_time $PREFIX/bin/
 
 # copy data files 
 mkdir -p $PREFIX/share/adagucserver/

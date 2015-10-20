@@ -5,7 +5,7 @@ diff --git a/CCDFDataModel/Makefile b/CCDFDataModel/Makefile
 -INCLUDEDIR=-I../hclasses  -I/usr/include/libxml2/ -I/usr/include/udunits2/ $(CPPFLAGS) $(LDFLAGS)
 +INCLUDEDIR=-I../hclasses $(CPPFLAGS) $(LDFLAGS)
  
- CCOMPILER=g++ -Wall $(INCLUDEDIR) 
+ #CCOMPILER=g++ -Wall $(INCLUDEDIR) 
  
 diff --git a/adagucserverEC/Makefile b/adagucserverEC/Makefile
 --- adagucserverEC/Makefile
@@ -14,11 +14,11 @@ diff --git a/adagucserverEC/Makefile b/adagucserverEC/Makefile
  CCDFDATAMODEL = ../CCDFDataModel
  CCDFDATAMODELOBJ = $(CCDFDATAMODEL)/CCDFDataModel.a
  
--INCLUDEDIR= $(CPPFLAGS) -I $(HELPERCLASSES) -I $(CCDFDATAMODEL) -I/usr/include/libxml2/  -I/usr/include/udunits2/ -I/usr/include/freetype2/ -I/usr/include/postgresql/ -I/usr/include/cairo/ -I/usr/include/gdal/
+-INCLUDEDIR= $(CPPFLAGS) -I $(HELPERCLASSES) -I $(CCDFDATAMODEL) -I/usr/include/libxml2/  -I/usr/include/udunits2/ -I/usr/include/freetype2/ -I/usr/include/freetype2/freetype/ -I/usr/include/postgresql/ -I/usr/include/cairo/ -I/usr/include/gdal/
 +INCLUDEDIR= $(CPPFLAGS) -I $(HELPERCLASSES) -I $(CCDFDATAMODEL) 
  
- 
- 
+ ifndef ADAGUCCOMPILERSETTINGS
+   ADAGUCCOMPILERSETTINGS=-Wall
 diff --git a/hclasses/Makefile b/hclasses/Makefile
 --- hclasses/Makefile
 +++ hclasses/Makefile
@@ -27,23 +27,16 @@ diff --git a/hclasses/Makefile b/hclasses/Makefile
 +INCLUDEDIR=. $(CPPFLAGS) $(LDFLAGS)
  
  
- CCOMPILER=g++ -Wall -I $(INCLUDEDIR)
-
-diff --git a/adagucserverEC/CCairoPlotter.h b/adagucserverEC/CCairoPlotter.h
---- adagucserverEC/CCairoPlotter.h
-+++ adagucserverEC/CCairoPlotter.h
-@@ -39,10 +39,10 @@
- #include "CDebugger.h"
- #include "CTypes.h"
-   #include <ft2build.h>
--  #include <freetype/freetype.h>
--  #include <freetype/ftglyph.h>
--  #include <freetype/ftoutln.h>
--  #include <freetype/fttrigon.h>
-+  #include <freetype2/freetype.h>
-+  #include <freetype2/ftglyph.h>
-+  #include <freetype2/ftoutln.h>
-+  #include <freetype2/fttrigon.h>
-   #include FT_FREETYPE_H
- #include <stdio.h>
- #include <math.h>
+ ifndef ADAGUCCOMPILERSETTINGS
+diff --git a/tests/Makefile b/tests/Makefile
+--- tests/Makefile
++++ tests/Makefile
+@@ -9,7 +9,7 @@
+ 
+ #CDataReader.o COGCDims.o CImageWarper.o CGeoParams.o CCairoPlotter.o CDrawImage.o CServerError.o CRequest.o  CXMLGen.o CServerParams.o CGDALDataWriter.o CImageDataWriter.o CXMLSerializerInterface.o CDataSource.o CStopWatch.o CImgWarpBilinear.o CImgWarpBoolean.o CImgWarpNearestNeighbour.o CImgWarpNearestRGBA.o CPGSQLDB.o CDBFileScanner.o CDFObjectStore.o CDrawAA.o CFillTriangle.o CConvertASCAT.o CConvertADAGUCVector.o CConvertADAGUCPoint.o CImgRenderPoints.o CCache.o CConvertCurvilinear.o
+ 
+-INCLUDEDIR= $(CPPFLAGS) -I $(HELPERCLASSES) -I $(CCDFDATAMODEL) -I/usr/include/libxml2/  -I/usr/include/udunits2/ -I/usr/include/freetype2/ -I/usr/include/postgresql/ -I/usr/include/cairo/ -I/usr/include/gdal/
++INCLUDEDIR= $(CPPFLAGS) -I $(HELPERCLASSES) -I $(CCDFDATAMODEL) 
+ 
+ 
+ 

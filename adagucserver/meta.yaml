@@ -5,10 +5,8 @@ package:
 source:
   hg_tag: 1.9.3
   hg_url: http://dev.knmi.nl/hg/adagucserver
-  #fn: adagucserver-1.8.tar.gz
-  #url: http://adaguc.knmi.nl/software/adagucserver-1.8.tar.gz
-  #patches:
-  #  - adagucserver.patch
+  patches:
+    - adagucserver.patch
 build:
   number: 0
 
@@ -20,12 +18,13 @@ requirements:
     - gdal
     - cairo
     - sqlite
-#    - postgresql
+    - postgresql
     - libxml2
     - freetype
     - curl
     - jpeg
     - libgd
+    - libpng ==1.5.13
   run:
     - proj4
     - libnetcdf
@@ -33,12 +32,13 @@ requirements:
     - gdal
     - cairo
     - sqlite
- #   - postgresql
+    - postgresql
     - libxml2
     - freetype
     - curl
     - jpeg
     - libgd
+    - libpng ==1.5.13
 #test:
 #  commands:
 #    - adagucserver
