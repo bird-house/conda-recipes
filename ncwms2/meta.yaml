@@ -1,6 +1,6 @@
 package:
     name: ncwms2
-    version: 1.0.2
+    version: 2.0.2
 
 source:
     fn: ncWMS2.war 
