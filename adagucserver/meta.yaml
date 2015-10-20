@@ -23,8 +23,8 @@ requirements:
     - freetype
     - curl
     - jpeg
-    - libgd
-    - libpng ==1.5.13
+    - libgd >= 2.1.1
+    - libpng
   run:
     - proj4
     - libnetcdf
@@ -37,8 +37,8 @@ requirements:
     - freetype
     - curl
     - jpeg
-    - libgd
-    - libpng ==1.5.13
+    - libgd >= 2.1.1
+    - libpng
 #test:
 #  commands:
 #    - adagucserver
