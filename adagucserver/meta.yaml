@@ -12,6 +12,7 @@ build:
 
 requirements:
   build:
+    - mercurial
     - proj4
     - libnetcdf
     - udunits
