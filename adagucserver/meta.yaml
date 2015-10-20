@@ -8,11 +8,11 @@ source:
   patches:
     - adagucserver.patch
 build:
-  number: 0
+  number: 2
 
 requirements:
   build:
-    - mercurial
+    - python <3
     - proj4
     - libnetcdf
     - udunits
@@ -27,6 +27,7 @@ requirements:
     - libgd >=2.1.1
     - libpng
   run:
+    - python <3
     - proj4
     - libnetcdf
     - udunits
