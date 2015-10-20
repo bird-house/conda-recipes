@@ -23,7 +23,7 @@ requirements:
     - freetype
     - curl
     - jpeg
-    - libgd >= 2.1.1
+    - libgd >=2.1.1
     - libpng
   run:
     - proj4
@@ -37,7 +37,7 @@ requirements:
     - freetype
     - curl
     - jpeg
-    - libgd >= 2.1.1
+    - libgd >=2.1.1
     - libpng
 #test:
 #  commands:
