@@ -1,0 +1,10 @@
+package: python-openid
+user: birdhouse
+before_script:
+  - conda install -n root anaconda-build
+  - conda update -n root conda-build
+  - conda config --add channels birdhouse
+script:
+  - conda build .
+build_targets:
+  - conda
