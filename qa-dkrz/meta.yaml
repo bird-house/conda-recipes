@@ -1,9 +1,9 @@
 package:
   name: qa-dkrz
-  version: '0.5.0'
+  version: '0.5.1'
 
 build:
-  number: 9
+  number: 0
 
 source:
   git_url: https://github.com/h-dh/QA-DKRZ
