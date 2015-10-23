@@ -1,0 +1,21 @@
+package:
+    name: ncregrid
+    version: "1.4b"
+
+source:
+    #fn: ncregrid.tar.Z
+    #url: http://www.pa.op.dlr.de/~PatrickJoeckel/ncregrid/ncregrid.tar.Z
+    git_url: https://github.com/Kruecke/ncregrid.git
+
+requirements:
+    run:
+        - libnetcdf
+
+test:
+    commands:
+        - ncregrid
+
+about:
+    home: http://www.pa.op.dlr.de/~PatrickJoeckel/ncregrid/
+    summary: "A tool for rediscretisation of geo-data"
+    license: GPL License
