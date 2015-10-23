@@ -1,0 +1,9 @@
+package: ncregrid
+user: birdhouse
+before_script:
+  - conda update -n root conda-build
+  - conda config --add channels https://conda.binstar.org/birdhouse
+script:
+  - conda build .
+build_targets:
+  - conda
