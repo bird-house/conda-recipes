@@ -1,6 +1,6 @@
 package:
     name: ncregrid
-    version: "1.4b"
+    version: 1.4b
 
 source:
     #fn: ncregrid.tar.Z
@@ -17,5 +17,6 @@ test:
 
 about:
     home: http://www.pa.op.dlr.de/~PatrickJoeckel/ncregrid/
-    summary: "A tool for rediscretisation of geo-data"
+    summary: A tool for rediscretisation of geo-data
     license: GPL License
+    license_file: ncregrid/LICENSE.txt
