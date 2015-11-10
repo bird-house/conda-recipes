@@ -1,24 +1,24 @@
 package:
   name: cdo
-  version: 1.6.9
+  version: 1.7.0
 
 source:
-  fn: cdo-1.6.9.tar.gz
-  url: https://code.zmaw.de/attachments/download/10198/cdo-1.6.9.tar.gz
-  md5: bf0997bf20e812f35e10188a930e24e2
+  fn: cdo-1.7.0.tar.gz
+  url: https://code.zmaw.de/attachments/download/11392/cdo-1.7.0.tar.gz
+  md5: cca30c3c79335ad734e1838806f7bfc2
 
 build:
-  number: 1
+  number: 0
 
 requirements:
   build:
     - jasper
-    - grib_api >=1.13.0
+    - grib_api >=1.14.2
     - libnetcdf >=4.3.3.1
     - proj4
   run:
     - jasper
-    - grib_api >=1.13.0
+    - grib_api >=1.14.2
     - libnetcdf >=4.3.3.1
     - proj4
 
