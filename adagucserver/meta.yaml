@@ -1,9 +1,9 @@
 package:
   name: adagucserver
-  version: !!str 1.9.3
+  version: !!str 1.9.6
 
 source:
-  hg_tag: 1.9.3
+  hg_tag: 1.9.6
   hg_url: http://dev.knmi.nl/hg/adagucserver
   patches:
     - adagucserver.patch
@@ -16,10 +16,8 @@ requirements:
     - proj4
     - libnetcdf
     - udunits
-    - gdal
     - cairo
     - sqlite
-    - postgresql
     - libxml2
     - freetype
     - curl
@@ -31,10 +29,8 @@ requirements:
     - proj4
     - libnetcdf
     - udunits
-    - gdal
     - cairo
     - sqlite
-    - postgresql
     - libxml2
     - freetype
     - curl

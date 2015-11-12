@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export ADAGUCCOMPILERSETTINGS="-msse -msse2 -msse3 -mssse3 -mfpmath=sse -O2"
+#export ADAGUCCOMPONENTS="-DENABLE_CURL -DADAGUC_USE_GDAL -DADAGUC_USE_SQLITE -DADAGUC_USE_POSTGRESQL"
+export ADAGUCCOMPONENTS="-DENABLE_CURL -DADAGUC_USE_SQLITE"
 
 export CPPFLAGS="-I$PREFIX/include -I$PREFIX/include/libxml2 -I$PREFIX/include/cairo -I$PREFIX/include/freetype2"
 export LDFLAGS="-L$PREFIX/lib/"
