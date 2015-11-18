@@ -11,13 +11,13 @@ requirements:
   build:
     - python
     - numpy
-    - libgfortran
+    - libgfortran # [not osx]
     - jasper
     - jpeg
   run:
     - python
     - numpy
-    - libgfortran
+    - libgfortran # [not osx]
     - jasper
     - jpeg
 build:

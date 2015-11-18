@@ -65,8 +65,8 @@ test:
   requires:
     # Put any additional test requirements here.  For example
     - pytest
-    - pytest-cov
-    - tox
+    - pytest-cov # [not osx]
+    - tox # [not osx]
     - pep8
     - pillow
 
