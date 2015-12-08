@@ -1,11 +1,11 @@
 package:
   name: billiard
-  version: "3.3.0.20"
+  version: "3.3.0.21"
 
 source:
-  fn: billiard-3.3.0.20.tar.gz
-  url: https://pypi.python.org/packages/source/b/billiard/billiard-3.3.0.20.tar.gz
-  md5: 2cb556e5390fa922a8d6a56149ac8f0c
+  fn: billiard-3.3.0.21.tar.gz
+  url: https://pypi.python.org/packages/source/b/billiard/billiard-3.3.0.21.tar.gz
+  md5: 5304a48344d8f7e821d06f57da8af1f4
 #  patches:
    # List any patch files here
    # - fix.patch
