@@ -14,6 +14,7 @@ cp -r ./scripts ${QA_HOME}
 cp -r ./tables ${QA_HOME}
 cp -r ./CF-TestSuite ${QA_HOME}
 cp README* ${QA_HOME}
+touch ${QA_HOME}/.ignore_GitHub # avoids git update!
 
 # run build
 #export QA_PATH="$PWD"
@@ -22,7 +23,7 @@ touch .ignore_GitHub # avoids git update!
 ./install CORDEX
 ./install CMIP5
 
-# copy generate files to opt/qa-dkrz
+# copy generated files to opt/qa-dkrz
 cp -r ./bin ${QA_HOME}
 cp ./example/templates/qa-test.task ${QA_HOME}
 cp install* ${QA_HOME}
