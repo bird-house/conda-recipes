@@ -16,10 +16,11 @@ cp -r ./CF-TestSuite ${QA_HOME}
 cp README* ${QA_HOME}
 
 # run build
-export QA_PATH="$PWD"
-touch .ignore_GitHub_update # avoids git update!
+#export QA_PATH="$PWD"
+touch .ignore_GitHub # avoids git update!
 ./install CF
 ./install CORDEX
+./install CMIP5
 
 # copy generate files to opt/qa-dkrz
 cp -r ./bin ${QA_HOME}
