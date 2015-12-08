@@ -1,11 +1,11 @@
 package:
   name: celery
-  version: "3.1.18"
+  version: "3.1.19"
 
 source:
-  fn: celery-3.1.18.tar.gz
-  url: https://pypi.python.org/packages/source/c/celery/celery-3.1.18.tar.gz
-  md5: 1c25973250f75788fb9c690d4fc68957
+  fn: celery-3.1.19.tar.gz
+  url: https://pypi.python.org/packages/source/c/celery/celery-3.1.19.tar.gz
+  md5: fba8c4b269814dc6dbc36abb0e66c384
 #  patches:
    # List any patch files here
    # - fix.patch
