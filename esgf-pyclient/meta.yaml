@@ -1,13 +1,10 @@
 package:
   name: esgf-pyclient
-  version: !!str 0.1.4b
+  version: !!str 0.1.4
 
 source:
-  #git_url: https://github.com/bird-house/esgf-pyclient.git
-  #git_tag: master
-  fn:  esgf-pyclient-0.1.4b.tar.gz
-  url: https://pypi.python.org/packages/source/e/esgf-pyclient/esgf-pyclient-0.1.4b.tar.gz
-  md5: 4d4eaec8588bd74d4894f6596856b026
+  git_url: https://github.com/bird-house/esgf-pyclient.git
+  git_tag: birdhouse
 #  patches:
    # List any patch files here
    # - fix.patch
