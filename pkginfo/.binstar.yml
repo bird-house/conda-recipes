@@ -1,4 +1,4 @@
-package: twine
+package: pkginfo
 user: birdhouse 
 before_script:
   - conda update -n root conda-build
