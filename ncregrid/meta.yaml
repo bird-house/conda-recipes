@@ -10,6 +10,9 @@ source:
 requirements:
     run:
         - libnetcdf
+        # REL doesn't attach a '.0' to it's 'libquadmath.so', so let's
+        # ship our own (correctly named) copy of libquadmath via gcc.
+        - gcc
 
 test:
     commands:
