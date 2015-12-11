@@ -22,5 +22,6 @@ Other conda channels used:
 * http://anaconda.org/ioos (sci-wms, ...)
 * http://anaconda.org/nesii (ocgis, icclim)
 * http://anaconda.org/scitools (iris)
+* http://anaconda.org/r (R packages)
 * http://anaconda.org/asmeurer (R packages)
 
