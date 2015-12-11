@@ -17,3 +17,4 @@ List of scripts and where they are now:
 * r-raster: r
 * udunits: ioos (udunits2)
 * wicken: ioos
+* xerces-c: default
