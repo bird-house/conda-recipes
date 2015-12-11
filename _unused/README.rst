@@ -10,3 +10,4 @@ List of scripts and where they are now:
 * meld3: default
 * ocgis: nesii, ioos
 * ordereddict: default
+* r-raster: asmeurer

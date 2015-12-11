@@ -19,5 +19,8 @@ More docs on building conda packages:
 
 Other conda channels used:
 
-* http://anaconda.org/ioos
-* http://anaconda.org/nesii
+* http://anaconda.org/ioos (sci-wms, ...)
+* http://anaconda.org/nesii (ocgis, icclim)
+* http://anaconda.org/scitools (iris)
+* http://anaconda.org/asmeurer (R packages)
+
