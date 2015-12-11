@@ -15,4 +15,5 @@ List of scripts and where they are now:
 * ordereddict: default
 * petulant-bear: ioos
 * r-raster: r
+* udunits: ioos (udunits2)
 * wicken: ioos

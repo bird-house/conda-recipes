@@ -3,7 +3,7 @@ package:
   version: '0.5.2'
 
 build:
-  number: 3
+  number: 4
 
 source:
   git_url: https://github.com/h-dh/QA-DKRZ
@@ -14,12 +14,12 @@ requirements:
     - libnetcdf
     - hdf5
     - zlib
-    - udunits
+    - udunits2
   run:
     - libnetcdf
     - hdf5
     - zlib
-    - udunits
+    - udunits2
 
 test:
   commands:
