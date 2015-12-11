@@ -6,6 +6,7 @@ These scripts are not used anymore in birdhouse or are already integrated in the
 List of scripts and where they are now:
 
 * cf_units: ioos
+* cfunits: ioos (cfunits-python)
 * compliance-checker: ioos
 * gunicorn: default
 * mako: default
