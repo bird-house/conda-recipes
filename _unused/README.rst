@@ -1,4 +1,8 @@
 Unused conda recipes
 ====================
 
-This scripts are not used anymore in birdhouse or are already integrated in the default conda channel (or others).
+These scripts are not used anymore in birdhouse or are already integrated in the default conda channel (or others).
+
+List of scripts and where they are now:
+
+* ocgis: nesii, ioos
