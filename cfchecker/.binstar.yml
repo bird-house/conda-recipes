@@ -2,7 +2,8 @@ package: cfchecker
 user: birdhouse
 before_script:
   - conda update -n root conda-build
-  - conda config --add channels birdhouse ioos
+  - conda config --add channels birdhouse
+  - conda config --add channels ioos
 script:
   - conda build .
 build_targets:
