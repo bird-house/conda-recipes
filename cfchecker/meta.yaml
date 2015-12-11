@@ -8,7 +8,7 @@ source:
     md5: c8d786c3f442ab75ab53fbc7b05aa601
 
 build:
-    number: 0
+    number: 1
 
     entry_points:
         - cfchecks = cfchecker:cfchecks_main
@@ -19,14 +19,14 @@ requirements:
         - setuptools
         - numpy
         - cdat-lite
-        - udunits
+        - udunits2
 
     run:
         - python
         - setuptools
         - numpy
         - cdat-lite
-        - udunits
+        - udunits2
 
 test:
     commands:
