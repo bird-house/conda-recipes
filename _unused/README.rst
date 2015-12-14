@@ -8,6 +8,7 @@ List of scripts and where they are now:
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
 * compliance-checker: ioos
+* geolinks: ioos
 * gunicorn: default
 * mako: default
 * meld3: default
