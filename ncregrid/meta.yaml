@@ -9,10 +9,12 @@ source:
 
 requirements:
     build:
+        # We'll build 'libnetcdff' (for fortran) on our own in the build script, therefore:
         - gcc # For some stupid reason we have to have gcc/ld installed to install this... (Debian 8)
               # And we need 'make', but there doesn't seem to be a package on anaconda.
         - libnetcdf
     run:
+        - gcc # We keep this one for the 'libquadmath' shared library. Maybe link it staticly? (TODO)
         - libnetcdf
 
 test:
