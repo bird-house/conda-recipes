@@ -8,11 +8,12 @@ source:
     git_url: https://github.com/Kruecke/ncregrid.git
 
 requirements:
+    build:
+        - gcc # For some stupid reason we have to have gcc/ld installed to install this... (Debian 8)
+              # And we need 'make', but there doesn't seem to be a package on anaconda.
+        - libnetcdf
     run:
         - libnetcdf
-        # REL doesn't attach a '.0' to it's 'libquadmath.so', so let's
-        # ship our own (correctly named) copy of libquadmath via gcc.
-        - gcc
 
 test:
     commands:
