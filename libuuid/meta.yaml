@@ -1,0 +1,20 @@
+package:
+  name: libuuid
+  version: "1.0.3"
+
+source:
+  url: ftp://ftp.nersc.no/pub/Aleks/libuuid-1.0.3.tar.gz
+  fn: libuuid-1.0.3.tar.gz
+
+build:
+  number: 2 [linux64]
+
+
+requirements:
+  build:
+    - automake
+
+about:
+  home: http://sourceforge.net/projects/libuuid/
+  license: BSD
+  summary: Portable uuid C library
