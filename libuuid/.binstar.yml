@@ -1,0 +1,10 @@
+package: libuuid
+user: birdhouse
+before_script:
+  - conda update -n root conda-build
+  - conda config --add channels birdhouse
+  - conda config --add channels asmeurer
+script:
+  - conda build .
+build_targets:
+  - conda
