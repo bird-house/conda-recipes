@@ -1,11 +1,11 @@
 package:
   name: eventlet
-  version: "0.17.4"
+  version: "0.16.1"
 
 source:
-  fn: eventlet-0.17.4.tar.gz
-  url: https://pypi.python.org/packages/source/e/eventlet/eventlet-0.17.4.tar.gz
-  md5: fea0993b14cc7322f944bdd535c4f24a
+  fn: eventlet-0.16.1.tar.gz
+  url: https://pypi.python.org/packages/source/e/eventlet/eventlet-0.16.1.tar.gz
+  md5: 58f6e5cd1bcd8ab78e32a2594aa0abad
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -41,9 +41,6 @@ test:
   imports:
     - eventlet
     - eventlet.green
-    - eventlet.green.OpenSSL
-    - eventlet.green.http
-    - eventlet.green.urllib
     - eventlet.greenio
     - eventlet.hubs
     - eventlet.support
