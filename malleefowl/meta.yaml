@@ -1,18 +1,18 @@
 package:
   name: malleefowl
-  version: !!str 0.3.10
+  version: !!str 0.3.11
 
 source:
-  fn: malleefowl-0.3.10.tar.gz
-  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.3.10.tar.gz
-  md5: 9ec26ced802c9aaf84eac9c7c6e788f9
+  fn: malleefowl-0.3.11.tar.gz
+  url: https://pypi.python.org/packages/source/m/malleefowl/malleefowl-0.3.11.tar.gz
+  md5: 02525cc90689464f11499639d44f8561 
 #  patches:
    # List any patch files here
    # - fix.patch
 
 build:
   # preserve_egg_dir: True
-  entry_points:
+  #entry_points:
     # Put any entry points (scripts to be generated automatically) here. The
     # syntax is module:function.  For example
     #
@@ -20,8 +20,6 @@ build:
     #
     # Would create an entry point called malleefowl that calls malleefowl.main()
 
-    - wpsclient=malleefowl.wpsclient:main
-    - wpsfetch=malleefowl.fetch:main
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
@@ -45,7 +43,6 @@ requirements:
     - python-swiftclient
     - threddsclient  
     - pysolr
-    - nose
 
   run:
     - python
@@ -64,31 +61,27 @@ requirements:
     - python-swiftclient
     - threddsclient  
     - pysolr
-    - nose
 
 test:
   # Python imports
   imports:
     - malleefowl
 
-  commands:
+  #commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
-
-    - wpsclient --help
-    - wpsfetch --help
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
 
-  # requires:
+  requires:
     # Put any additional test requirements here.  For example
-    # - nose
+    - nose
 
 about:
   home: https://github.com/bird-house/malleefowl
   license: Apache License v2.0
-  summary: 'Malleefowl simplifies the usage of WPS and has some supporting WPS processes.'
+  summary: 'Malleefowl provides access to climate data as a WPS service and library.'
 
 # See
 # http://docs.continuum.io/conda/build.html for
