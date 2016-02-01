@@ -23,7 +23,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 0
+  number: 1
 
 requirements:
   build:
@@ -43,6 +43,7 @@ requirements:
     - python-swiftclient
     - threddsclient  
     - pysolr
+    - solr
 
   run:
     - python
@@ -61,6 +62,7 @@ requirements:
     - python-swiftclient
     - threddsclient  
     - pysolr
+    - solr
 
 test:
   # Python imports
@@ -74,9 +76,9 @@ test:
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
 
-  requires:
+  #requires:
     # Put any additional test requirements here.  For example
-    - nose
+    #- nose
 
 about:
   home: https://github.com/bird-house/malleefowl
