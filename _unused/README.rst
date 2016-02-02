@@ -7,6 +7,7 @@ List of scripts and where they are now:
 
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
+* click: default, ioos
 * compliance-checker: ioos
 * genshi: ioos
 * geolinks: ioos
