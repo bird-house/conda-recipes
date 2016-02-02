@@ -17,6 +17,7 @@ List of scripts and where they are now:
 * ordereddict: default
 * petulant-bear: ioos
 * proj4: default
+* pycdo: ioos
 * pycsw: ioos
 * pyproj: default
 * r-raster: r
