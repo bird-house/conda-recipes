@@ -12,18 +12,18 @@ build:
 
 requirements:
     build:
-        - python
+        - python <3
         - setuptools
         - htmltmpl
         - lxml
-        - gdal<2.0
+        - gdal <2.0
         - python-magic
 
     run:
         - python
         - htmltmpl
         - lxml
-        - gdal<2.0
+        - gdal <2.0
         - python-magic
 
 test:
