@@ -13,6 +13,7 @@ mkdir -vp ${QA_HOME}
 cp -r ./scripts ${QA_HOME}
 cp -r ./tables ${QA_HOME}
 cp -r ./CF-TestSuite ${QA_HOME}
+cp -r ./example ${QA_HOME}
 cp README* ${QA_HOME}
 touch ${QA_HOME}/.ignore_GitHub # avoids git update!
 
