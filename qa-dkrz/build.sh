@@ -5,7 +5,7 @@ echo "CXX=\"/usr/bin/g++\"" >> install_configure
 echo "CFLAGS=\"-g -Wall\"" >> install_configure 
 echo "CXXFLAGS=\"-g -Wall -D NC4\"" >> install_configure
 echo "LIB=\"${PREFIX}/lib\":/lib64" >> install_configure
-echo "INCLUDE=\"${PREFIX}/include\":/usr/include/uuid" >> install_configure
+echo "INCLUDE=\"${PREFIX}/include\"" >> install_configure
 
 # prepare qa home in opt/qa-dkrz
 QA_HOME=${PREFIX}/opt/qa-dkrz
@@ -14,6 +14,8 @@ cp -r ./scripts ${QA_HOME}
 cp -r ./tables ${QA_HOME}
 cp -r ./CF-TestSuite ${QA_HOME}
 cp -r ./example ${QA_HOME}
+cp -r ./src ${QA_HOME}
+cp -r ./include ${QA_HOME}
 cp README* ${QA_HOME}
 touch ${QA_HOME}/.ignore_GitHub # avoids git update!
 
