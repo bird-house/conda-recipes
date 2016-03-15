@@ -4,7 +4,7 @@ package:
 
 source:
   git_url: https://github.com/bird-house/OWSLib.git
-  git_branch: fix-ssl-verify 
+  git_branch: pingudev
   #fn: OWSLib-0.9.2.tar.gz
   #url: https://pypi.python.org/packages/source/O/OWSLib/OWSLib-0.9.2.tar.gz
   #md5: 01e1e142dc26bbeab61eae1d26a44c46
@@ -25,7 +25,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 52 
+  number: 53
 
 requirements:
   build:
