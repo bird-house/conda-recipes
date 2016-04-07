@@ -33,7 +33,7 @@ read.mod: read.o
 	@true
 	
 distance.o: distance.f90
-	$(COMPILE) distance.f90 -I$(INCLUDEPATH) -I$(INCLUDEPATH2)
+	$(COMPILE) distance.f90 -I$(INCLUDEPATH)
 distance.mod: distance.o
 	@true
 
