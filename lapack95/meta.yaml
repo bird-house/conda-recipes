@@ -1,0 +1,23 @@
+package:
+  name: lapack95
+  version: 3.0.0
+
+source:
+  fn: lapack95.tgz
+  url: http://www.netlib.org/lapack95/lapack95.tgz 
+  sha1: 7e993de16d80d52b22b6093465eeb90c93c7a2e7
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - gcc
+
+  run:
+    - libgcc
+
+about:
+  home: http://www.netlib.org/lapack95
+  license: BSD
+  summary: LAPACK95 is a Fortran95 interface to LAPACK. 
