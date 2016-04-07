@@ -5,7 +5,7 @@ package:
 source:
   fn: lapack95.tgz
   url: http://www.netlib.org/lapack95/lapack95.tgz 
-  sha1: 7e993de16d80d52b22b6093465eeb90c93c7a2e7
+  sha1: f9e788b8c3b6d8dc19c73007840455c7ada6926a
 
 build:
   number: 0
@@ -13,9 +13,11 @@ build:
 requirements:
   build:
     - gcc
+    - lapack
 
   run:
     - libgcc
+    - lapack
 
 about:
   home: http://www.netlib.org/lapack95
