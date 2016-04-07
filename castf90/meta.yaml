@@ -1,0 +1,26 @@
+package:
+  name: castf90
+  version: 0.1.0
+
+source:
+  git_url: https://github.com/sradanov/castf90
+  git_branch: master
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - gcc
+    - netcdf-fortran
+    - lapack
+
+  run:
+    - libgcc
+    - netcdf-fortran
+    - lapack
+
+about:
+  home: https://github.com/sradanov/castf90
+  license: CeCILL FREE SOFTWARE LICENSE AGREEMENT
+  summary: circulation analogue simulation tool in fortran95
