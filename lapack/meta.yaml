@@ -1,23 +1,22 @@
 package:
   name: lapack
-  version: 3.4.1
+  version: 3.5.0
 
 source:
-  fn: lapack-3.4.1.tgz
-  url: http://www.netlib.org/lapack/lapack-3.4.1.tgz
-  sha1: c115223ac1bac9ab971aae865d3e95442bc979bc
+  fn: lapack-3.5.0.tgz
+  url: http://www.netlib.org/lapack/lapack-3.5.0.tgz
+  sha1: 5870081889bf5d15fd977993daab29cf3c5ea970
 
 build:
   number: 0 
 
 requirements:
   build:
+    - cmake
     - gcc
-    - blas
 
   run:
     - libgcc
-    - blas
 
 about:
   home: http://www.netlib.org/lapack

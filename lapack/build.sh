@@ -1,5 +1,12 @@
-cp $RECIPE_DIR/make.inc .
+mkdir build
+cd build
 
-make -j${CPU_COUNT} all
-
-cp *.a $PREFIX/lib
+cmake \
+  -DCMAKE_INSTALL_PREFIX=$PREFIX \
+  -DBUILD_TESTING=OFF \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DLAPACKE=OFF \
+  ..
+ 
+make -j${CPU_COUNT}
+make install
