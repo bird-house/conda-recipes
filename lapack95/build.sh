@@ -1,7 +1,7 @@
 cp $RECIPE_DIR/make.inc .
  
 cd SRC/
-make PREFIX=$PREFIX single_double_complex_dcomplex
+make single_double_complex_dcomplex
 
 cp ../lapack95.a $PREFIX/lib/liblapack95.a
 cp ../lapack95_modules/*.mod $PREFIX/include
