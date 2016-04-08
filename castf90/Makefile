@@ -1,15 +1,15 @@
 PREFIX ?= /usr
 INCLUDEPATH = $(PREFIX)/include
-LIBPATH = $(PREFIX)/lib:$(PREFIX)/lib64
+LIBPATH = $(PREFIX)/lib
 lib1 = -lnetcdff
-#lib2 = -llapack95
+lib2 = -llapack95
 lib3 = -llapack
 
 COMPILE = gfortran -c -O2 -fbacktrace -Warray-bounds -fopenmp -ffree-line-length-0 
 LINK = gfortran  -Warray-bounds -Wall -fopenmp -O2 -o 
 
 netcdf = netcdf.mod
-#lapack = f95_lapack.mod
+lapack = f95_lapack.mod
 
 PROGRAM = analogue.out
 prog.f90 = analogue.f90
@@ -47,5 +47,5 @@ $(prog.o): config.mod routines.mod eofs.mod $(prog.f90)
 	$(COMPILE) $(prog.f90) -I$(INCLUDEPATH)
 
 $(PROGRAM): $(prog.o) config.o read.o distance.o routines.o eofs.o
-	$(LINK) $(PROGRAM) read.o config.o distance.o routines.o eofs.o $(prog.o) -I$(INCLUDEPATH) -L$(LIBPATH) $(lib1) $(lib3)
+	$(LINK) $(PROGRAM) read.o config.o distance.o routines.o eofs.o $(prog.o) -I$(INCLUDEPATH) -L$(LIBPATH) $(lib1) $(lib2) $(lib3)
 

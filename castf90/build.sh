@@ -1,4 +1,4 @@
 # use our own conda makefile
-cp $RECIPE_DIR/Makefile Makefile.conda
+cp $RECIPE_DIR/Makefile .
 
-make PREFIX=$PREFIX -f Makefile.conda
+make PREFIX=$PREFIX all

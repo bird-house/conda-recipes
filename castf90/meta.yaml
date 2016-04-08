@@ -14,11 +14,13 @@ requirements:
     - gcc
     - netcdf-fortran
     - lapack
+    - lapack95
 
   run:
     - libgcc
     - netcdf-fortran
     - lapack
+    - lapack95
 
 about:
   home: https://github.com/sradanov/castf90
