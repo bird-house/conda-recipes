@@ -1,0 +1,23 @@
+package:
+  name: blas
+  version: 3.5.0
+
+source:
+  fn: blas-3.5.0.tgz
+  url: http://www.netlib.org/blas/blas-3.5.0.tgz
+  sha1: 1ef559f9f03e3bb73faa9d33722229c7ac35730f
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - gcc
+
+  run:
+    - libgcc
+
+about:
+  home: http://www.netlib.org/blas
+  license: BSD
+  summary: Basic Linear Algebra Subprograms
