@@ -1,13 +1,16 @@
-mkdir build
-cd build
+cp $RECIPE_DIR/make.inc .
 
-cmake \
-  -DCMAKE_INSTALL_PREFIX=$PREFIX \
-  -DCMAKE_Fortran_COMPILER=gfortran \
-  -DBUILD_TESTING=OFF \
-  -DBUILD_SHARED_LIBS=OFF \
-  -DLAPACKE_WITH_TMG=ON \
-  ..
+# install blas
+cd BLAS/SRC
 
-make -j${CPU_COUNT}
-make install
+gfortran -O2 -c *.f
+ar cr libblas.a *.o
+cp libblas.a $PREFIX/lib
+
+cd ..
+cd ..
+
+# install lapack libraries
+make all
+
+cp *.a $PREFIX/lib
