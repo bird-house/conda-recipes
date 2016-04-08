@@ -1,13 +1,13 @@
 PREFIX ?= /usr/local
 INCLUDEPATH = $(PREFIX)/include
 LIBPATH = $(PREFIX)/lib
-LIBS = -llapack95 -llapack -lblas -lnetcdff
+LIBS = -lnetcdff -llapack95 -llapack -lblas
 
 COMPILE = gfortran -c -O2 -fbacktrace -Warray-bounds -fopenmp -ffree-line-length-0 
 LINK = gfortran  -Warray-bounds -Wall -fopenmp -O2 -o 
 
-#netcdf = netcdf.mod
-#lapack = f95_lapack.mod
+netcdf = netcdf.mod
+lapack = f95_lapack.mod
 
 PROGRAM = analogue.out
 prog.f90 = analogue.f90
