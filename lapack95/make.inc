@@ -20,7 +20,7 @@ OPTS3    = $(OPTS1) $(MODLIB)
 OPTL     = -o 
 OPTLIB   =
 
-LAPACK_PATH = $(PREFIX)/lib
+LAPACK_PATH = $(PREFIX)/lib64
 
 LAPACK95 = ../lapack95.a
 LAPACK77 = $(LAPACK_PATH)/liblapack.a
