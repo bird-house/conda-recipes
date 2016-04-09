@@ -8,7 +8,7 @@ source:
   sha1: 7e993de16d80d52b22b6093465eeb90c93c7a2e7
 
 build:
-  number: 11 
+  number: 12
 
 requirements:
   build:
@@ -17,6 +17,7 @@ requirements:
 
   run:
     - libgcc
+    - libgfortran
 
 about:
   home: http://www.netlib.org/lapack
