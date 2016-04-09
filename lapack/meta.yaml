@@ -1,14 +1,14 @@
 package:
   name: lapack
-  version: 3.5.0
+  version: 3.6.0
 
 source:
-  fn: lapack-3.5.0.tgz
-  url: http://www.netlib.org/lapack/lapack-3.5.0.tgz
-  sha1: 5870081889bf5d15fd977993daab29cf3c5ea970
+  fn: lapack-3.6.0.tgz
+  url: http://www.netlib.org/lapack/lapack-3.6.0.tgz
+  sha1: 7e993de16d80d52b22b6093465eeb90c93c7a2e7
 
 build:
-  number: 0 
+  number: 10 
 
 requirements:
   build:

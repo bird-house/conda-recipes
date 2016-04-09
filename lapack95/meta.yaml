@@ -8,16 +8,16 @@ source:
   sha1: f9e788b8c3b6d8dc19c73007840455c7ada6926a
 
 build:
-  number: 5
+  number: 6
 
 requirements:
   build:
     - gcc
-    - lapack <3.6
+    - lapack
 
   run:
     - libgcc
-    - lapack <3.6
+    - lapack
 
 about:
   home: http://www.netlib.org/lapack95
