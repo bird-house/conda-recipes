@@ -1,1 +1,1 @@
-make -f Makefile.conda install
+make -f makefile.conda install

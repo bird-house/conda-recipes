@@ -7,7 +7,7 @@ source:
   git_branch: patch-conda
 
 build:
-  number: 4 
+  number: 5 
 
 requirements:
   build:
@@ -17,7 +17,6 @@ requirements:
 
   run:
     - libgcc
-    - libgfortran
     - netcdf-fortran
     - lapack95
     - cdo
