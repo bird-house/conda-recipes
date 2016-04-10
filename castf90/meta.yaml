@@ -7,17 +7,19 @@ source:
   git_branch: master
 
 build:
-  number: 5 
+  number: 6 
 
 requirements:
   build:
     - gcc
+    - libgfortran
     - netcdf-fortran
     - openblas
     - lapack95
 
   run:
     - libgcc
+    - libgfortran
     - netcdf-fortran
     - openblas
     - lapack95
