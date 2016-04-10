@@ -1,4 +1,5 @@
-PREFIX ?= $(CONDA_ENV_PATH)
+#PREFIX ?= $(CONDA_ENV_PATH)
+PREFIX ?= $(shell dirname $(shell dirname `which gfortran`))
 INSTALL_PREFIX = $(PREFIX)
 INCLUDEPATH = $(PREFIX)/include
 LIBPATH = $(PREFIX)/lib
