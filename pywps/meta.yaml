@@ -8,21 +8,21 @@ source:
     git_tag: pingudev-3.2
 
 build:
-    number: 2
+    number: 3
 
 requirements:
     build:
         - python <3
         - setuptools
         - htmltmpl
-        - lxml
+        - lxml >=3.5.0
         - gdal <2.0
         - python-magic
 
     run:
         - python
         - htmltmpl
-        - lxml
+        - lxml >=3.5.0
         - gdal <2.0
         - python-magic
 
