@@ -3,7 +3,7 @@ package:
   version: '0.5.8'
 
 build:
-  number: 0
+  number: 1
 
 source:
   git_url: https://github.com/IS-ENES-Data/QA-DKRZ.git
@@ -12,24 +12,24 @@ source:
 requirements:
   build:
     - libnetcdf
-    - hdf5
+    - hdf5 >=1.8.15
     - zlib
     - udunits2
     - libuuid
     - wget
     - expat
     - curl
-    #- gcc
+    - gcc
   run:
     - libnetcdf
-    - hdf5
+    - hdf5 >=1.8.15
     - zlib
     - udunits2
     - libuuid
     - expat
     - curl
     - wget
-    #- libgcc
+    - libgcc
 test:
   commands:
     - dkrz-cf-checker -h
