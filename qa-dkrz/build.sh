@@ -9,7 +9,7 @@ echo "CC=\"gcc\"" > install_configure
 echo "CXX=\"g++\"" >> install_configure
 echo "CFLAGS=\"-O2 -Wall\"" >> install_configure 
 echo "CXXFLAGS=\"-O2 -Wall -D NC4\"" >> install_configure
-echo "LIB=${LIBPATH} ${LDFLAGS}" >> install_configure
+echo "LIB=${LIBPATH}" >> install_configure
 echo "INCLUDE=\"${PREFIX}/include\"" >> install_configure
 
 # prepare qa home in opt/qa-dkrz
