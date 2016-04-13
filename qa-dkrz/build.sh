@@ -1,9 +1,9 @@
 #!/bin/bash -eu
 
 #echo "CC=\"${PREFIX}/bin/gcc\"" > install_configure
-echo "CC=\"/usr/bin/gcc\"" > install_configure
+echo "CC=\"gcc\"" > install_configure
 #echo "CXX=\"${PREFIX}/bin/g++\"" >> install_configure
-echo "CXX=\"/usr/bin/g++\"" >> install_configure
+echo "CXX=\"g++\"" >> install_configure
 echo "CFLAGS=\"-O2 -Wall\"" >> install_configure 
 echo "CXXFLAGS=\"-O2 -Wall -D NC4\"" >> install_configure
 echo "LIB=\"${PREFIX}/lib\":/lib64" >> install_configure
