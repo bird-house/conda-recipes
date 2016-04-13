@@ -1,10 +1,10 @@
 package:
   name: wget
-  version: 1.16.3
+  version: 1.15.0
 
 source:
-  fn: wget-1.16.3.tar.gz
-  url: http://ftp.gnu.org/gnu/wget/wget-1.16.3.tar.gz
+  fn: wget-1.15.0.tar.gz
+  url: http://ftp.gnu.org/gnu/wget/wget-1.15.0.tar.gz
 
 build:
   number: 1
