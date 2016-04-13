@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-LIBPATH="${PREFIX}/lib":/lib64:/usr/lib:/usr/local/lib
+LIBPATH="${PREFIX}/lib":/lib:/lib64
 LDFLAGS="-Wl,-rpath ${LIBPATH}"
 
 #echo "CC=\"${PREFIX}/bin/gcc\"" > install_configure
@@ -11,8 +11,6 @@ echo "CFLAGS=\"-O2 -Wall\"" >> install_configure
 echo "CXXFLAGS=\"-O2 -Wall -D NC4\"" >> install_configure
 echo "LIB=${LIBPATH}" >> install_configure
 echo "INCLUDE=\"${PREFIX}/include\"" >> install_configure
-
-export LD_LIBRARY_PATH="${PREFIX}/lib"
 
 # prepare qa home in opt/qa-dkrz
 QA_HOME=${PREFIX}/opt/qa-dkrz
