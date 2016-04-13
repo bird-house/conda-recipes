@@ -17,6 +17,8 @@ requirements:
     - udunits2
     - libuuid
     - wget
+    - expact
+    - curl
     #- gcc
   run:
     - libnetcdf
@@ -24,6 +26,8 @@ requirements:
     - zlib
     - udunits2
     - libuuid
+    - expat
+    - curl
     - wget
     #- libgcc
 test:
