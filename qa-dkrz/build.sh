@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 LIBPATH="${PREFIX}/lib":/lib64
-LDFLAGS=-Wl,-rpath $(LIBPATH)
+LDFLAGS="-Wl,-rpath $(LIBPATH)"
 
 #echo "CC=\"${PREFIX}/bin/gcc\"" > install_configure
 echo "CC=\"gcc\"" > install_configure
