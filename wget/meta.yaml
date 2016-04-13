@@ -7,13 +7,15 @@ source:
   url: http://ftp.gnu.org/gnu/wget/wget-1.16.3.tar.gz
 
 build:
-  number: 0
+  number: 1
 
 requirements:
   build:
+    - gcc
     - zlib
     - openssl
   run:
+    - libgcc
     - zlib
     - openssl
 
