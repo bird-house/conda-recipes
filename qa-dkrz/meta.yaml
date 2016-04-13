@@ -16,7 +16,7 @@ requirements:
     - zlib
     - udunits2
     - libuuid
-    - curl
+    - wget
     - gcc
   run:
     - libnetcdf
@@ -24,7 +24,7 @@ requirements:
     - zlib
     - udunits2
     - libuuid
-    - curl
+    - wget
     - libgcc
 test:
   commands:
