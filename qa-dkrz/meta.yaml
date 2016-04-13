@@ -16,6 +16,7 @@ requirements:
     - zlib
     - udunits2
     - libuuid
+    - curl
     - gcc
   run:
     - libnetcdf
@@ -23,7 +24,8 @@ requirements:
     - zlib
     - udunits2
     - libuuid
-    - gcc
+    - curl
+    - libgcc
 test:
   commands:
     - dkrz-cf-checker -h
