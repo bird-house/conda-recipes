@@ -41,7 +41,3 @@ cp $RECIPE_DIR/cfchecker-wrapper.sh $PREFIX/bin/dkrz-cf-checker
 cp $RECIPE_DIR/qa-wrapper.sh $PREFIX/bin/qa-dkrz
 chmod +x $PREFIX/bin 
 
-
-
-
-
