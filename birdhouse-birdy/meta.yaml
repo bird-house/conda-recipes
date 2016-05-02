@@ -1,6 +1,6 @@
 package:
   name: birdhouse-birdy
-  version: !!str 0.1.6
+  version: !!str 0.1.7
 
 source:
   git_url: https://github.com/bird-house/birdy.git
@@ -34,15 +34,13 @@ requirements:
     - setuptools
     - argcomplete
     - lxml
-    - owslib
-    - nose
+    - owslib >=0.11.0
 
   run:
     - python
     - argcomplete
     - lxml
-    - owslib
-    - nose
+    - owslib >=0.11.0
 
 test:
   # Python imports
