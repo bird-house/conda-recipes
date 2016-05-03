@@ -34,6 +34,11 @@ read.o: read.f90
 read.mod: read.o
 	@true
 	
+write.o: write.f90 config.mod
+	$(COMPILE) write.f90 -I$(INCLUDEPATH)
+write.mod: write.o
+	@true
+
 distance.o: distance.f90
 	$(COMPILE) distance.f90 -I$(INCLUDEPATH)
 distance.mod: distance.o
