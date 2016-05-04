@@ -36,7 +36,7 @@ read.mod: read.o
 	
 write.o: write.f90 config.mod
 	$(COMPILE) write.f90 -I$(INCLUDEPATH)
-write_file.mod: write.o
+write.mod: write.o
 	@true
 
 distance.o: distance.f90
@@ -50,11 +50,11 @@ routines.mod: routines.o
 	@true
 
 # analogues	
-$(prog.o): config.mod routines.mod eofs.mod $(prog.f90)
+$(prog.o): write.mod routines.mod eofs.mod $(prog.f90)
 	$(COMPILE) $(prog.f90) -I$(INCLUDEPATH)
 
-$(PROGRAM): $(prog.o) config.o read.o distance.o routines.o eofs.o
-	$(LINK) $(PROGRAM) read.o config.o distance.o routines.o eofs.o $(prog.o) -I$(INCLUDEPATH) -L$(LIBPATH) $(LDFLAGS) $(LIBS)
+$(PROGRAM): $(prog.o) config.o read.o write.o distance.o routines.o eofs.o
+	$(LINK) $(PROGRAM) read.o config.o write.o distance.o routines.o eofs.o $(prog.o) -I$(INCLUDEPATH) -L$(LIBPATH) $(LDFLAGS) $(LIBS)
 
 .PHONY: install
 install: all
