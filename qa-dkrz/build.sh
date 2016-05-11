@@ -7,8 +7,8 @@ LDFLAGS="-Wl,-rpath ${LIBPATH}"
 
 echo "CC=${CC}" > install_configure
 echo "CXX=${CXX}" >> install_configure
-echo "CFLAGS=\"-O2 -Wall\"" >> install_configure 
-echo "CXXFLAGS=\"-O2 -Wall -D NC4\"" >> install_configure
+echo "CFLAGS=\"-Wall\"" >> install_configure 
+echo "CXXFLAGS=\"-Wall -D NC4\"" >> install_configure
 echo "LIB=${LIBPATH}" >> install_configure
 echo "INCLUDE=\"${PREFIX}/include\"" >> install_configure
 
