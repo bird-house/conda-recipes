@@ -3,7 +3,7 @@ package:
   version: '0.5.9'
 
 build:
-  number: 1
+  number: 2
 
 source:
   git_url: https://github.com/IS-ENES-Data/QA-DKRZ.git
@@ -26,9 +26,9 @@ requirements:
     - zlib
     - udunits2 >=2.2.20
     - libuuid
+    - wget
     - expat
     - curl
-    - wget
     - libgcc
 test:
   commands:
