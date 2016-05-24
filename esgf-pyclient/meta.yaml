@@ -4,7 +4,7 @@ package:
 
 source:
   git_url: https://github.com/bird-house/esgf-pyclient.git
-  git_tag: birdhouse
+  git_tag: pingudev
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -22,7 +22,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 50
+  number: 51
 
 requirements:
   build:
