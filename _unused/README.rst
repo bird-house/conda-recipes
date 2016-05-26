@@ -9,6 +9,7 @@ List of scripts and where they are now:
 * cfunits: ioos (cfunits-python)
 * click: default, ioos
 * compliance-checker: ioos
+* expat: default, ioos
 * genshi: ioos
 * geolinks: ioos
 * gunicorn: default
