@@ -7,23 +7,24 @@ List of scripts and where they are now:
 
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
-* click: default, ioos
+* click: defaults, ioos
 * compliance-checker: ioos
-* expat: default, ioos
+* expat: defaults, ioos
 * genshi: ioos
 * geolinks: ioos
-* gunicorn: default
-* mako: default
-* meld3: default
+* gunicorn: defaults
+* mako: defaults
+* meld3: defaults
 * ocgis: nesii, ioos
-* ordereddict: default
+* ordereddict: defaults
 * petulant-bear: ioos
-* proj4: default
+* proj4: defaults
 * pycdo: ioos
 * pycsw: ioos
-* pyproj: default
+* pyproj: defaults
+* pytest-cov: defaults
 * r-raster: r
-* supervisor: default
+* supervisor: defaults
 * udunits: ioos (udunits2)
 * wicken: ioos
-* xerces-c: default
+* xerces-c: defaults
