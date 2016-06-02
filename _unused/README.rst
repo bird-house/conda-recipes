@@ -25,6 +25,7 @@ List of scripts and where they are now:
 * pytest-cov: defaults
 * r-raster: r
 * supervisor: defaults
+* twine: pip
 * udunits: ioos (udunits2)
 * wicken: ioos
 * xerces-c: defaults
