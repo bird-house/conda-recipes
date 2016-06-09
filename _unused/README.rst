@@ -24,6 +24,8 @@ List of scripts and where they are now:
 * pyproj: defaults
 * pytest-cov: defaults
 * r-raster: r
+* redis: defaults
+* redis-py: defaults
 * supervisor: defaults
 * twine: pip
 * udunits: ioos (udunits2)
