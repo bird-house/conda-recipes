@@ -17,7 +17,6 @@ requirements:
     - zlib
     - udunits2 >=2.2.20
     - libuuid
-    - wget=0.15
     - expat
     - curl
     - gcc
@@ -28,7 +27,6 @@ requirements:
     - zlib
     - udunits2 >=2.2.20
     - libuuid
-    - wget=0.15
     - expat
     - curl
     - libgcc
