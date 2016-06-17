@@ -30,6 +30,7 @@ touch .ignore_GitHub # avoids git update!
 ./install CF
 ./install CORDEX
 ./install CMIP5
+./install CLIPC
 
 # copy generated files to opt/qa-dkrz
 cp -r ./bin ${QA_HOME}
