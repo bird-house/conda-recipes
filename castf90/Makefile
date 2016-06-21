@@ -7,8 +7,8 @@ LDFLAGS = -Wl,-rpath $(LIBPATH)
 OPT_LIBS = -lhdf5 -lhdf5_hl -lnetcdf
 LIBS = $(OPT_LIBS) -lnetcdff -lopenblas -llapack95
 
-COMPILE = gfortran -c -O2 -fbacktrace -Warray-bounds -fopenmp -ffree-line-length-0
-LINK = gfortran -Warray-bounds -Wall -fopenmp -O2 -o
+COMPILE = gfortran -c -O3 -Warray-bounds -fopenmp -ffree-line-length-0
+LINK = gfortran -Warray-bounds -Wall -fopenmp -O3 -o
 
 CASTF90_HOME = $(INSTALL_PREFIX)/opt/castf90
 
