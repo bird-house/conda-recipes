@@ -8,7 +8,7 @@ source:
     git_tag: pingudev-3.2
 
 build:
-    number: 4
+    number: 5
 
 requirements:
     build:
@@ -16,14 +16,14 @@ requirements:
         - setuptools
         - htmltmpl
         - lxml >=3.5.0
-        - gdal <2.0
+        - gdal
         - python-magic
 
     run:
         - python
         - htmltmpl
         - lxml >=3.5.0
-        - gdal <2.0
+        - gdal
         - python-magic
 
 test:
