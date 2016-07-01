@@ -1,10 +1,10 @@
 package:
     name: netcdf-fortran
-    version: 4.4.2
+    version: 4.4.4
 
 source:
     git_url: https://github.com/Unidata/netcdf-fortran
-    git_tag: v4.4.2
+    git_tag: v4.4.4
 
 build:
     number: 50
