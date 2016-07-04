@@ -6,7 +6,7 @@ package:
 source:
     fn: nginx-1.10.1.tar.gz
     url: http://nginx.org/download/nginx-1.10.1.tar.gz
-    md5: 3ca4a37931e9fa301964b8ce889da8cb
+    md5: 088292d9caf6059ef328aa7dda332e44
 
 build:
     number: 0
