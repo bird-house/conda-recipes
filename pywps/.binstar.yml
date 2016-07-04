@@ -3,6 +3,7 @@ user: birdhouse
 before_script:
   - conda update -n root conda-build
   - conda config --add channels birdhouse
+  - conda install anaconda-client
 script:
   - conda build .
 build_targets:
