@@ -13,6 +13,7 @@ List of scripts and where they are now:
 * expat: defaults, ioos
 * genshi: ioos
 * geolinks: ioos, conda-forge
+* gdal: defaults
 * grib_api: ioos, conda-forge (ecmwf_grib)
 * gunicorn: defaults
 * icclim: nesii
