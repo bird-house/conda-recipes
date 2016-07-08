@@ -15,7 +15,8 @@ List of scripts and where they are now:
 * geolinks: ioos, conda-forge
 * grib_api: ioos, conda-forge (ecmwf_grib)
 * gunicorn: defaults
-* jasper: ioos
+* icclim: nesii
+* jasper: ioos, conda-forge
 * mako: defaults
 * meld3: defaults
 * ocgis: nesii, ioos
