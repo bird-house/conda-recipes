@@ -8,11 +8,14 @@ List of scripts and where they are now:
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
 * click: defaults, ioos
+* cdo: ioos, conda-forge
 * compliance-checker: ioos
 * expat: defaults, ioos
 * genshi: ioos
-* geolinks: ioos
+* geolinks: ioos, conda-forge
+* grib_api: ioos, conda-forge (ecmwf_grib)
 * gunicorn: defaults
+* jasper: ioos
 * mako: defaults
 * meld3: defaults
 * ocgis: nesii, ioos
