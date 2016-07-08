@@ -18,6 +18,7 @@ List of scripts and where they are now:
 * gunicorn: defaults
 * icclim: nesii
 * jasper: ioos, conda-forge
+* libuuid: defaults, conda-forge
 * mako: defaults
 * meld3: defaults
 * ocgis: nesii, ioos
