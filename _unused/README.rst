@@ -29,6 +29,7 @@ List of scripts and where they are now:
 * pycsw: ioos
 * pyproj: defaults
 * pytest-cov: defaults
+* python-openid: pip
 * r-raster: r
 * redis: defaults
 * redis-py: defaults
