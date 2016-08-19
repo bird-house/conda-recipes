@@ -5,7 +5,7 @@ package:
 source:
     fn: ncWMS2.war
     url: https://github.com/Reading-eScience-Centre/ncwms/releases/download/ncwms-2.2.2/ncWMS2.war
-    md5: ff10f3b71bf29c5f37595e1ec201a738
+    md5: b070c9da6d0ed37034dbfb528a2c4ef8
 
 build:
     number: 0
