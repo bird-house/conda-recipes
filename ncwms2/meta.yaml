@@ -1,10 +1,10 @@
 package:
     name: ncwms2
-    version: 2.2.1
+    version: 2.2.2
 
 source:
     fn: ncWMS2.war
-    url: https://github.com/Reading-eScience-Centre/edal-java/releases/download/edal-1.2.1/ncWMS2.war 
+    url: https://github.com/Reading-eScience-Centre/ncwms/releases/download/ncwms-2.2.2/ncWMS2.war
     md5: ff10f3b71bf29c5f37595e1ec201a738
 
 build:
