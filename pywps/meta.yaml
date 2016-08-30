@@ -19,6 +19,7 @@ requirements:
         - werkzeug
         - lxml
         - sqlalchemy
+        - flufl.enum # [py27]
     run:
         - python
         - owslib
@@ -27,6 +28,7 @@ requirements:
         - lxml
         - sqlalchemy
         - gdal 
+        - flufl.enum # [py27]
 test:
     imports:
         - pywps
