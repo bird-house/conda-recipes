@@ -66,7 +66,7 @@ test:
     # Put any additional test requirements here.  For example
     - pytest
     - pytest-cov # [not osx]
-    - tox # [not osx]
+    - tox # [not osx] [py27]
     - pep8
     - pillow
 
