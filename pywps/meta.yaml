@@ -1,31 +1,32 @@
 
 package:
     name: pywps
-    version: !!str 3.2.6
+    version: !!str 4.0.0_rc1
 
 source:
-    git_url: https://github.com/bird-house/pywps.git
-    git_tag: pingudev-3.2
+    git_url: https://github.com/geopython/pywps.git
+    git_tag: master
 
 build:
     number: 0
 
 requirements:
     build:
-        - python <3
+        - python
         - setuptools
-        - htmltmpl
-        - lxml >=3.5.0
-        - gdal <2.0.0
-        - python-magic
-
+        - owslib
+        - jsonschema
+        - werkzeug
+        - lxml
+        - sqlalchemy
     run:
         - python
-        - htmltmpl
-        - lxml >=3.5.0
-        - gdal <2.0.0
-        - python-magic
-
+        - owslib
+        - jsonschema
+        - werkzeug
+        - lxml
+        - sqlalchemy
+        - gdal 
 test:
     imports:
         - pywps
@@ -35,5 +36,5 @@ test:
 
 about:
     home: https://github.com/geopython/PyWPS
-    license: GPLv2
+    license: MIT License
     summary: PyWPS (Python Web Processing Service) is an implementation of the Web processing Service standard from Open Geospatial Consortium.
