@@ -11,6 +11,7 @@ List of scripts and where they are now:
 * cdo: ioos, conda-forge
 * compliance-checker: ioos
 * expat: defaults, ioos
+* fiona: defaults
 * genshi: ioos
 * geolinks: ioos, conda-forge
 * gdal: defaults
