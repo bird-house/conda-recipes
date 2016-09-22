@@ -1,6 +1,6 @@
 package:
   name: owslib
-  version: !!str 0.11.2
+  version: !!str 0.12.0
 
 source:
   git_url: https://github.com/bird-house/OWSLib.git
@@ -25,7 +25,7 @@ build:
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 60
+  number: 51
 
 requirements:
   build:
@@ -50,9 +50,7 @@ test:
   # Python imports
   imports:
     - owslib
-    - owslib.coverage
-    - owslib.feature
-    - owslib.swe
+    - owslib.wms
     - owslib.wps
 
   # commands:
