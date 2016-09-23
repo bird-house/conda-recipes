@@ -9,21 +9,25 @@ source:
   git_branch: pingudev 
 
 build:
-  number: 0
+  number: 1
+  features:
+    - nomkl                   [nomkl]
 
 requirements:
   build:
     - gcc
-    - libgfortran
+    - libgfortran             [linux]
     - netcdf-fortran
-    - openblas
+    - mkl                     [not nomkl]
+    - openblas                [linux and nomkl]
     - lapack95
 
   run:
     - libgcc
-    - libgfortran
+    - libgfortran             [linux]
     - netcdf-fortran
-    - openblas
+    - mkl                     [not nomkl]
+    - openblas                [linux and nomkl]
     - lapack95
     - cdo
     - nco
