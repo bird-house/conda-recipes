@@ -1,3 +1,1 @@
-cp $RECIPE_DIR/Makefile .
-
-make install
+make -f Makefile.conda install
