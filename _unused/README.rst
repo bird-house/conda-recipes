@@ -5,11 +5,13 @@ These scripts are not used anymore in birdhouse or are already integrated in the
 
 List of scripts and where they are now:
 
+* cdat-lite: conda-forge
+* cfchecker: conda-forge
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
 * click: defaults, ioos
 * cdo: ioos, conda-forge
-* compliance-checker: ioos
+* compliance-checker: conda-forge
 * expat: defaults, ioos
 * fiona: defaults
 * genshi: ioos
@@ -22,7 +24,7 @@ List of scripts and where they are now:
 * libuuid: defaults, conda-forge
 * mako: defaults
 * meld3: defaults
-* ocgis: nesii, ioos
+* ocgis: nesii, conda-forge
 * ordereddict: defaults
 * petulant-bear: ioos
 * proj4: defaults
