@@ -1,9 +1,0 @@
-package: r-spam
-user: birdhouse 
-before_script:
-  - conda config --add channels birdhouse
-  - conda config --add channels r
-script:
-  - conda build .
-build_targets:
-  - conda
