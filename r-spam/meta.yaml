@@ -2,13 +2,13 @@ package:
   name: r-spam
   # Note that conda versions cannot contain -, so any -'s in the version have
   # been replaced with _'s.
-  version: "1.3_0"
+  version: "1.4_0"
 
 source:
-  fn: spam_1.3-0.tar.gz
+  fn: spam_1.4-0.tar.gz
   url:
-    - http://cran.r-project.org/src/contrib/spam_1.3-0.tar.gz
-    - http://cran.r-project.org/src/contrib/Archive/spam/spam_1.3-0.tar.gz
+    - http://cran.r-project.org/src/contrib/spam_1.4-0.tar.gz
+    - http://cran.r-project.org/src/contrib/Archive/spam/spam_1.4-0.tar.gz
 
 
   # You can add a hash for the file here, like md5 or sha1
@@ -31,11 +31,11 @@ build:
 # Suggests: fields, Matrix, R.rsp, truncdist
 requirements:
   build:
-    - r
+    - r >=3.3
     - gcc # [not win]
 
   run:
-    - r
+    - r >=3.3
     - libgcc # [not win]
 
 test:
