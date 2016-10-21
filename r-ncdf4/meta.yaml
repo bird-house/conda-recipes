@@ -17,7 +17,7 @@ source:
 build:
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
-  number: 0 # [osx]
+  number: 1
 
   # This is required to make R link correctly on Linux.
   rpaths:
@@ -27,12 +27,12 @@ build:
 # Suggests: RColorBrewer, rgdal (>= 0.8-7), rgeos (>= 0.2-20), gstat
 requirements:
   build:
-    - r >=3.3
-    - libnetcdf
+    - r <3.3
+    - libnetcdf >=4.4.1
 
   run:
-    - r >=3.3
-    - libnetcdf
+    - r <3.3
+    - libnetcdf >=4.4.1
 
 test:
   commands:
