@@ -24,6 +24,7 @@ List of scripts and where they are now:
 * libuuid: defaults, conda-forge
 * mako: defaults
 * meld3: defaults
+* myproxyclient: conda-forge
 * ocgis: nesii, conda-forge
 * ordereddict: defaults
 * petulant-bear: ioos
