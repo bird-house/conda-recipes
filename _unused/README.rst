@@ -27,6 +27,7 @@ List of scripts and where they are now:
 * myproxyclient: conda-forge
 * ocgis: nesii, conda-forge
 * ordereddict: defaults
+* pbr: defaults, conda-forge
 * petulant-bear: ioos
 * proj4: defaults
 * pycdo: ioos
