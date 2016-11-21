@@ -1,31 +1,27 @@
 package:
   name: qa-dkrz
-  version: '0.5.16'
+  version: '0.5.17'
 
 build:
   number: 0
 
 source:
   git_url: https://github.com/IS-ENES-Data/QA-DKRZ.git
-  git_tag: master
+  git_tag: develop
 
 requirements:
   build:
-    - libnetcdf <4.4.0
-    - hdf5 >=1.8.15
-    - isl <0.16
+    - libnetcdf 4.4.*
     - zlib
-    - udunits2 >=2.2.20
+    - udunits2
     - libuuid
     - expat
     - curl
     - gcc
   run:
-    - libnetcdf <4.4.0
-    - hdf5 >=1.8.15
-    - isl <0.16
+    - libnetcdf 4.4.*
     - zlib
-    - udunits2 >=2.2.20
+    - udunits2
     - libuuid
     - expat
     - curl

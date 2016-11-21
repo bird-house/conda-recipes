@@ -2,7 +2,7 @@
 
 CC="$PREFIX/bin/gcc"
 CXX="${PREFIX}/bin/g++"
-LIBPATH="${PREFIX}/lib":/lib:/lib64
+LIBPATH="${PREFIX}/lib"
 LDFLAGS="-Wl,-rpath ${LIBPATH}"
 
 echo "CC=${CC}" > install_configure
@@ -11,6 +11,7 @@ echo "CFLAGS=\"-Wall\"" >> install_configure
 echo "CXXFLAGS=\"-Wall -D NC4\"" >> install_configure
 echo "LIB=${LIBPATH}" >> install_configure
 echo "INCLUDE=\"${PREFIX}/include\"" >> install_configure
+
 
 # prepare qa home in opt/qa-dkrz
 QA_HOME=${PREFIX}/opt/qa-dkrz
@@ -27,10 +28,10 @@ touch ${QA_HOME}/.ignore_GitHub # avoids git update!
 # run build
 #export QA_PATH="$PWD"
 touch .ignore_GitHub # avoids git update!
+export GCC_LIBS="-ludunits2 -lnetcdf -lhdf5_hl -lhdf5 -lz -luuid -lmfhdf -ldf -ljpeg -lssl -lcrypto"
 ./install CF
 ./install CORDEX
 ./install CMIP5
-#./install CLIPC
 
 # copy generated files to opt/qa-dkrz
 cp -r ./bin ${QA_HOME}
