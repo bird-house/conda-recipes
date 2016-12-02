@@ -3,15 +3,18 @@ package:
   version: '0.6.0'
 
 build:
-  number: 0
+  number: 1
 
 source:
-  git_url: https://github.com/IS-ENES-Data/QA-DKRZ.git
-  git_tag: master
+  #git_url: https://github.com/IS-ENES-Data/QA-DKRZ.git
+  git_url: https://github.com/bird-house/QA-DKRZ
+  #git_tag: master
+  git_tag: birdhouse
 
 requirements:
   build:
     - libnetcdf 4.4.*
+    - jpeg 9b
     - zlib
     - udunits2
     - libuuid
@@ -20,6 +23,7 @@ requirements:
     - gcc
   run:
     - libnetcdf 4.4.*
+    - jpeg 9b
     - zlib
     - udunits2
     - libuuid
