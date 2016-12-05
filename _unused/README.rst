@@ -5,6 +5,7 @@ These scripts are not used anymore in birdhouse or are already integrated in the
 
 List of scripts and where they are now:
 
+* billiard: conda-forge
 * cdat-lite: conda-forge
 * cfchecker: conda-forge
 * cf_units: ioos
