@@ -22,6 +22,7 @@ List of scripts and where they are now:
 * grib_api: ioos, conda-forge (ecmwf_grib)
 * gunicorn: defaults
 * icclim: nesii
+* kombu: conda-forge
 * jasper: ioos, conda-forge
 * libuuid: defaults, conda-forge
 * mako: defaults
