@@ -9,11 +9,12 @@ List of scripts and where they are now:
 * cfchecker: conda-forge
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
-* click: defaults, ioos
-* cdo: ioos, conda-forge
+* click: defaults
+* cdo: conda-forge
+* celery: conda-forge
 * compliance-checker: conda-forge
 * esgf-pyclient: conda-forge
-* expat: defaults, ioos
+* expat: defaults
 * fiona: defaults
 * genshi: ioos
 * geolinks: ioos, conda-forge
