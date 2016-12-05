@@ -40,6 +40,7 @@ List of scripts and where they are now:
 * redis: defaults
 * redis-py: defaults
 * supervisor: defaults
+* tika: conda-forge
 * twine: pip
 * udunits: ioos (udunits2)
 * wicken: ioos
