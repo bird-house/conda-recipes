@@ -12,6 +12,7 @@ List of scripts and where they are now:
 * click: defaults, ioos
 * cdo: ioos, conda-forge
 * compliance-checker: conda-forge
+* esgf-pyclient: conda-forge
 * expat: defaults, ioos
 * fiona: defaults
 * genshi: ioos
