@@ -30,6 +30,7 @@ List of scripts and where they are now:
 * icclim: nesii
 * kombu: conda-forge
 * jasper: ioos, conda-forge
+* libgd: conda-forge
 * libuuid: defaults, conda-forge
 * mako: defaults
 * meld3: defaults
