@@ -46,6 +46,7 @@ List of scripts and where they are now:
 * pyproj: defaults
 * pyramid_celery: pip
 * pytest-cov: defaults
+* pytest-runner: conda-forge
 * python-openid: pip
 * r-raster: r
 * redis: defaults
