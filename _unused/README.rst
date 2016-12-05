@@ -18,6 +18,7 @@ List of scripts and where they are now:
 * esgf-pyclient: conda-forge
 * expat: defaults
 * fiona: defaults
+* flower: conda-forge
 * genshi: ioos
 * geolinks: ioos, conda-forge
 * gdal: defaults
