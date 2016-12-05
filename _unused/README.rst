@@ -38,6 +38,7 @@ List of scripts and where they are now:
 * ordereddict: defaults
 * pbr: defaults, conda-forge
 * petulant-bear: ioos
+* pkginfo: defaults
 * proj4: defaults
 * pycdo: ioos
 * pycsw: ioos
