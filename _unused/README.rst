@@ -52,6 +52,7 @@ List of scripts and where they are now:
 * redis: defaults
 * redis-py: defaults
 * repoze.sendmail: pip
+* requests-toolbelt: conda-forge
 * simplejson: defaults
 * supervisor: defaults
 * tika: conda-forge
