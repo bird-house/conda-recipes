@@ -34,6 +34,7 @@ List of scripts and where they are now:
 * pycdo: ioos
 * pycsw: ioos
 * pyproj: defaults
+* pyramid_celery: pip
 * pytest-cov: defaults
 * python-openid: pip
 * r-raster: r
