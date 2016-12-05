@@ -47,6 +47,7 @@ List of scripts and where they are now:
 * r-raster: r
 * redis: defaults
 * redis-py: defaults
+* simplejson: defaults
 * supervisor: defaults
 * tika: conda-forge
 * twine: pip
