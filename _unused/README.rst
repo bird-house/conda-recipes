@@ -18,6 +18,7 @@ List of scripts and where they are now:
 * compliance-checker: conda-forge
 * concurrentloghandler: pip
 * esgf-pyclient: conda-forge
+* eventlet: conda-forge
 * expat: defaults
 * fiona: defaults
 * flower: conda-forge
