@@ -8,13 +8,14 @@ List of scripts and where they are now:
 * amqp: conda-forge
 * billiard: conda-forge
 * cdat-lite: conda-forge
+* cdo: conda-forge
+* celery: conda-forge
 * cfchecker: conda-forge
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
 * click: defaults
-* cdo: conda-forge
-* celery: conda-forge
 * compliance-checker: conda-forge
+* concurrentloghandler: pip
 * esgf-pyclient: conda-forge
 * expat: defaults
 * fiona: defaults
