@@ -49,6 +49,7 @@ List of scripts and where they are now:
 * r-raster: r
 * redis: defaults
 * redis-py: defaults
+* repoze.sendmail: pip
 * simplejson: defaults
 * supervisor: defaults
 * tika: conda-forge
