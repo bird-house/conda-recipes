@@ -28,10 +28,10 @@ touch ${QA_HOME}/.ignore_GitHub # avoids git update!
 # run build
 #export QA_PATH="$PWD"
 touch .ignore_GitHub # avoids git update!
-export GCC_LIBS="-ludunits2 -lnetcdf -lhdf5_hl -lhdf5 -lz -luuid -lmfhdf -ldf -ljpeg -lssl -lcrypto"
-./install CF
-./install CORDEX
-./install CMIP5
+export QA_LIBS="-ludunits2 -lnetcdf -lhdf5_hl -lhdf5 -lz -luuid -lmfhdf -ldf -ljpeg -lssl -lcrypto"
+./install --qa-home="$PWD" CF
+./install --qa-home="$PWD" CORDEX
+./install --qa-home="$PWD" CMIP5
 
 # copy generated files to opt/qa-dkrz
 cp -r ./bin ${QA_HOME}

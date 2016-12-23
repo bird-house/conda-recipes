@@ -1,15 +1,15 @@
 package:
   name: qa-dkrz
-  version: '0.6.0'
+  version: '0.6.1'
 
 build:
-  number: 1
+  number: 0
 
 source:
-  #git_url: https://github.com/IS-ENES-Data/QA-DKRZ.git
-  git_url: https://github.com/bird-house/QA-DKRZ
-  #git_tag: master
-  git_tag: birdhouse
+  git_url: https://github.com/IS-ENES-Data/QA-DKRZ.git
+  #git_url: https://github.com/bird-house/QA-DKRZ
+  git_tag: master
+  #git_tag: birdhouse
 
 requirements:
   build:
