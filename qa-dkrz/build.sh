@@ -32,6 +32,7 @@ export QA_LIBS="-ludunits2 -lnetcdf -lhdf5_hl -lhdf5 -lz -luuid -lmfhdf -ldf -lj
 ./install --qa-home="$PWD" CF
 ./install --qa-home="$PWD" CORDEX
 ./install --qa-home="$PWD" CMIP5
+./install --qa-home="$PWD" CMIP6
 
 # copy generated files to opt/qa-dkrz
 cp -r ./bin ${QA_HOME}
