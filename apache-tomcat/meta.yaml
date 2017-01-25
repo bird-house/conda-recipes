@@ -6,10 +6,11 @@ package:
 source:
     fn: apache-tomcat-7.0.75.tar.gz 
     url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.75/bin/apache-tomcat-7.0.75.tar.gz
-    md5: c771aa7b2903691d6034f6584c95304c
+    md5: 82f3a69298a0e506de0f6c3c1295953d
 
 build:
     number: 0
+    noarch: True
 
 requirements:
     build:
