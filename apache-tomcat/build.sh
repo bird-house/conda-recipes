@@ -7,7 +7,10 @@
 mkdir -vp ${PREFIX}/bin;
 mkdir -vp ${PREFIX}/opt/apache-tomcat;
 
-export JAVA_HOME="/usr/lib/jvm/default-java"
+
+export JAVA_HOME="${PREFIX}"
+export JRE_HOME="${PREFIX}/jre"
+#export JAVA_HOME="/usr/lib/jvm/default-java"
 #export JRE_HOME="/usr/lib/jvm/jre"
 
 mv * ${PREFIX}/opt/apache-tomcat
