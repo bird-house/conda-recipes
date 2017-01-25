@@ -1,22 +1,23 @@
 package:
     name: solr 
-    version: "5.2.1" 
+    version: "5.5.3" 
 
 source:
-    fn: solr-5.2.1.tgz
-    url: http://archive.apache.org/dist/lucene/solr/5.2.1/solr-5.2.1.tgz
-    md5: 50b87813e33665512c78ab056842c4d3
+    fn: solr-5.5.3.tgz
+    url: http://archive.apache.org/dist/lucene/solr/5.5.3/solr-5.5.3.tgz
+    md5: cec1a60bf19e6b7b181d2560451cd639
       
     
 build:
-    number: 1
+    number: 0
+    noarch: True
 
 requirements:
     build:
-        - java-jdk
+        - openjdk
 
     run:
-        - java-jdk
+        - openjdk
 test:
     commands:
         - solr start -help
