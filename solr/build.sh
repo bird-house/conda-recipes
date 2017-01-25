@@ -13,6 +13,8 @@ SOLR_INSTALL=${PREFIX}/opt/solr
 
 mkdir -vp ${SOLR_INSTALL};
 
+# package all except docs/
+rm -rf docs/
 mv * ${SOLR_INSTALL}
 
 mkdir -vp ${PREFIX}/bin || exit 1;
