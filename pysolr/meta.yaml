@@ -1,11 +1,11 @@
 package:
   name: pysolr
-  version: "3.3.2"
+  version: "3.6.0"
 
 source:
-  fn: pysolr-3.3.2.tar.gz
-  url: https://pypi.python.org/packages/source/p/pysolr/pysolr-3.3.2.tar.gz
-  md5: 93a7f08d9a6c26ff3e24ba12f4c185fc
+  fn: pysolr-3.6.0.tar.gz
+  url: https://pypi.python.org/packages/47/d6/91dd269b4443c77905ac5f347318435bfeaa2825ce2763d936e0945f29e4/pysolr-3.6.0.tar.gz
+  md5: 9ccd0f8450d84a32fee9301aa97de506
 #  patches:
    # List any patch files here
    # - fix.patch
@@ -30,16 +30,15 @@ requirements:
   build:
     - python
     - setuptools
-    - requests >=2.0
+    - requests >=2.9.1
 
   run:
     - python
-    - requests >=2.0
+    - requests >=2.9.1
 
-test:
+# test:
   # Python imports
-  imports:
-    - pysolr
+  # imports:
 
   # commands:
     # You can put test commands to be run here.  Use this to test that the
@@ -54,9 +53,10 @@ test:
     # - nose
 
 about:
-  home: http://github.com/toastdriven/pysolr/
+  home: https://github.com/django-haystack/pysolr/
   license: BSD License
   summary: 'Lightweight python wrapper for Apache Solr.'
+  license_family: BSD
 
 # See
 # http://docs.continuum.io/conda/build.html for
