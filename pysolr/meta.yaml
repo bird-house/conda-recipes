@@ -6,51 +6,26 @@ source:
   fn: pysolr-3.6.0.tar.gz
   url: https://pypi.python.org/packages/47/d6/91dd269b4443c77905ac5f347318435bfeaa2825ce2763d936e0945f29e4/pysolr-3.6.0.tar.gz
   md5: 9ccd0f8450d84a32fee9301aa97de506
-#  patches:
-   # List any patch files here
-   # - fix.patch
 
-# build:
-  # noarch_python: True
-  # preserve_egg_dir: True
-  # entry_points:
-    # Put any entry points (scripts to be generated automatically) here. The
-    # syntax is module:function.  For example
-    #
-    # - pysolr = pysolr:main
-    #
-    # Would create an entry point called pysolr that calls pysolr.main()
-
-
-  # If this is a new build for the same version, increment the build
-  # number. If you do not include this key, it defaults to 0.
-  # number: 1
+build:
+  number: 1
+  script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
   build:
     - python
     - setuptools
     - requests >=2.9.1
+    - simplejson
 
   run:
     - python
     - requests >=2.9.1
+    - simplejson
 
-# test:
-  # Python imports
-  # imports:
-
-  # commands:
-    # You can put test commands to be run here.  Use this to test that the
-    # entry points work.
-
-
-  # You can also put a file called run_test.py in the recipe that will be run
-  # at test time.
-
-  # requires:
-    # Put any additional test requirements here.  For example
-    # - nose
+test:
+  imports:
+    - pysolr
 
 about:
   home: https://github.com/django-haystack/pysolr/
@@ -58,6 +33,6 @@ about:
   summary: 'Lightweight python wrapper for Apache Solr.'
   license_family: BSD
 
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml
+extra:
+  recipe-maintainers:
+    - cehbrecht
