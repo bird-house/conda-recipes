@@ -5,7 +5,7 @@ package:
 source:
     fn: solr-6.4.0.tgz
     url: http://archive.apache.org/dist/lucene/solr/6.4.0/solr-6.4.0.tgz
-    sha256: 50b87813e33665512c78ab056842c4d3
+    sha256: 1213ae09023058ea1cbd971a1b585f891fb63fa76e128611031bfc28c749b502
     
 build:
     number: 0
