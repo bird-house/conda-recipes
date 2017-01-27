@@ -1,14 +1,14 @@
 package:
     name: solr 
-    version: "5.2.1" 
+    version: "6.4.0" 
 
 source:
-    fn: solr-5.2.1.tgz
-    url: http://archive.apache.org/dist/lucene/solr/5.2.1/solr-5.2.1.tgz
-    md5: 50b87813e33665512c78ab056842c4d3
+    fn: solr-6.4.0.tgz
+    url: http://archive.apache.org/dist/lucene/solr/6.4.0/solr-6.4.0.tgz
+    sha256: 50b87813e33665512c78ab056842c4d3
     
 build:
-    number: 2
+    number: 0
     noarch: True
 
 requirements:

@@ -15,6 +15,7 @@ mkdir -vp ${SOLR_INSTALL};
 
 # package all except docs/
 rm -rf docs/
+rm -rf example/
 mv * ${SOLR_INSTALL}
 
 mkdir -vp ${PREFIX}/bin || exit 1;
