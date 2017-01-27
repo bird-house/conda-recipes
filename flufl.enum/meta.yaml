@@ -4,11 +4,12 @@ package:
 
 source:
   fn: flufl.enum-4.1.tar.gz
-  url: https://pypi.python.org/packages/21/a4/afb7213998ee8db590fd30fc0c665d6b7275e71ace33ef17836493884b7e/flufl.enum-4.1.1.tar.gz
-  sha256: bla
+  url: https://pypi.python.org/packages/65/51/aa79e41a6deefab555a7cc26a917363c67c6b7e2e1b43067f3d11b5e1b7e/flufl.enum-4.1.1.tar.gz
+  sha256: 67edefaca4347663c95f370398edce1d2267f293f25addca5680bd8bdc51a51c
 
 build:
   number: 0
+  skip: true  # [py3k]
   script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
