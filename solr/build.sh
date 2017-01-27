@@ -17,6 +17,7 @@ mkdir -vp ${SOLR_INSTALL};
 rm -rf docs/
 rm -rf example/
 mv * ${SOLR_INSTALL}
+rm ${SOLR_INSTALL}/conda_build.sh
 
 mkdir -vp ${PREFIX}/bin || exit 1;
 
