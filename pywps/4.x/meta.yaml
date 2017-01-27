@@ -8,7 +8,8 @@ source:
     git_tag: pingudev-4
 
 build:
-    number: 2 
+    number: 3 
+    script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
     build:
@@ -35,10 +36,11 @@ test:
     imports:
         - pywps
 
-    #commands:
-    #    -
-
 about:
-    home: https://github.com/geopython/PyWPS
-    license: MIT License
-    summary: PyWPS (Python Web Processing Service) is an implementation of the Web processing Service standard from Open Geospatial Consortium.
+    home: http://pywps.org/
+    license: MIT
+    summary: 'PyWPS (Python Web Processing Service) is an implementation of the Web processing Service standard from Open Geospatial Consortium.'
+
+extra:
+  recipe-maintainers:
+    - cehbrecht
