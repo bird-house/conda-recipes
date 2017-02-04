@@ -22,6 +22,7 @@ List of scripts and where they are now:
 * expat: defaults
 * fiona: defaults
 * flower: conda-forge
+* flufl.enum: conda-forge
 * genshi: ioos
 * geolinks: ioos, conda-forge
 * gdal: defaults
