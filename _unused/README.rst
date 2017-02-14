@@ -51,6 +51,7 @@ List of scripts and where they are now:
 * pytest-cov: defaults
 * pytest-runner: conda-forge
 * python-openid: pip
+* qa-dkrz: h-dh
 * r-raster: r
 * redis: defaults
 * redis-py: defaults
