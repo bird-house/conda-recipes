@@ -15,6 +15,7 @@ List of scripts and where they are now:
 * cf_units: ioos
 * cfunits: ioos (cfunits-python)
 * click: defaults
+* cmip6-cmor-tables: h-dh
 * compliance-checker: conda-forge
 * concurrentloghandler: pip
 * esgf-pyclient: conda-forge
