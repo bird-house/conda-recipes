@@ -1,0 +1,15 @@
+package:
+  name: cmip6-cmor-tables 
+  version: '3.2.1'
+
+build:
+  number: 0
+
+source:
+  git_url: https://github.com/PCMDI/cmip6-cmor-tables.git
+  git_tag: 3.2.1
+
+about:
+  home: https://github.com/PCMDI/cmip6-cmor-tables
+  summary: 'JSON Tables for CMOR3 to create CMIP6 dataset '
+  license: Copyright WCRP
