@@ -1,0 +1,16 @@
+package:
+  name: qa-dkrz-cmip6
+  version: '0.6.4'
+
+build:
+  number: 0
+
+requirements:
+  run:
+    - qa-dkrz 0.6.4
+    - cmor 3.2.1
+    - cmip6-cmor-tables 3.2.1
+about:
+  home: http://qa-dkrz.readthedocs.org/en/latest/
+  summary: 'Quality Assurance checker of meta-data in climate data sets (netCDF files) for CF conformance and CMIP6 project conventions.'
+  license: Copyright DKRZ
