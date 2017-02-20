@@ -8,6 +8,7 @@ List of scripts and where they are now:
 * amqp: conda-forge
 * anyjson: conda-forge
 * billiard: conda-forge
+* blas: conda-forge
 * cdat-lite: conda-forge
 * cdo: conda-forge
 * celery: conda-forge
