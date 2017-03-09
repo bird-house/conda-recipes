@@ -39,6 +39,7 @@ List of scripts and where they are now:
 * mako: defaults
 * meld3: defaults
 * myproxyclient: conda-forge
+* nginx: defaults
 * netcdf-fortran: conda-forge
 * ocgis: nesii, conda-forge
 * ordereddict: defaults
