@@ -1,27 +1,23 @@
+{% set name = "pywps" %}
+{% set version = "4.0.0" %}
 
 package:
-    name: pywps
-    version: !!str 4.0.0
+    name: {{ name|lower }}
+    version: {{ version }}
 
 source:
     git_url: https://github.com/bird-house/pywps
     git_tag: pingudev-4
 
 build:
-    number: 9
+    number: 11
+    skip: True  # [win]
     script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
     build:
         - python
         - setuptools
-        - owslib
-        - jsonschema
-        - werkzeug
-        - lxml
-        - sqlalchemy
-        - flufl.enum # [py27]
-        - python-dateutil
     run:
         - python
         - owslib
