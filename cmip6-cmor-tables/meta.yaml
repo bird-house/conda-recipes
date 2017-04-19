@@ -3,7 +3,8 @@ package:
   version: '3.2.1'
 
 build:
-  number: 0
+  number: 1
+  noarch: True
 
 source:
   git_url: https://github.com/PCMDI/cmip6-cmor-tables.git
