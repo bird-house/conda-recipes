@@ -1,10 +1,10 @@
 build castf90 with openblas::
 
-    $ FEATRURE_NOMKL=1 conda build -c birdhouse -c conda-forge .
+    $ FEATRURE_NOMKL=1 conda build -c conda-forge -c birdhouse .
 
 build castf90 with intel mkl::
 
-    $ FEATRURE_NOMKL=0 conda build -c birdhouse -c conda-forge .
+    $ FEATRURE_NOMKL=0 conda build -c conda-forge -c birdhouse .
 
 You should build conda on a minimal centos6 or use a build docker image:
 
