@@ -32,6 +32,7 @@ List of scripts and where they are now:
 * icclim: nesii
 * java-jdk: defaults (openjdk)
 * kombu: conda-forge
+* lapack: conda-forge
 * jasper: ioos, conda-forge
 * libgd: conda-forge
 * libuuid: defaults, conda-forge
