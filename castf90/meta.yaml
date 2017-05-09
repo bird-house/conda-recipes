@@ -10,24 +10,22 @@ source:
 
 build:
   number: 0
-  features:
-    - nomkl                   [nomkl]
 
 requirements:
   build:
     - gcc
     - libgfortran             [linux]
     - netcdf-fortran
-    - mkl                     [not nomkl]
-    - openblas                [linux and nomkl]
+    - mkl                     
+    #- openblas                [linux]
     - lapack95
 
   run:
     - libgcc
     - libgfortran             [linux]
     - netcdf-fortran
-    - mkl                     [not nomkl]
-    - openblas                [linux and nomkl]
+    - mkl                     
+    #- openblas                [linux]
     - lapack95
     - cdo
     - nco
