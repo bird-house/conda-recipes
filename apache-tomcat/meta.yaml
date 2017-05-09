@@ -7,8 +7,7 @@ package:
 source:
     fn: apache-tomcat-{{ version }}.tar.gz 
     url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v{{ version }}/bin/apache-tomcat-{{ version }}.tar.gz
-    md5: 82f3a69298a0e506de0f6c3c1295953d
-
+    sha256: 10a984f92e828ca97b4682318cac0d0ddf4220d88244ec4b25f8e3dd13b17979
 build:
     number: 0
     noarch: True
