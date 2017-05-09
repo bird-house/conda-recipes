@@ -1,11 +1,13 @@
+{% set version = "5.5.4" %}
+
 package:
     name: solr 
-    version: "6.4.0" 
+    version: {{ version }} 
 
 source:
-    fn: solr-6.4.0.tgz
-    url: http://archive.apache.org/dist/lucene/solr/6.4.0/solr-6.4.0.tgz
-    sha256: 1213ae09023058ea1cbd971a1b585f891fb63fa76e128611031bfc28c749b502
+    fn: solr-{{ version }}.tgz
+    url: http://archive.apache.org/dist/lucene/solr/{{ version }}/solr-{{ version }}.tgz
+    sha256: c1528e4afc9a0b8e7e5be0a16f40bb4080f410d502cd63b4447d448c49e9f500
     
 build:
     number: 0
