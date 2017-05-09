@@ -1,11 +1,12 @@
+{% set version = "7.0.77" %}
 
 package:
     name: apache-tomcat
-    version: 7.0.75
+    version: {{ version }}
 
 source:
-    fn: apache-tomcat-7.0.75.tar.gz 
-    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v7.0.75/bin/apache-tomcat-7.0.75.tar.gz
+    fn: apache-tomcat-{{ version }}.tar.gz 
+    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v{{ version }}/bin/apache-tomcat-{{ version }}.tar.gz
     md5: 82f3a69298a0e506de0f6c3c1295953d
 
 build:
