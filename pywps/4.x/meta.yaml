@@ -25,11 +25,11 @@ requirements:
         - werkzeug
         - lxml
         - sqlalchemy
-        - gdal 
+        - gdal
         - flufl.enum # [py27]
         - python-dateutil
-        - dill
-        - drmaa
+        #- dill
+        #- drmaa
 test:
     imports:
         - pywps
