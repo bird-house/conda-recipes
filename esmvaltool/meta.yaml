@@ -15,8 +15,8 @@ requirements:
 
     run:
         - python
-        - ncl=6.4.0
-        - xorg-libsm=1.2.2
+        - ncl 6.4.0
+        - xorg-libsm 1.2.2
         - xorg-libxrender
         - xorg-libxext
         - esgf-pyclient
