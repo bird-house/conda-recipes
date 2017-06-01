@@ -1,0 +1,26 @@
+package:
+    name: esmvaltool
+    version: 1.1.0
+
+source:
+    git_url: https://github.com/cehbrecht/ESMValTool.git
+    git_branch: pingudev
+
+build:
+    number: 0
+
+requirements:
+    build:
+        - python
+
+    run:
+        - python
+        - ncl=6.4.0
+        - xorg-libsm=1.2.2
+        - xorg-libxrender
+        - xorg-libxext
+        - esgf-pyclient
+about:
+    home: http://www.esmvaltool.org/
+    license: Apache License version 2.0
+    summary: A community diagnostic and performance metrics tool for routine evaluation of Earth system models in CMIP
