@@ -23,4 +23,4 @@ requirements:
 about:
     home: http://www.esmvaltool.org/
     license: Apache License version 2.0
-    summary: A community diagnostic and performance metrics tool for routine evaluation of Earth system models in CMIP
+    summary: A community diagnostic and performance metrics tool for routine evaluation of Earth system models in CMIP.
