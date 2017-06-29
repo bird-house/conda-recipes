@@ -7,7 +7,7 @@ source:
     git_branch: pingudev
 
 build:
-    number: 2
+    number: 3
 
 requirements:
     build:
@@ -19,17 +19,17 @@ requirements:
         - esgf-pyclient
         #- scientificpython
         # iris
-        - iris
-        - basemap
-        - matplotlib 1.5.3
-        - cartopy 0.15.1
+        #- iris
+        #- basemap
+        #- matplotlib 1.5.3
+        #- cartopy 0.15.1
         # ncl
         - ncl 6.4.0
         - libnetcdf 4.4.1.1
-        - hdf5 1.8.17
-        - hdf4 4.2.12
+        #- hdf5 1.8.17
+        #- hdf4 4.2.12
         - xorg-libsm 1.2.2
-        - icu 58.1
+        #- icu 58.1
         - xorg-libxrender
         - xorg-libxext
 
