@@ -7,7 +7,7 @@ source:
     git_branch: pingudev
 
 build:
-    number: 0
+    number: 1
 
 requirements:
     build:
@@ -15,11 +15,24 @@ requirements:
 
     run:
         - python
+        - cython
+        - esgf-pyclient
+        - scientificpython
+        # iris
+        - iris
+        - basemap
+        - matplotlib=1.5.*
+        - cartopy=0.15.*
+        # ncl
         - ncl 6.4.0
-        - xorg-libsm 1.2.2
+        - libnetcdf=4.4.1.1
+        - hdf5=1.8.17
+        - hdf4=4.2.12
+        - xorg-libsm=1.2.2
+        - icu=58.1
         - xorg-libxrender
         - xorg-libxext
-        - esgf-pyclient
+
 about:
     home: http://www.esmvaltool.org/
     license: Apache License version 2.0
