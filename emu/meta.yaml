@@ -1,0 +1,61 @@
+package:
+  name: emu
+  version: !!str 0.6.0
+
+source:
+  git_url: https://github.com/bird-house/emu.git
+  git_branch: master
+
+build:
+  # preserve_egg_dir: True
+  # entry_points:
+    # Put any entry points (scripts to be generated automatically) here. The
+    # syntax is module:function.  For example
+    #
+    # - owslib = owslib:main
+    #
+    # Would create an entry point called owslib that calls owslib.main()
+
+
+  # If this is a new build for the same version, increment the build
+  # number. If you do not include this key, it defaults to 0.
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - pywps
+
+  run:
+    - python
+    - pywps
+    #- psycopg2
+    #- dill
+    #- drmaa
+
+test:
+  # Python imports
+  imports:
+    - emu
+
+  commands:
+    # You can put test commands to be run here.  Use this to test that the
+    # entry points work.
+    - emu -h
+
+  # You can also put a file called run_test.py in the recipe that will be run
+  # at test time.
+
+  requires:
+    # Put any additional test requirements here.  For example
+    #- pytest
+
+about:
+  home: https://github.com/bird-house/emu
+  license: Apache License 2.0
+  summary: 'OGC Web Processing Service with processes for testing and demo.'
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
