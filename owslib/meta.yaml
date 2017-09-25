@@ -1,78 +1,44 @@
+{% set version = "0.15.0" %}
+
 package:
   name: owslib
-  version: !!str 0.15.0
+  version: {{ version }}
 
 source:
   git_url: https://github.com/bird-house/OWSLib.git
   git_branch: pingudev
-  #fn: OWSLib-0.9.2.tar.gz
-  #url: https://pypi.python.org/packages/source/O/OWSLib/OWSLib-0.9.2.tar.gz
-  #md5: 01e1e142dc26bbeab61eae1d26a44c46
-#  patches:
-   # List any patch files here
-   # - fix.patch
+  #url: https://pypi.io/packages/source/O/OWSLib/OWSLib-{{ version }}.tar.gz
+  #sha256: 4d0bc3fe7763ae05ab15a83cf22715f4922a23296eb0813f2e54a01401745000
 
 build:
-  # preserve_egg_dir: True
-  # entry_points:
-    # Put any entry points (scripts to be generated automatically) here. The
-    # syntax is module:function.  For example
-    #
-    # - owslib = owslib:main
-    #
-    # Would create an entry point called owslib that calls owslib.main()
-
-
-  # If this is a new build for the same version, increment the build
-  # number. If you do not include this key, it defaults to 0.
-  number: 50
+  number: 51
+  noarch: python
+  script: python setup.py install --single-version-externally-managed --record=record.txt
 
 requirements:
   build:
     - python
     - setuptools
-    - requests
-    - python-dateutil
-    - pytz
-    - lxml
-    - pyproj
-
   run:
     - python
-    - setuptools
-    - requests
     - python-dateutil
     - pytz
-    - lxml
+    - requests
     - pyproj
+    - lxml
 
 test:
-  # Python imports
   imports:
     - owslib
-    - owslib.wms
     - owslib.wps
-
-  # commands:
-    # You can put test commands to be run here.  Use this to test that the
-    # entry points work.
-
-  # You can also put a file called run_test.py in the recipe that will be run
-  # at test time.
-
-  requires:
-    # Put any additional test requirements here.  For example
-    - pytest
-    - pytest-cov # [not osx]
-    #- tox # [not osx] [py27]
-    - pep8
-    - pillow
+    - owslib.wms
 
 about:
-  home: http://geopython.github.io/OWSLib
-  license: BSD License
-  summary: 'OGC Web Service utility library'
+  home: https://geopython.github.io/OWSLib
+  license: BSD 3-Clause
+  license_file: LICENSE.txt
+  summary: 'OGC Web Service utility library.'
 
-# See
-# http://docs.continuum.io/conda/build.html for
-# more information about meta.yaml
+extra:
+  recipe-maintainers:
+    - cehbrecht
