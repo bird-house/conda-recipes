@@ -10,7 +10,7 @@ source:
     git_tag: pingudev-4
 
 build:
-    number: 27
+    number: 28
     script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
@@ -27,6 +27,7 @@ requirements:
         - gdal
         - flufl.enum # [py27]
         - python-dateutil
+        - requests
         - psycopg2
         - dill
         - drmaa
