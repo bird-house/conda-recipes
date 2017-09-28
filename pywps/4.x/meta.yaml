@@ -10,8 +10,8 @@ source:
     git_tag: pingudev-4
 
 build:
-    number: 29
-    noarch: python
+    number: 30
+    # noarch: python
     script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
