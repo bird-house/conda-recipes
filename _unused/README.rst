@@ -54,6 +54,7 @@ List of scripts and where they are now:
 * pysolr: pip
 * pytest-cov: defaults
 * pytest-runner: conda-forge
+* python-magic: conda-forge
 * python-openid: pip
 * qa-dkrz: h-dh
 * qa-dkrz-cmip6: h-dh
