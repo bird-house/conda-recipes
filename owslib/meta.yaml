@@ -1,4 +1,4 @@
-{% set version = "0.15.0" %}
+{% set version = "0.16.0" %}
 
 package:
   name: owslib
@@ -11,7 +11,7 @@ source:
   #sha256: 4d0bc3fe7763ae05ab15a83cf22715f4922a23296eb0813f2e54a01401745000
 
 build:
-  number: 52
+  number: 50
   noarch: python
   script: python setup.py install --single-version-externally-managed --record=record.txt
 
