@@ -7,7 +7,7 @@ source:
     git_branch: pingudev
 
 build:
-    number: 3
+    number: 4
 
 requirements:
     build:
@@ -24,11 +24,11 @@ requirements:
         #- matplotlib 1.5.3
         #- cartopy 0.15.1
         # ncl
-        - ncl 6.4.0
-        - libnetcdf 4.4.1.1
+        - ncl
+        - libnetcdf
         #- hdf5 1.8.17
         #- hdf4 4.2.12
-        - xorg-libsm 1.2.2
+        - xorg-libsm
         #- icu 58.1
         - xorg-libxrender
         - xorg-libxext
