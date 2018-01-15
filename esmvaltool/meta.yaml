@@ -7,7 +7,7 @@ source:
     git_branch: pingudev
 
 build:
-    number: 4
+    number: 5
 
 requirements:
     build:
@@ -23,15 +23,14 @@ requirements:
         #- basemap
         #- matplotlib 1.5.3
         #- cartopy 0.15.1
-        # ncl
-        - ncl
-        - libnetcdf
+        #- ncl
+        #- libnetcdf
         #- hdf5 1.8.17
         #- hdf4 4.2.12
-        - xorg-libsm
+        #- xorg-libsm
         #- icu 58.1
-        - xorg-libxrender
-        - xorg-libxext
+        #- xorg-libxrender
+        #- xorg-libxext
 
 about:
     home: http://www.esmvaltool.org/
