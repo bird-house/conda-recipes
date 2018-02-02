@@ -1,13 +1,13 @@
 package:
     name: esmvaltool
-    version: 1.1.0
+    version: 2.0.0
 
 source:
     git_url: https://github.com/cehbrecht/ESMValTool.git
-    git_branch: pingudev
+    git_branch: demo-magic-workshop
 
 build:
-    number: 5
+    number: 0
 
 requirements:
     build:
@@ -16,21 +16,28 @@ requirements:
     run:
         - python
         - cython
+        - yamale
         - esgf-pyclient
-        #- scientificpython
-        # iris
-        #- iris
-        #- basemap
-        #- matplotlib 1.5.3
-        #- cartopy 0.15.1
-        #- ncl
-        #- libnetcdf
-        #- hdf5 1.8.17
-        #- hdf4 4.2.12
-        #- xorg-libsm
-        #- icu 58.1
-        #- xorg-libxrender
-        #- xorg-libxext
+        - basemap
+        - cartopy
+        - cf_units
+        - iris
+        - ncl 6.4.*
+        # ncl pacch
+        #- poppler 0.52
+        #- xerces-c 3.1
+        #- gsl
+        # ncl patch end
+        - netcdf4
+        - numba 0.35.0
+        - numpy
+        - pillow # providing PIL package
+        #- python-cdo
+        - python-stratify
+        - pyyaml
+        - scipy
+        - shapely
+        - six
 
 about:
     home: http://www.esmvaltool.org/
