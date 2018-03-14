@@ -1,4 +1,4 @@
-{% set version = "0.2.0" %}
+{% set version = "0.2.1" %}
 
 package:
   name: birdhouse-birdy
@@ -19,12 +19,12 @@ requirements:
   build:
     - python
     - setuptools
-    - owslib >=0.15.0
+    - owslib >=0.16.0
   run:
     - python
     - argcomplete
     - lxml
-    - owslib >=0.15.0
+    - owslib >=0.16.0
 
 test:
   imports:
