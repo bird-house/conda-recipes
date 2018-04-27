@@ -1,5 +1,5 @@
 {% set name = "pywps" %}
-{% set version = "4.0.0" %}
+{% set version = "4.1.0" %}
 
 package:
     name: {{ name|lower }}
@@ -10,7 +10,7 @@ source:
     git_tag: pingudev-4
 
 build:
-    number: 36
+    number: 0
     # noarch: python
     script: python setup.py install --single-version-externally-managed --record record.txt
 
@@ -30,9 +30,9 @@ requirements:
         - python-dateutil
         - requests
         - python-magic # [not win]
-        - psycopg2
-        - dill
-        - drmaa
+        #- psycopg2
+        #- dill
+        #- drmaa
 test:
     imports:
         - pywps
