@@ -10,7 +10,7 @@ source:
     git_tag: pingudev-4
 
 build:
-    number: 0
+    number: 1
     # noarch: python
     script: python setup.py install --single-version-externally-managed --record record.txt
 
@@ -25,11 +25,11 @@ requirements:
         - werkzeug
         - lxml
         - sqlalchemy
-        - gdal
         - flufl.enum # [py27]
         - python-dateutil
         - requests
         - python-magic # [not win]
+        #- gdal
         #- psycopg2
         #- dill
         #- drmaa
