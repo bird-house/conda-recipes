@@ -11,7 +11,7 @@ source:
   #sha256: 4d0bc3fe7763ae05ab15a83cf22715f4922a23296eb0813f2e54a01401745000
 
 build:
-  number: 53
+  number: 54
   noarch: python
   script: python setup.py install --single-version-externally-managed --record=record.txt
 
