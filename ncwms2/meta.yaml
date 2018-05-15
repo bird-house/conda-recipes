@@ -1,25 +1,29 @@
+{% set version = "2.4.1" %}
+
 package:
-    name: ncwms2
-    version: 2.2.8
+  name: ncwms2
+  version: {{ version }}
 
 source:
-    fn: ncWMS2.war
-    url: https://github.com/Reading-eScience-Centre/ncwms/releases/download/ncwms-2.2.8/ncWMS2.war
-    md5: f1a4545b3e480962adf4006bb41816c5
+  fn: ncWMS2.war
+  url: https://github.com/Reading-eScience-Centre/ncwms/releases/download/ncwms-{{ version }}/ncWMS2.war
+  md5: f1a4545b3e480962adf4006bb41816c5
 
 build:
-    number: 0
-    noarch: True
+  number: 0
+  noarch: True
 
 requirements:
-    build:
-        - apache-tomcat
-
-    run:
-        - apache-tomcat
+  build:
+    - apache-tomcat
+  run:
+    - apache-tomcat
 
 about:
-    home: http://reading-escience-centre.github.io/edal-java/
-    license: Copyright (c) 2010 The University of Reading
-    summary: ncWMS is a Web Map Service for displaying environmental data
+  home: http://reading-escience-centre.github.io/edal-java/
+  license: Copyright (c) 2010 The University of Reading
+  summary: ncWMS is a Web Map Service for displaying environmental data
 
+extra:
+  recipe-maintainers:
+    - cehbrecht
