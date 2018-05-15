@@ -1,30 +1,32 @@
-{% set version = "7.0.77" %}
+{% set version = "7.0.88" %}
 
 package:
-    name: apache-tomcat
-    version: {{ version }}
+  name: apache-tomcat
+  version: {{ version }}
 
 source:
-    fn: apache-tomcat-{{ version }}.tar.gz 
-    url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v{{ version }}/bin/apache-tomcat-{{ version }}.tar.gz
-    sha256: 10a984f92e828ca97b4682318cac0d0ddf4220d88244ec4b25f8e3dd13b17979
+  fn: apache-tomcat-{{ version }}.tar.gz
+  url: http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/tomcat/tomcat-7/v{{ version }}/bin/apache-tomcat-{{ version }}.tar.gz
+  sha256: 10a984f92e828ca97b4682318cac0d0ddf4220d88244ec4b25f8e3dd13b17979
 build:
-    number: 0
-    noarch: True
+  number: 0
+  noarch: True
 
 requirements:
-    build:
-      - openjdk
-
-    run:
-      - openjdk
+  build:
+    - openjdk
+  run:
+    - openjdk
 
 #test:
 #    commands:
 #        - catalina.sh version
 
 about:
-    home: http://tomcat.apache.org/
-    summary: 'Apache Tomcat is an open source software implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies.'
-    license: Apache License v2.0
+  home: http://tomcat.apache.org/
+  summary: 'Apache Tomcat is an open source software implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies.'
+  license: Apache License v2.0
 
+extra:
+  recipe-maintainers:
+    - cehbrecht
