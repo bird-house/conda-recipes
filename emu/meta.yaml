@@ -1,35 +1,28 @@
 package:
   name: emu
-  version: !!str 0.7.0
+  version: !!str 0.8.0
 
 source:
   git_url: https://github.com/bird-house/emu.git
-  git_rev: 0.7.0
+  git_rev: master
 
 build:
-  # preserve_egg_dir: True
-  # entry_points:
-    # Put any entry points (scripts to be generated automatically) here. The
-    # syntax is module:function.  For example
-    #
-    # - owslib = owslib:main
-    #
-    # Would create an entry point called owslib that calls owslib.main()
-
-
-  # If this is a new build for the same version, increment the build
-  # number. If you do not include this key, it defaults to 0.
-  number: 0
+  number: 0 
+  noarch: python
+  script: python setup.py install --single-version-externally-managed --record=record.txt
 
 requirements:
   build:
     - python
     - setuptools
-    - pywps >=4.0
-
+    - pywps >=4.1
+    - click
+    - jinja2
   run:
     - python
-    - pywps >=4.0
+    - pywps >=4.1
+    - click
+    - jinja2
 
 test:
   # Python imports
@@ -39,7 +32,7 @@ test:
   commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
-    - emu -h
+    - emu --help
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
