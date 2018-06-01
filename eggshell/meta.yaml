@@ -1,0 +1,46 @@
+{% set version = "0.2" %}
+
+package:
+  name: birdhouse-eggshell
+  version: {{ version }}
+
+source:
+  git_url: https://github.com/bird-house/eggshell.git
+  git_tag: {{ version }}
+
+build:
+  number: 0
+  noarch: python
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+  entry_points:
+    - eggshell=eggshell:main
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - numpy
+    - matplotlib
+    - cartopy
+    - iris
+    - libnetcdf
+    - ocgis
+
+test:
+  imports:
+    - eggshell
+
+  requires:
+    - pytest
+
+about:
+  home: https://github.com/bird-house/eggshell
+  license: Apache License v2.0
+  summary: 'Utilities common to multiple WPS birds.'
+
+extra:
+  recipe-maintainers:
+    - cehbrecht
