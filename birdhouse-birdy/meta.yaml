@@ -1,4 +1,4 @@
-{% set version = "0.2.2" %}
+{% set version = "0.3.0" %}
 
 package:
   name: birdhouse-birdy
@@ -13,18 +13,20 @@ build:
   noarch: python
   script: python setup.py install --single-version-externally-managed --record=record.txt
   entry_points:
-    - birdy=birdy:main
+    - birdy=birdy.cli.run:cli
 
 requirements:
   build:
     - python
     - setuptools
-    - owslib >=0.16.0
+    - owslib >=0.17.0
   run:
     - python
-    - argcomplete
+    - six
+    - click
     - lxml
-    - owslib >=0.16.0
+    - owslib >=0.17.0
+    - jinja2
 
 test:
   imports:
