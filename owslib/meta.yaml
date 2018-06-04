@@ -1,4 +1,4 @@
-{% set version = "0.16.0" %}
+{% set version = "0.17.0" %}
 
 package:
   name: owslib
@@ -7,11 +7,9 @@ package:
 source:
   git_url: https://github.com/geopython/OWSLib.git
   git_branch: master
-  #url: https://pypi.io/packages/source/O/OWSLib/OWSLib-{{ version }}.tar.gz
-  #sha256: 4d0bc3fe7763ae05ab15a83cf22715f4922a23296eb0813f2e54a01401745000
 
 build:
-  number: 57
+  number: 0
   noarch: python
   script: python setup.py install --single-version-externally-managed --record=record.txt
 
