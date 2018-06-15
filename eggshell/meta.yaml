@@ -6,10 +6,11 @@ package:
 
 source:
   git_url: https://github.com/bird-house/eggshell.git
-  git_tag: {{ version }}
+  #git_tag: {{ version }}
+  git_branch: master
 
 build:
-  number: 0
+  number: 1
   noarch: python
   script: python setup.py install --single-version-externally-managed --record=record.txt
   entry_points:
