@@ -23,7 +23,7 @@ requirements:
 
   run:
     - python
-    - requests
+    - pywps
 
 test:
   imports:
