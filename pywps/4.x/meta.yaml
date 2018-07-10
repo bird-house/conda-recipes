@@ -29,6 +29,7 @@ requirements:
         - python-dateutil
         - requests
         - python-magic # [not win]
+        - jinja2
         #- gdal
         #- psycopg2
         #- dill
