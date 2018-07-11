@@ -46,6 +46,7 @@ List of scripts and where they are now:
 * pbr: defaults, conda-forge
 * petulant-bear: ioos
 * pkginfo: defaults
+* pluggy: conda-forge
 * proj4: defaults
 * pycdo: ioos
 * pycsw: ioos
