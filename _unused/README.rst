@@ -51,7 +51,7 @@ List of scripts and where they are now:
 * pycsw: ioos
 * pyproj: defaults
 * pyramid_celery: pip
-* pysolr: pip
+* pysolr: pip, conda-forge
 * pytest-cov: defaults
 * pytest-runner: conda-forge
 * python-magic: conda-forge
