@@ -50,6 +50,7 @@ List of scripts and where they are now:
 * proj4: defaults
 * pycdo: ioos
 * pycsw: ioos
+* pygeometa: conda-forge
 * pyproj: defaults
 * pyramid_celery: pip
 * pysolr: pip, conda-forge
