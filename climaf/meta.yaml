@@ -1,0 +1,35 @@
+{% set name = "climaf" %}
+{% set version = "1.1.0" %}
+
+package:
+    name: {{ name|lower }}
+    version: {{ version }}
+
+source:
+    git_url: https://github.com/cehbrecht/climaf
+    git_tag: pingudev
+
+build:
+    number: 0
+    noarch: python
+    script: python setup.py install --single-version-externally-managed --record record.txt
+
+requirements:
+    build:
+        - python
+        - setuptools
+    run:
+        - python
+        - netcdf4
+test:
+    imports:
+        - climaf
+
+about:
+    home: https://github.com/senesis/climaf
+    license: CeCILL-C license (GPL compatible)
+    summary: 'CliMAF: a Climate Model Assessment Framework.'
+
+extra:
+  recipe-maintainers:
+    - cehbrecht
