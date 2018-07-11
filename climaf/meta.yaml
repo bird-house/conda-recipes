@@ -10,7 +10,7 @@ source:
     git_tag: pingudev
 
 build:
-    number: 0
+    number: 1
     #noarch: python
     script: python setup.py install --single-version-externally-managed --record record.txt
 
@@ -21,6 +21,10 @@ requirements:
     run:
         - python
         - netcdf4
+        - cdo
+        - nco
+        - ncl
+        - imagemagick
 test:
     imports:
         - climaf
