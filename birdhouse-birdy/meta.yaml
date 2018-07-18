@@ -27,6 +27,8 @@ requirements:
     - lxml
     - owslib >=0.17.0
     - jinja2
+    - wrapt
+    - funcsigs
 
 test:
   imports:
