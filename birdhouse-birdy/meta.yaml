@@ -19,7 +19,12 @@ requirements:
   build:
     - python
     - setuptools
+    - six
+    - click
     - owslib >=0.17.0
+    - jinja2
+    - wrapt
+    - funcsigs
   run:
     - python
     - six
