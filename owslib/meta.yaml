@@ -9,7 +9,7 @@ source:
   git_branch: master
 
 build:
-  number: 3 
+  number: 4 
   noarch: python
   script: python setup.py install --single-version-externally-managed --record=record.txt
 
