@@ -24,7 +24,7 @@ requirements:
         - cdo
         - nco
         - ncl=6.5
-        - imagemagick
+        #- imagemagick
 test:
     imports:
         - climaf
