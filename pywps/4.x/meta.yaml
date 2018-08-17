@@ -1,5 +1,5 @@
 {% set name = "pywps" %}
-{% set version = "4.1.4" %}
+{% set version = "4.1.5" %}
 
 package:
     name: {{ name|lower }}
@@ -10,7 +10,7 @@ source:
     git_tag: birdhouse
 
 build:
-    number: 2
+    number: 0
     # noarch: python
     script: python setup.py install --single-version-externally-managed --record record.txt
 
