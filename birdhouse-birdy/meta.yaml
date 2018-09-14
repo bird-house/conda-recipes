@@ -25,6 +25,7 @@ requirements:
     - jinja2
     - wrapt
     - funcsigs
+    - netcdf4
   run:
     - python
     - six
@@ -34,6 +35,7 @@ requirements:
     - jinja2
     - wrapt
     - funcsigs
+    - netcdf4
 
 test:
   imports:
