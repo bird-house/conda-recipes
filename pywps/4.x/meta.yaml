@@ -1,5 +1,5 @@
 {% set name = "pywps" %}
-{% set version = "4.1.17" %}
+{% set version = "4.1.18" %}
 
 package:
     name: {{ name|lower }}
