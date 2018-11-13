@@ -1,4 +1,4 @@
-{% set version = "0.17.1b1" %}
+{% set version = "0.17.1b2" %}
 
 package:
   name: owslib
