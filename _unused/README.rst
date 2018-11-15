@@ -69,6 +69,7 @@ List of scripts and where they are now:
 * requests-toolbelt: conda-forge
 * simplejson: defaults
 * supervisor: defaults
+* szip: not used
 * tika: conda-forge
 * twine: pip
 * udunits: ioos (udunits2)
