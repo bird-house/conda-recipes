@@ -10,6 +10,7 @@ List of scripts and where they are now:
 * anyjson: conda-forge
 * billiard: conda-forge
 * blas: conda-forge
+* c3-stormtrack: not used
 * cdat-lite: conda-forge
 * cdo: conda-forge
 * celery: conda-forge
