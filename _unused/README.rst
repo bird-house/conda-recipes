@@ -5,6 +5,7 @@ These scripts are not used anymore in birdhouse or are already integrated in the
 
 List of scripts and where they are now:
 
+* adagucsserver: not used
 * amqp: conda-forge
 * anyjson: conda-forge
 * billiard: conda-forge
