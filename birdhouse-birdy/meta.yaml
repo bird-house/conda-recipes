@@ -1,4 +1,4 @@
-{% set version = "0.4.2" %}
+{% set version = "0.5.0" %}
 
 package:
   name: birdhouse-birdy
@@ -21,11 +21,12 @@ requirements:
     - setuptools
     - six
     - click
+    - lxml
     - owslib >=0.17.0
     - jinja2
     - wrapt
     - funcsigs
-    - netcdf4
+    - boltons
   run:
     - python
     - six
@@ -35,7 +36,7 @@ requirements:
     - jinja2
     - wrapt
     - funcsigs
-    - netcdf4
+    - boltons
 
 test:
   imports:
