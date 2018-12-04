@@ -21,22 +21,26 @@ requirements:
     - click
     - jinja2
     - psutil
+    - birdhouse-eggshell ==0.3
+    - netcdf4
   run:
     - python
     - pywps >=4.1
     - click
     - jinja2
     - psutil
+    - birdhouse-eggshell ==0.3
+    - netcdf4
 
 test:
   # Python imports
   imports:
     - emu
 
-  commands:
+  # commands:
     # You can put test commands to be run here.  Use this to test that the
     # entry points work.
-    - emu --help
+    #- emu --help
 
   # You can also put a file called run_test.py in the recipe that will be run
   # at test time.
