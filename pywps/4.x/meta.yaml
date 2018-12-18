@@ -1,5 +1,5 @@
 {% set name = "pywps" %}
-{% set version = "4.1.26" %}
+{% set version = "4.3.0" %}
 
 package:
     name: {{ name|lower }}
@@ -11,7 +11,7 @@ source:
 
 build:
     number: 0
-    # noarch: python
+    noarch: python
     script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
@@ -26,8 +26,7 @@ requirements:
         - lxml
         - sqlalchemy
         - six
-        - flufl.enum # [py27]
-        - pathlib # [py27]
+        - flufl.enum
         - python-dateutil
         - requests
         - python-magic # [not win]
