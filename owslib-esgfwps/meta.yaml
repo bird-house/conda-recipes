@@ -6,32 +6,31 @@ package:
 
 source:
   git_url: https://github.com/bird-house/OWSLib-esgfwps.git
-  git_tag: v{{ version }}
+  # git_tag: v{{ version }}
+  branch: pingudev
 
 build:
   number: 0
   noarch: python
-  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv"
+  script: python -m pip install --no-deps --ignore-installed .
 
 requirements:
   build:
     - python
     - pip
-    - setuptools
-    - lxml
-    - owslib >=0.17.0
+    - owslib
   run:
     - python
-    - lxml
-    - owslib >=0.17.0
+    - owslib
 
 test:
   imports:
+    - owslib
     - owslib_esgfwps
 
 about:
   home: https://geopython.github.io/OWSLib-esgfwps
-  license: Apache License v2.0
+  license: Apache Software License 2.0
   summary: 'OWSLib extension for ESGF WPS'
 
 extra:
