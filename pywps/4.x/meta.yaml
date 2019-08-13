@@ -1,5 +1,5 @@
 {% set name = "pywps" %}
-{% set version = "4.3.3" %}
+{% set version = "4.3.4" %}
 
 package:
     name: {{ name|lower }}
@@ -34,7 +34,6 @@ requirements:
         - pathlib
         #- gdal
         #- psycopg2
-        #- dill
         #- drmaa
 test:
     imports:
