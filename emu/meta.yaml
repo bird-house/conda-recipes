@@ -1,4 +1,4 @@
-{% set version = "0.9.1" %}
+{% set version = "0.10.0" %}
 
 package:
   name: emu
@@ -17,19 +17,17 @@ requirements:
   build:
     - python
     - setuptools
-    - pywps >=4.1
+    - pywps >=4.2
     - click
     - jinja2
     - psutil
-    - birdhouse-eggshell ==0.3
     - netcdf4
   run:
     - python
-    - pywps >=4.1
+    - pywps >=4.2
     - click
     - jinja2
     - psutil
-    - birdhouse-eggshell ==0.3
     - netcdf4
 
 test:
