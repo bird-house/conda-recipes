@@ -1,4 +1,4 @@
-{% set version = "0.6.2" %}
+{% set version = "0.6.5" %}
 
 package:
   name: birdhouse-birdy
@@ -22,7 +22,7 @@ requirements:
     - six
     - click
     - lxml
-    - owslib >=0.17.0
+    - owslib >=0.18.0
     - owslib-esgfwps=0.1.0
     - jinja2
     - wrapt
@@ -33,7 +33,7 @@ requirements:
     - six
     - click
     - lxml
-    - owslib >=0.17.0
+    - owslib >=0.18.0
     - owslib-esgfwps=0.1.0
     - jinja2
     - wrapt

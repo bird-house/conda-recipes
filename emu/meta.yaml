@@ -17,14 +17,14 @@ requirements:
   build:
     - python
     - setuptools
-    - pywps >=4.2
+    - pywps >=4.3
     - click
     - jinja2
     - psutil
     - netcdf4
   run:
     - python
-    - pywps >=4.2
+    - pywps >=4.3
     - click
     - jinja2
     - psutil
